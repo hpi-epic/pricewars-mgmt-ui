@@ -1,0 +1,112 @@
+<div class="normalheader transition animated fadeIn">
+    <div class="hpanel tour-1">
+        <div class="panel-body">
+            <a class="small-header-action" href="">
+                <div class="clip-header">
+                    <i class="fa fa-arrow-up"></i>
+                </div>
+            </a>
+            <h2 class="font-light m-b-xs">
+                Deployment
+            </h2>
+        </div>
+    </div>
+</div> <!-- END: normalheader -->
+
+<div class="content animate-panel">
+
+<div class="row">
+    <div style="" class="col-lg-3">
+        <div class="hpanel stats">
+            <div class="panel-body h-140">
+                <div class="stats-title pull-left">
+                    <h4>Consumer</h4>
+                </div>
+                <div class="stats-icon pull-right">
+                    <i class="pe-7s-monitor fa-4x"></i>
+                </div>
+                <div class="m-t-xl">
+                    <span class="font-bold no-margins">
+                        Consumer API
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model="consumer_url" type="text"><br>
+
+                    <span class="font-bold no-margins">
+                        Marketplace API
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model="consumer.marketplace_url" type="text"><br>
+
+                    <span class="font-bold no-margins">
+                        Tick
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model="consumer.tick" type="number"><br>
+
+                    <span class="font-bold no-margins">
+                        #Consumers
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model="consumer.amount_of_consumers" type="number"><br>
+
+                    <span class="font-bold no-margins">
+                        Selling Probability
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model="consumer.probability_of_sell" type="number"><br>
+
+                    <hr><h4>Behaviors</h4>
+                    <div ng-repeat="behavior in consumer.behaviors track by $index">
+                      <span class="font-bold no-margins">
+                        {{behavior.name}}
+                      </span>
+                      <br>
+                      <input class="form-control" ng-model="consumer.behaviors[$index].amount" type="number"><br>
+                    </div>
+
+                    <br>
+                    <button type="button" class="btn w-xs btn-success" ng-click="executeConsumer()">Initialize</button>
+                    <button type="button" class="btn w-xs btn-danger" ng-click="terminateConsumer()">Terminate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="" class="col-lg-3">
+        <div class="hpanel stats">
+            <div class="panel-body h-140">
+                <div class="stats-title pull-left">
+                    <h4>Merchant</h4>
+                </div>
+                <div class="stats-icon pull-right">
+                    <i class="pe-7s-monitor fa-4x"></i>
+                </div>
+                <div class="m-t-xl">
+                    <span class="font-bold no-margins">
+                        Merchant API
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model="merchant_url" type="text"><br>
+
+                    <span class="font-bold no-margins">
+                        Marketplace API
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model="merchant.marketplace_url" type="text"><br>
+
+                    <span class="font-bold no-margins">
+                        Tick
+                    </span>
+                    <input class="form-control" ng-model="merchant.tick" type="number"><br>
+
+                    <br>
+                    <button type="button" class="btn w-xs btn-success" ng-click="executeMerchant()">Initialize</button>
+                    <button type="button" class="btn w-xs btn-danger" ng-click="terminateMerchant()">Terminate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</div>

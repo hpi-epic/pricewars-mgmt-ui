@@ -1,0 +1,43 @@
+section {
+    min-height: 1000px;
+    position: relative;
+    width: 100% !important;
+    min-width: 1000px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+
+}
+
+#getstarted{
+    background: url(../images/landing/skyline.jpg) 50% 0 no-repeat fixed;
+    margin: 0;
+    height: 1200px;
+    position:absolute;
+    top:0;left:0;
+    width:100%;   
+}
+
+#getstarted article
+{
+    color: #FFF;
+    text-align: center;
+    position: relative;
+    top: -70px;
+}
+
+
+
+#getstarted .transparent-bg
+{
+    display: block;
+    background-color: #FFF;
+    opacity: 0;
+    margin: auto;
+    position: relative;
+    top: 150px;
+    height: 250px;
+    z-index: 0;
+    width: 500px;
+
+}
