@@ -14,7 +14,7 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer_url                 = "http://192.168.2.4:8080";
+              $scope.consumer_url                 = "http://192.168.2.3:8080";
               $scope.consumer.marketplace_url     = "http://192.168.2.1:8080";
               $scope.consumer.tick                = 1;
               $scope.consumer.amount_of_consumers = 10;
@@ -24,6 +24,16 @@
                                                     {"name":"cheap_and_prime","amount":20},
                                                     {"name":"random","amount":20},
                                                     {"name":"first","amount":20}];
+
+              // Toastr options
+              toastr.options = {
+                  "debug": false,
+                  "newestOnTop": false,
+                  "positionClass": "toast-top-center",
+                  "closeButton": true,
+                  "toastClass": "animated fadeInDown",
+                  "timeOut": "2000",
+              };
 
               $scope.executeConsumer = function(){
                 $http({url: $scope.consumer_url + "/setting",
@@ -57,29 +67,56 @@
           co.controller('merchantCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
-              $scope.merchant                     = {};
-              $scope.merchant_url                 = "http://192.168.2.4:8080";
-              $scope.merchant.marketplace_url     = "http://192.168.2.1:8080";
-              $scope.merchant.tick                = 1;
+              $scope.marketplace_url              = "http://192.168.2.1:8080";
+              $scope.merchantConfig               = {};
 
-              $scope.executeMerchant = function(){
-                $http({url: $scope.merchant_url + "/setting",
+              // Toastr options
+              toastr.options = {
+                  "debug": false,
+                  "newestOnTop": false,
+                  "positionClass": "toast-top-center",
+                  "closeButton": true,
+                  "toastClass": "animated fadeInDown",
+                  "timeOut": "2000",
+              };
+
+              $scope.getMerchants = function(){
+                $http.get($scope.marketplace_url + "/merchants")
+                    .then(function(response) {
+                        $scope.merchants = response.data;
+                        $scope.getDetails();
+                    });
+              }
+
+              $scope.getDetails = function(){
+                $scope.merchantDetails = {};
+
+                angular.forEach($scope.merchants, function(value, key) {
+                  $http.get(value["api_endpoint_url"] + "/settings")
+                      .then(function(response) {
+                          $scope.merchantDetails[value["merchant_id"]] = response.data;
+                      });
+                });
+              }
+
+              $scope.startMerchant = function(merchant_id){
+                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
-                      data: $scope.merchant,
+                      data: {"nextState":"start"},
                       headers: {
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Merchant was successfully deployed.");
+                            toastr.success("Merchant was successfully started.");
                     });
               }
 
-              $scope.terminateMerchant = function(){
-                $http({url: $scope.merchant_url + "/setting",
+              $scope.terminateMerchant = function(merchant_id){
+                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings/execution",
                       dataType: "json",
-                      method: "DELETE",
-                      data: {},
+                      method: "POST",
+                      data: {"nextState":"kill"},
                       headers: {
                           "Content-Type": "application/json"
                       }
@@ -87,6 +124,34 @@
                             toastr.danger("Merchant was successfully terminated.");
                     });
               }
+
+              $scope.stopMerchant = function(merchant_id){
+                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings/execution",
+                      dataType: "json",
+                      method: "POST",
+                      data: {"nextState":"stop"},
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.danger("Merchant was successfully stopped.");
+                    });
+              }
+
+              $scope.updateMerchantSettings = function(merchant_id){
+                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings",
+                      dataType: "json",
+                      method: "PUT",
+                      data: $scope.merchantDetails[merchant_id],
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.danger("Merchant was successfully stopped.");
+                    });
+              }
+
+              $scope.getMerchants();
 
             }] //END: controller function
     );  // END: dashboardController
