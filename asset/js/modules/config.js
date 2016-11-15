@@ -57,7 +57,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.danger("Consumer was successfully terminated.");
+                            toastr.warning("Consumer was successfully terminated.");
                     });
               }
 
@@ -121,7 +121,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.danger("Merchant was successfully terminated.");
+                            toastr.warning("Merchant was successfully terminated.");
                     });
               }
 
@@ -134,7 +134,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.danger("Merchant was successfully stopped.");
+                            toastr.warning("Merchant was successfully stopped.");
                     });
               }
 
@@ -147,7 +147,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.danger("Merchant was successfully stopped.");
+                            toastr.success("Merchant was successfully stopped.");
                     });
               }
 
