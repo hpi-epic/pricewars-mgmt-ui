@@ -14,7 +14,7 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer.consumer_url        = "http://192.168.2.3:8080";
+              $scope.consumer.consumer_url        = "http://192.168.2.4:3000";
               $scope.consumer.name                = "Consumer der Erste";
               $scope.consumer.description         = "Cooler Consumer doing Work";
 
@@ -33,7 +33,7 @@
                   "toastClass": "animated fadeInDown",
                   "timeOut": "2000",
               };
-              
+
               $scope.registerConsumer = function(){
                 $http({url: $scope.consumer.consumer_url + "/register",
                       dataType: "json",

@@ -8,4 +8,4 @@ We are using the [Github flow](https://guides.github.com/introduction/flow/) for
 
 | Branch 	| Deployment to  	| Status | Description |
 |---	|---	|---  |---   |
-| master  	|  [ui.vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de](http://ui.vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de) 	| [ ![Codeship Status for hpi-epic/pricewars-mgmt-ui](https://app.codeship.com/projects/d91a8460-88c2-0134-a385-7213830b2f8c/status?branch=master)](https://app.codeship.com/projects/184009) | Stable |
+| master  	|  [vm-mpws2016hp1-02.eaalab.hpi.uni-potsdam.de](http://ui.vm-mpws2016hp1-02.eaalab.hpi.uni-potsdam.de) 	| [ ![Codeship Status for hpi-epic/pricewars-mgmt-ui](https://app.codeship.com/projects/d91a8460-88c2-0134-a385-7213830b2f8c/status?branch=master)](https://app.codeship.com/projects/184009) | Stable |
