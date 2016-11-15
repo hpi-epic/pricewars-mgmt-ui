@@ -4,7 +4,8 @@
         'ngRoute',
         'chart.js',
         'deployment',
-        'log'
+        'log',
+        'config'
         ]);
 
     frontend.config(['$routeProvider',
@@ -18,6 +19,14 @@
                 when('/log', {
                     templateUrl: 'asset/templates/log.html',
                     controller: 'logCtrl'
+                }).
+                when('/config/merchant', {
+                    templateUrl: 'asset/templates/merchant.html',
+                    controller: 'merchantCtrl'
+                }).
+                when('/config/consumer', {
+                    templateUrl: 'asset/templates/consumer.html',
+                    controller: 'consumerCtrl'
                 }).
                 // default Route
                 otherwise({

@@ -30,44 +30,23 @@
                         Consumer API
                     </span>
                     <br>
-                    <input class="form-control" ng-model="consumer_url" type="text"><br>
+                    <input class="form-control" ng-model="consumer.consumer_url" type="text"><br>
 
                     <span class="font-bold no-margins">
-                        Marketplace API
+                        Name
                     </span>
                     <br>
-                    <input class="form-control" ng-model="consumer.marketplace_url" type="text"><br>
+                    <input class="form-control" ng-model="consumer.name" type="text"><br>
 
                     <span class="font-bold no-margins">
-                        Tick
+                        Description
                     </span>
                     <br>
-                    <input class="form-control" ng-model="consumer.tick" type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        #Consumers
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model="consumer.amount_of_consumers" type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Selling Probability
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model="consumer.probability_of_sell" type="number"><br>
-
-                    <hr><h4>Behaviors</h4>
-                    <div ng-repeat="behavior in consumer.behaviors track by $index">
-                      <span class="font-bold no-margins">
-                        {{behavior.name}}
-                      </span>
-                      <br>
-                      <input class="form-control" ng-model="consumer.behaviors[$index].amount" type="number"><br>
-                    </div>
+                    <input class="form-control" ng-model="consumer.description" type="text"><br>
 
                     <br>
-                    <button type="button" class="btn w-xs btn-success" ng-click="executeConsumer()">Initialize</button>
-                    <button type="button" class="btn w-xs btn-danger" ng-click="terminateConsumer()">Terminate</button>
+                    <button type="button" class="btn w-xs btn-success" ng-click="registerConsumer()">Register</button>
+
                 </div>
             </div>
         </div>
@@ -86,27 +65,27 @@
                         Merchant API
                     </span>
                     <br>
-                    <input class="form-control" ng-model="merchant_url" type="text"><br>
+                    <input class="form-control" ng-model="merchant.merchant_url" type="text"><br>
 
                     <span class="font-bold no-margins">
-                        Marketplace API
+                        Name
                     </span>
                     <br>
-                    <input class="form-control" ng-model="merchant.marketplace_url" type="text"><br>
+                    <input class="form-control" ng-model="merchant.name" type="text"><br>
 
                     <span class="font-bold no-margins">
-                        Tick
+                        Description
                     </span>
-                    <input class="form-control" ng-model="merchant.tick" type="number"><br>
+                    <br>
+                    <input class="form-control" ng-model="merchant.description" type="text"><br>
 
                     <br>
-                    <button type="button" class="btn w-xs btn-success" ng-click="executeMerchant()">Initialize</button>
-                    <button type="button" class="btn w-xs btn-danger" ng-click="terminateMerchant()">Terminate</button>
+                    <button type="button" class="btn w-xs btn-success" ng-click="registerMerchant()">Register</button>
+
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 
 </div>
