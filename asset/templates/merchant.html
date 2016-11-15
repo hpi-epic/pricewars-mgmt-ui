@@ -16,36 +16,29 @@
 <div class="content animate-panel">
 
 <div class="row">
-    <div style="" class="col-lg-6">
+    <div style="" class="col-lg-6" ng-repeat="(merchant_id,merchant) in merchantDetails">
         <div class="hpanel stats">
             <div class="panel-body h-140">
                 <div class="stats-title pull-left">
-                    <h4>Merchant</h4>
+                    <h4>Merchant {{merchant_id}}</h4>
                 </div>
                 <div class="stats-icon pull-right">
                     <i class="pe-7s-monitor fa-4x"></i>
                 </div>
                 <div class="m-t-xl">
-                    <span class="font-bold no-margins">
-                        Merchant API
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model="merchant_url" type="text"><br>
+                    <div ng-repeat="(key, value) in merchant">
+                      <span class="font-bold no-margins">
+                          {{key}}
+                      </span>
+                      <br>
+                      <input class="form-control" ng-model="merchantDetails[merchant_id][key]" type="text"><br>
 
-                    <span class="font-bold no-margins">
-                        Marketplace API
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model="merchant.marketplace_url" type="text"><br>
-
-                    <span class="font-bold no-margins">
-                        Tick
-                    </span>
-                    <input class="form-control" ng-model="merchant.tick" type="number"><br>
-
-                    <br>
-                    <button type="button" class="btn w-xs btn-success" ng-click="executeMerchant()">Initialize</button>
-                    <button type="button" class="btn w-xs btn-danger" ng-click="terminateMerchant()">Terminate</button>
+                      <br>
+                    </div>
+                    <button type="button" class="btn w-xs btn-info" ng-click="updateMerchantSettings(merchant_id)">Update</button>
+                    <button type="button" class="btn w-xs btn-success" ng-click="startMerchant(merchant_id)">Start</button>
+                    <button type="button" class="btn w-xs btn-danger" ng-click="terminateMerchant(merchant_id)">Terminate</button>
+                    <button type="button" class="btn w-xs btn-danger" ng-click="stopMerchant(merchant_id)">Stop</button>
                 </div>
             </div>
         </div>

@@ -14,16 +14,26 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer.consumer_url        = "http://192.168.2.4:8080";
+              $scope.consumer.consumer_url        = "http://192.168.2.3:8080";
               $scope.consumer.name                = "Consumer der Erste";
               $scope.consumer.description         = "Cooler Consumer doing Work";
 
               $scope.merchant                     = {};
-              $scope.merchant.merchant_url        = "http://192.168.2.4:8080";
+              $scope.merchant.merchant_url        = "http://192.168.2.6:5000";
               $scope.merchant.name                = "Consumer der Erste";
               $scope.merchant.description         = "Cooler Consumer doing Work";
               $scope.merchant.nextState           = "init";
 
+              // Toastr options
+              toastr.options = {
+                  "debug": false,
+                  "newestOnTop": false,
+                  "positionClass": "toast-top-center",
+                  "closeButton": true,
+                  "toastClass": "animated fadeInDown",
+                  "timeOut": "2000",
+              };
+              
               $scope.registerConsumer = function(){
                 $http({url: $scope.consumer.consumer_url + "/register",
                       dataType: "json",
