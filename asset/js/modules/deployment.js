@@ -14,24 +14,18 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer_url                 = "http://192.168.2.4:8080";
-              $scope.consumer.marketplace_url     = "http://192.168.2.1:8080";
-              $scope.consumer.tick                = 1;
-              $scope.consumer.amount_of_consumers = 10;
-              $scope.consumer.probability_of_sell = 50;
-              $scope.consumer.behaviors           = [{"name":"cheap","amount":20},
-                                                    {"name":"expensive","amount":20},
-                                                    {"name":"cheap_and_prime","amount":20},
-                                                    {"name":"random","amount":20},
-                                                    {"name":"first","amount":20}];
+              $scope.consumer.consumer_url        = "http://192.168.2.4:8080";
+              $scope.consumer.name                = "Consumer der Erste";
+              $scope.consumer.description         = "Cooler Consumer doing Work";
+
               $scope.merchant                     = {};
-              $scope.merchant_url                 = "http://192.168.2.4:8080";
-              $scope.merchant.marketplace_url     = "http://192.168.2.1:8080";
-              $scope.merchant.tick                = 1;
+              $scope.merchant.merchant_url        = "http://192.168.2.4:8080";
+              $scope.merchant.name                = "Consumer der Erste";
+              $scope.merchant.description         = "Cooler Consumer doing Work";
+              $scope.merchant.nextState           = "init";
 
-
-              $scope.executeConsumer = function(){
-                $http({url: $scope.consumer_url + "/setting",
+              $scope.registerConsumer = function(){
+                $http({url: $scope.consumer.consumer_url + "/register",
                       dataType: "json",
                       method: "POST",
                       data: $scope.consumer,
@@ -39,25 +33,12 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Consumer was successfully deployed.");
+                            toastr.success("Consumer was successfully registered.");
                     });
               }
 
-              $scope.terminateConsumer = function(){
-                $http({url: $scope.consumer_url + "/setting",
-                      dataType: "json",
-                      method: "DELETE",
-                      data: {},
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                            toastr.danger("Consumer was successfully terminated.");
-                    });
-              }
-
-              $scope.executeConsumer = function(){
-                $http({url: $scope.merchant_url + "/setting",
+              $scope.registerMerchant = function(){
+                $http({url: $scope.merchant.merchant_url + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: $scope.merchant,
@@ -65,22 +46,10 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Merchant was successfully deployed.");
+                            toastr.success("Consumer was successfully registered.");
                     });
               }
 
-              $scope.terminateConsumer = function(){
-                $http({url: $scope.merchant_url + "/setting",
-                      dataType: "json",
-                      method: "DELETE",
-                      data: {},
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                            toastr.danger("Merchant was successfully terminated.");
-                    });
-              }
 
             }] //END: controller function
     );  // END: dashboardController
