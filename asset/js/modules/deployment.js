@@ -14,14 +14,14 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer.consumer_url        = "http://192.168.2.4:3000";
+              $scope.consumer.consumer_url        = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de/";
               $scope.consumer.name                = "Consumer der Erste";
               $scope.consumer.description         = "Cooler Consumer doing Work";
 
               $scope.merchant                     = {};
-              $scope.merchant.merchant_url        = "http://192.168.2.6:5000";
-              $scope.merchant.name                = "Consumer der Erste";
-              $scope.merchant.description         = "Cooler Consumer doing Work";
+              $scope.merchant.merchant_url        = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de/";
+              $scope.merchant.name                = "MErchant der Erste";
+              $scope.merchant.description         = "Cooler Merchant doing Work";
               $scope.merchant.nextState           = "init";
 
               // Toastr options

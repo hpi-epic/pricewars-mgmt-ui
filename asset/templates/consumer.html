@@ -54,7 +54,7 @@
                         Selling Probability
                     </span>
                     <br>
-                    <input class="form-control" ng-model="consumer.probability_of_sell" type="number"><br>
+                    <input class="form-control" ng-model="consumer.probability_of_sell" type="number">%<br>
 
                     <hr><h4>Behaviors</h4>
                     <div ng-repeat="behavior in consumer.behaviors track by $index">
@@ -62,7 +62,7 @@
                         {{behavior.name}}
                       </span>
                       <br>
-                      <input class="form-control" ng-model="consumer.behaviors[$index].amount" type="number"><br>
+                      <input class="form-control" ng-model="consumer.behaviors[$index].amount" type="number">%<br>
                     </div>
 
                     <br>
