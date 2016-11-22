@@ -81,7 +81,7 @@
               };
 
               $scope.getMerchants = function(){
-                $http.get($scope.marketplace_url + "/merchants")
+                $http.get($scope.marketplace_url + "merchants")
                     .then(function(response) {
                         $scope.merchants = response.data;
                         $scope.getDetails();
