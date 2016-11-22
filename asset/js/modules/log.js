@@ -31,44 +31,6 @@
                         hpanel.find('[id^=map-]').resize();
                     }, 50);
                 });
-
-                const logItems = [
-                    {
-                        offer_id: 1, 
-                        amount: 5, 
-                        price: 123.45, 
-                        timestamp: '2016-11-22T12:10:16+00:00'
-                    },
-                    {
-                        offer_id: 1, 
-                        amount: 2, 
-                        price: 140.45, 
-                        timestamp: '2016-11-22T12:10:17+00:00'
-                    },
-                    {
-                        offer_id: 1, 
-                        amount: 10, 
-                        price: 103.45, 
-                        timestamp: '2016-11-22T12:10:18+00:00'
-                    }
-                ]
-
-                const testChart = c3.generate({
-                    bindto: '#timeChart',
-                    data: {
-                        x: 'x',
-                        columns: [
-                            ['x'].concat(logItems.map(e => new Date(e.timestamp))),
-                            ['price'].concat(logItems.map(e => e.price))
-                        ]
-                    },
-                    axis: {
-                        x: {
-                            type: 'timeseries',
-                            tick: { format: '%Y-%m-%d %H:%M:%S' }
-                        }
-                    }
-                })
                 
                 $scope.fetchLog = () => {
                     $http.get('http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de/settings').then((result) => {
@@ -85,8 +47,8 @@
                             data: {
                                 x: 'x',
                                 columns: [
-                                    ['x'].concat($scope.logItems.map(e => new Date(e.timestamp))),
-                                    ['price'].concat($scope.logItems.map(e => e.price))
+                                    ['x'].concat($scope.logItems.map(e => new Date(e.value.timestamp))),
+                                    ['price'].concat($scope.logItems.map(e => e.value.price))
                                 ]
                             },
                             axis: {
@@ -98,6 +60,7 @@
                         })
                     })
                 }
+                $scope.fetchSellingData()
 
             }] //END: controller function
     );  // END: dashboardController
