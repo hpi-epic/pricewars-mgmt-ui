@@ -14,12 +14,12 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer.consumer_url        = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de/";
+              $scope.consumer.consumer_url        = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
               $scope.consumer.name                = "Consumer der Erste";
               $scope.consumer.description         = "Cooler Consumer doing Work";
 
               $scope.merchant                     = {};
-              $scope.merchant.merchant_url        = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de/";
+              $scope.merchant.merchant_url        = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de";
               $scope.merchant.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de/marketplace/";
               $scope.merchant.name                = "Merchant der Erste";
               $scope.merchant.description         = "Cooler Merchant doing Work";
