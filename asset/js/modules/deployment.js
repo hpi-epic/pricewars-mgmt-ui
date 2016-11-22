@@ -20,7 +20,8 @@
 
               $scope.merchant                     = {};
               $scope.merchant.merchant_url        = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de/";
-              $scope.merchant.name                = "MErchant der Erste";
+              $scope.merchant.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de/marketplace/";
+              $scope.merchant.name                = "Merchant der Erste";
               $scope.merchant.description         = "Cooler Merchant doing Work";
               $scope.merchant.nextState           = "init";
 
