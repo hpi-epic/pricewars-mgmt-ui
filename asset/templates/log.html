@@ -27,7 +27,7 @@
                             Filter your project basend on diferent options below.
                         </small>
                     </div>
-                    <button class="btn btn-success btn-block" ng-click="searchByFilter(search)">Apply</button>
+                    <button class="btn btn-success btn-block" ng-click="searchByFilter(searchTerm)">Apply</button>
                 </div>
             </div>
         </div>
@@ -58,5 +58,43 @@
                     </div>
               </div>
           </div>
+    </div>
+</div>
+
+<div class="row">
+    <div style="" class="col-md-12">
+        <div class="hpanel">
+            <div class="panel-body">
+                <div class="m-b-md">
+                    <h4>
+                        Sold offers
+                    </h4>
+                </div>
+                <button class="btn btn-success btn-block" ng-click="fetchSellingData()">Fetch selling data</button>
+                <div id="timeChart"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div style="" class="col-md-12">
+        <div class="hpanel">
+            <div class="panel-body">
+                <div class="m-b-md">
+                    <h4>
+                        Log Stream
+                    </h4>
+                    <small>
+                        Show all log messages:
+                    </small>
+                </div>
+                <button class="btn btn-success btn-block" ng-click="fetchLog()">Fetch Log</button>
+                <textarea rows="20" cols="100" ng-model="logOutput"></textarea>
+                <div ng-repeat="logItem in logItems">
+                  {{logItem.offer_id}}, {{logItem.amount}}, {{logItem.price}}, {{logItem.timestamp}}
+                </div>
+            </div>
+        </div>
     </div>
 </div>
