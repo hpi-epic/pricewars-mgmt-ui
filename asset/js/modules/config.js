@@ -151,6 +151,19 @@
                     });
               }
 
+              $scope.deleteMerchant = function(merchant_id){
+                $http({url: $scope.marketplace_url + "/merchants/"+merchant_id,
+                      dataType: "json",
+                      method: "DELETE",
+                      data: {},
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.success("Merchant was successfully stopped.");
+                    });
+              }
+
               $scope.getMerchants();
 
             }] //END: controller function
