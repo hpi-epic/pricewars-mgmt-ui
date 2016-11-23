@@ -4,6 +4,10 @@
     lg.controller('logCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
+                $scope.marketplace_url       = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de/marketplace/";
+                $scope.kafka_restful_service = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
+
+
                 // Toastr options
                 toastr.options = {
                     "debug": false,
@@ -32,70 +36,9 @@
                     }, 50);
                 });
 
-                const logItems = [
-                    {
-                        offer_id: 1, 
-                        amount: 5, 
-                        price: 123.45, 
-                        timestamp: '2016-11-22T12:10:16+00:00'
-                    },
-                    {
-                        offer_id: 1, 
-                        amount: 2, 
-                        price: 140.45, 
-                        timestamp: '2016-11-22T12:10:17+00:00'
-                    },
-                    {
-                        offer_id: 1, 
-                        amount: 10, 
-                        price: 103.45, 
-                        timestamp: '2016-11-22T12:10:18+00:00'
-                    }
-                ]
-
-                const testChart = c3.generate({
-                    bindto: '#timeChart',
-                    data: {
-                        x: 'x',
-                        columns: [
-                            ['x'].concat(logItems.map(e => new Date(e.timestamp))),
-                            ['price'].concat(logItems.map(e => e.price))
-                        ]
-                    },
-                    axis: {
-                        x: {
-                            type: 'timeseries',
-                            tick: { format: '%Y-%m-%d %H:%M:%S' }
-                        }
-                    }
-                })
-                
-                $scope.fetchLog = () => {
-                    $http.get('http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de/settings').then((result) => {
+                $scope.fetchLog = function(){
+                    $http.get($scope.kafka_restful_service+'log/sales').then((result) => {
                         $scope.logOutput = JSON.stringify(result.data)
-                    })
-                }
-
-                $scope.fetchSellingData = () => {
-                    $http.get('http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/log/sales').then((result) => {
-                        $scope.logItems = result.data
-
-                        let chart = c3.generate({
-                            bindto: '#timeChart',
-                            data: {
-                                x: 'x',
-                                columns: [
-                                    ['x'].concat($scope.logItems.map(e => new Date(e.timestamp))),
-                                    ['price'].concat($scope.logItems.map(e => e.price))
-                                ]
-                            },
-                            axis: {
-                                x: {
-                                    type: 'timeseries',
-                                    tick: { format: '%Y-%m-%d %H:%M:%S' }
-                                }
-                            }
-                        })
                     })
                 }
 
