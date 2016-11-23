@@ -64,6 +64,9 @@
                             ['price'].concat(logItems.map(e => e.price))
                         ]
                     },
+                    zoom: {
+                        enabled: true
+                    },
                     axis: {
                         x: {
                             type: 'timeseries',
