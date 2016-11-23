@@ -42,6 +42,10 @@
                     })
                 }
 
+                $scope.search = function(searchTerm){
+                    //TODO: implement searching for logs
+                }
+
             }] //END: controller function
     );  // END: dashboardController
 })(); //END: global function
