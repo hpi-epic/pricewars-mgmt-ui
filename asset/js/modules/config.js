@@ -100,7 +100,7 @@
               }
 
               $scope.startMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings/execution",
+                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"start"},
@@ -113,7 +113,7 @@
               }
 
               $scope.terminateMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings/execution",
+                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"kill"},
@@ -126,7 +126,7 @@
               }
 
               $scope.stopMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings/execution",
+                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"stop"},
@@ -139,7 +139,7 @@
               }
 
               $scope.updateMerchantSettings = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["ownEndpoint"] + "/settings",
+                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings",
                       dataType: "json",
                       method: "PUT",
                       data: $scope.merchantDetails[merchant_id],
