@@ -15,7 +15,7 @@
 
               $scope.consumer                     = {};
               $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
-              $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de/marketplace";
+              $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
               $scope.consumer.tick                = 1;
               $scope.consumer.amount_of_consumers = 10;
               $scope.consumer.probability_of_sell = 50;
@@ -67,7 +67,7 @@
           co.controller('merchantCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de/marketplace";
+              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
               $scope.merchantConfig               = {};
 
               // Toastr options

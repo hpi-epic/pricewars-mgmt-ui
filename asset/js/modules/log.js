@@ -4,7 +4,7 @@
     lg.controller('logCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
-                $scope.marketplace_url       = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de/marketplace/";
+                $scope.marketplace_url       = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace/";
                 $scope.kafka_restful_service = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
 
 
