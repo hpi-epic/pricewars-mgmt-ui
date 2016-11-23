@@ -97,7 +97,7 @@
                 }
 
                 //load real data asap
-                //$scope.fetchSellingData();
+                $scope.fetchSellingData();
 
             }] //END: controller function
     );  // END: dashboardController
