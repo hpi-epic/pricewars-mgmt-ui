@@ -82,8 +82,8 @@
                             data: {
                                 x: 'x',
                                 columns: [
-                                    ['x'].concat($scope.logItems.map(e => new Date(e.timestamp))),
-                                    ['price'].concat($scope.logItems.map(e => e.price))
+                                    ['x'].concat($scope.logItems.map(e => new Date(e.value.timestamp))),
+                                    ['price'].concat($scope.logItems.map(e => e.value.price))
                                 ]
                             },
                             axis: {
