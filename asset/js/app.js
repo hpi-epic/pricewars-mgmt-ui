@@ -5,7 +5,8 @@
         'chart.js',
         'deployment',
         'log',
-        'config'
+        'config',
+        'dashboard'
         ]);
 
     frontend.config(['$routeProvider',
@@ -19,6 +20,10 @@
                 when('/log', {
                     templateUrl: 'asset/templates/log.html',
                     controller: 'logCtrl'
+                }).
+                when('/dashboard', {
+                    templateUrl: 'asset/templates/dashboard.html',
+                    controller: 'dashboardCtrl'
                 }).
                 when('/config/merchant', {
                     templateUrl: 'asset/templates/merchant.html',
