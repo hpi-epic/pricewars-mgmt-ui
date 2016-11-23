@@ -73,6 +73,7 @@
                 })
 
                 $scope.fetchSellingData = function(){
+                    $("#loadingModal").modal("show");
                     $http.get($scope.kafka_restful_service+'log/sales').then((result) => {
                         //TODO: check whether result.data returns empty array
                         $scope.logItems = result.data
@@ -93,6 +94,8 @@
                                 }
                             }
                         })
+
+                        $("#loadingModal").modal("hide");
                     })
                 }
 

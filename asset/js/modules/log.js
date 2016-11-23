@@ -37,8 +37,10 @@
                 });
 
                 $scope.fetchLog = function(){
+                    $("#loadingModal").modal("show");
                     $http.get($scope.kafka_restful_service+'log/sales').then((result) => {
-                        $scope.logOutput = JSON.stringify(result.data)
+                        $scope.logOutput = JSON.stringify(result.data);
+                        $("#loadingModal").modal("hide");
                     })
                 }
 
