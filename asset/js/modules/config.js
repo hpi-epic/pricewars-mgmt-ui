@@ -168,4 +168,93 @@
 
             }] //END: controller function
     );  // END: dashboardController
+    co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+
+              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+              $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
+              $scope.producer                     = {};
+              $scope.new_product                  = {"uid":0,"product_id":0,"name":"Name","quality":0,"price":0};
+
+              // Toastr options
+              toastr.options = {
+                  "debug": false,
+                  "newestOnTop": false,
+                  "positionClass": "toast-top-center",
+                  "closeButton": true,
+                  "toastClass": "animated fadeInDown",
+                  "timeOut": "2000",
+              };
+
+              $scope.getProducts = function(){
+                $http.get($scope.producer_url + "/products/")
+                    .then(function(response) {
+                        $scope.producer = response.data;
+                    });
+              }
+
+              $scope.updateProducts = function(merchant_id){
+                $http({url: $scope.producer_url + "/products/",
+                      dataType: "json",
+                      method: "PUT",
+                      data: $scope.producer,
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.success("Products were successfully updated.");
+                    });
+              }
+
+              $scope.updateProduct = function(product_uid){
+                $http({url: $scope.producer_url + "/products/"+ product_uid,
+                      dataType: "json",
+                      method: "PUT",
+                      data: [ $filter('filter')($scope.producer["products"], {uid:product_uid})[0] ],
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.success("Product was successfully updated.");
+                    });
+              }
+
+              $scope.deleteProduct = function(uid){
+                $http({url: $scope.producer_url + "/products/"+ uid,
+                      dataType: "json",
+                      method: "DELETE",
+                      data: {},
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.success("Products was successfully deleted.");
+                    });
+              }
+
+              $scope.createProduct = function(){
+                $http({url: $scope.producer_url + "/products/",
+                      dataType: "json",
+                      method: "POST",
+                      data: [ $scope.new_product ],
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.success("Product was successfully created.");
+                    });
+              }
+
+              $scope.new = function(){
+                $("#newProductModal").modal("show");
+              }
+
+              $scope.close = function(){
+                $("#newProductModal").modal("hide");
+              }
+
+              $scope.getProducts();
+
+            }] //END: controller function
+    );  // END: dashboardController
 })(); //END: global function

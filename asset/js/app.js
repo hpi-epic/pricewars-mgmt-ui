@@ -33,6 +33,10 @@
                     templateUrl: 'asset/templates/consumer.html',
                     controller: 'consumerCtrl'
                 }).
+                when('/config/producer', {
+                    templateUrl: 'asset/templates/producer.html',
+                    controller: 'producerCtrl'
+                }).
                 // default Route
                 otherwise({
                     redirectTo: '/deployment'
