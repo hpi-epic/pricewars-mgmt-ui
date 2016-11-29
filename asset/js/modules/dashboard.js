@@ -1,8 +1,8 @@
 (function () {
     var da = angular.module('dashboard', ['ngCookies']);
 
-    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'socket',
+            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, socket) {
 
                 $scope.kafka_restful_service = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
 
@@ -53,27 +53,7 @@
                         price: 103.45,
                         timestamp: '2016-11-22T12:10:18+00:00'
                     }
-                ]
-
-                const testChart = c3.generate({
-                    bindto: '#timeChart',
-                    data: {
-                        x: 'x',
-                        columns: [
-                            ['x'].concat(logItems.map(e => new Date(e.timestamp))),
-                            ['price'].concat(logItems.map(e => e.price))
-                        ]
-                    },
-                    zoom: {
-                        enabled: true
-                    },
-                    axis: {
-                        x: {
-                            type: 'timeseries',
-                            tick: { format: '%Y-%m-%d %H:%M:%S' }
-                        }
-                    }
-                })
+                ];
 
                 $scope.fetchSellingData = function(){
                     $("#loadingModal").modal("show");
@@ -114,10 +94,14 @@
 
                         $("#loadingModal").modal("hide");
                     })
-                }
+                };
 
                 //load real data asap
                 $scope.fetchSellingData();
+
+                socket.on('offer-data-update', function(data) {
+                    // TODO
+                });
 
             }] //END: controller function
     );  // END: dashboardController
