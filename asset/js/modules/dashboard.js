@@ -64,6 +64,9 @@
                             ['price'].concat(logItems.map(e => e.price))
                         ]
                     },
+                    zoom: {
+                        enabled: true
+                    },
                     axis: {
                         x: {
                             type: 'timeseries',
@@ -77,6 +80,9 @@
                     $http.get($scope.kafka_restful_service+'log/sales').then((result) => {
                         //TODO: check whether result.data returns empty array
                         $scope.logItems = result.data
+						
+						// only show last 20 sales
+						//$scope.logItems = $scope.logItems.slice($scope.logItems.length - 21, $scope.logItems.length - 1);
 
                         let chart = c3.generate({
                             bindto: '#timeChart',
@@ -87,19 +93,14 @@
                                     ['price'].concat($scope.logItems.map(e => e.value.price))
                                 ]
                             },
-                            point: {
-                              show: false
-                            },
+							zoom: {
+								enabled: true
+							},
                             axis: {
                                 x: {
                                     type: 'timeseries',
-                                    tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
+                                    tick: { format: '%Y-%m-%d %H:%M:%S' }
                                 }
-                            },
-                            line: {
-                              step: {
-                                type: 'step-after'
-                              }
                             }
                         })
 
