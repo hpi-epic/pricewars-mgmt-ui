@@ -74,7 +74,7 @@
                         });
 
                         $("#loadingModal").modal("hide");
-                        setTimeout( $scope.updateLiveGraph(), 3000);
+                        setTimeout( $scope.updateLiveGraph, 3000);
                     });
 
                     $http.get($scope.kafka_restful_service_salesPerMinute).then((result) => {
@@ -108,7 +108,7 @@
                             }
                         });
 
-                        setTimeout( $scope.updateSalesPerMinuteData(), 3000);
+                        setTimeout( $scope.updateSalesPerMinuteData, 3000);
                     });
                 };
 
@@ -132,7 +132,7 @@
                             });
                         }
 
-                        setTimeout( $scope.updateLiveGraph(), 1000);
+                        setTimeout( $scope.updateLiveGraph, 1000);
                     });
                 };
 
@@ -156,7 +156,7 @@
                         });
                         }
 
-                        setTimeout( $scope.updateSalesPerMinuteData(), 1000);
+                        setTimeout( $scope.updateSalesPerMinuteData, 1000);
                     });
                 };
 
