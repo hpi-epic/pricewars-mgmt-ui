@@ -268,7 +268,9 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+              $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
               $scope.offers                       = {};
+              $scope.producer                     = {};
 
               // Toastr options
               toastr.options = {
@@ -284,11 +286,31 @@
                 $http.get($scope.marketplace_url + "/offers")
                     .then(function(response) {
                         $scope.offers = response.data;
+                        setTimeout( $scope.getOffers(), 1000);
                     });
-              }
+              };
 
               $scope.getOffers();
 
+              $scope.getProductInfo = function(){
+                    $http.get($scope.producer_url + "/products/")
+                        .then(function(response) {
+                            $scope.producer = response.data;
+                        });
+               };
+
+               $scope.getProductInfo();
+
+               $scope.findNameOfProduct = function(productUID) {
+                    for (var key in $scope.producer["products"]) {
+                        if ($scope.producer["products"].hasOwnProperty(key)) {
+                            var product =  $scope.producer["products"][key];
+                            if (product.uid === productUID) {
+                                return product.name;
+                            }
+                        }
+                    }
+               };
             }] //END: controller function
     );  // END: dashboardController
 })(); //END: global function
