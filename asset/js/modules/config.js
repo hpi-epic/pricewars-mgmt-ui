@@ -271,6 +271,7 @@
               $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
               $scope.offers                       = {};
               $scope.producer                     = {};
+              $scope.updateInterval               = 1000;
 
               // Toastr options
               toastr.options = {
@@ -282,13 +283,15 @@
                   "timeOut": "2000",
               };
 
+              var runningUpdate ;
               $scope.getOffers = function(){
                 $http.get($scope.marketplace_url + "/offers")
                     .then(function(response) {
                         $scope.offers = response.data;
-                        setTimeout( $scope.getOffers(), 1000);
+                        setTimeout( $scope.getOffers, $scope.updateInterval);
                     });
               };
+
 
               $scope.getOffers();
 
