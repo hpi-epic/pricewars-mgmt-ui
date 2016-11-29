@@ -40,17 +40,13 @@
         }
     ]);
 
-    frontend.factory('socket', function ($rootScope) {
+    /*frontend.factory('socket', function ($rootScope) {
 
        /* var socket = io.connect("", {
            // query: 'id=mgmt-ui'
-        });*/
+        });*
 
-        var socket = io.connect();
-
-        /*socket.on('some-server-msg', function (msg) {
-            // do something
-        });*/
+        var socket = io.connect("http://localhost:3080");
 
         return {
             on: function (eventName, callback) {
@@ -72,5 +68,5 @@
                 })
             }
         };
-    });
+    });*/
 })();
