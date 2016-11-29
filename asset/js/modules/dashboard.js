@@ -87,11 +87,19 @@
                                     ['price'].concat($scope.logItems.map(e => e.value.price))
                                 ]
                             },
+                            point: {
+                              show: false
+                            },
                             axis: {
                                 x: {
                                     type: 'timeseries',
-                                    tick: { format: '%Y-%m-%d %H:%M:%S' }
+                                    tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
                                 }
+                            },
+                            line: {
+                              step: {
+                                type: 'step-after'
+                              }
                             }
                         })
 
