@@ -168,6 +168,7 @@
 
             }] //END: controller function
     );  // END: dashboardController
+
     co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
@@ -254,6 +255,34 @@
               }
 
               $scope.getProducts();
+
+            }] //END: controller function
+    );  // END: dashboardController
+
+    co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+
+              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+              $scope.offers                       = {};
+
+              // Toastr options
+              toastr.options = {
+                  "debug": false,
+                  "newestOnTop": false,
+                  "positionClass": "toast-top-center",
+                  "closeButton": true,
+                  "toastClass": "animated fadeInDown",
+                  "timeOut": "2000",
+              };
+
+              $scope.getOffers = function(){
+                $http.get($scope.marketplace_url + "/offers")
+                    .then(function(response) {
+                        $scope.offers = response.data;
+                    });
+              }
+
+              $scope.getOffers();
 
             }] //END: controller function
     );  // END: dashboardController

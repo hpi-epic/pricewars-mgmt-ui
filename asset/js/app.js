@@ -37,6 +37,10 @@
                     templateUrl: 'asset/templates/producer.html',
                     controller: 'producerCtrl'
                 }).
+                when('/config/marketplace', {
+                    templateUrl: 'asset/templates/marketplace.html',
+                    controller: 'marketplaceCtrl'
+                }).
                 // default Route
                 otherwise({
                     redirectTo: '/deployment'
