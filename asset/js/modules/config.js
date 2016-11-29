@@ -194,7 +194,7 @@
                     });
               }
 
-              $scope.updateProducts = function(merchant_id){
+              $scope.updateProducts = function(){
                 $http({url: $scope.producer_url + "/products/",
                       dataType: "json",
                       method: "PUT",
@@ -204,6 +204,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Products were successfully updated.");
+                            $scope.getProducts();
                     });
               }
 
@@ -217,6 +218,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Product was successfully updated.");
+                            $scope.getProducts();
                     });
               }
 
@@ -230,6 +232,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Products was successfully deleted.");
+                            $scope.getProducts();
                     });
               }
 
@@ -243,6 +246,8 @@
                       }
                     }).success(function (data) {
                             toastr.success("Product was successfully created.");
+                            $scope.getProducts();
+                            $("#newProductModal").modal("hide");
                     });
               }
 
