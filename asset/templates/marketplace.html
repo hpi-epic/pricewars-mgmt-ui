@@ -17,79 +17,50 @@
 <div class="content animate-panel">
 
 <div class="row">
-    <div style="" class="col-lg-2" ng-repeat='offer in offers track by $index'>
-        <div class="hpanel stats">
-            <div class="panel-body h-140">
-                <div class="stats-title pull-left">
-                    <h4>{{offer["name"]}}</h4>
+
+    <div class="col-lg-12">
+        <div class="hpanel">
+            <div class="panel-body">
+                <div class="table-responsive">
+                    <table cellpadding="1" cellspacing="1" class="table">
+                        <thead>
+                        <tr>
+                            <th>Offer ID</th>
+                            <th>Product Name</th>
+                            <th>UID</th>
+                            <th>Product ID</th>
+                            <th>Merchant ID</th>
+                            <th>Price</th>
+                            <th>Quality</th>
+                            <th>Amount</th>
+                            <th>Shipping Time Standard</th>
+                            <th>Shipping Time Prime</th>
+                            <th>Prime</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat='offer in offers track by $index'>
+                            <td>{{offer["offer_id"]}}</td>
+                            <td>{{findNameOfProduct(offer["uid"])}}</td>
+                            <td>{{offer["uid"]}}</td>
+                            <td>{{offer["product_id"]}}</td>
+                            <td>{{offer["merchant_id"]}}</td>
+                            <td>{{offer["price"]}}</td>
+                            <td>{{offer["quality"]}}</td>
+                            <td>{{offer["amount"]}}</td>
+                            <td>{{offer["shipping_time"]["standard"]}}</td>
+                            <td>{{offer["shipping_time"]["prime"]}}</td>
+                            <td>{{offer["prime"]}}</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="stats-icon pull-right">
-                    <i class="pe-7s-monitor fa-4x"></i>
-                </div>
-                <div class="m-t-xl">
-                    <span class="font-bold no-margins">
-                        Quality
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["quality"]' type="number"><br>
 
-                    <span class="font-bold no-margins">
-                        Price
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["price"]' type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Amount
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["amount"]' type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Offer ID
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["offer_id"]' type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Product ID
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["product_id"]' type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Uid
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["uid"]' type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Merchant ID
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["merchant_id"]' type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Shipping Time Standard
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["shipping_time"]["standard"]' type="text"><br>
-
-                    <span class="font-bold no-margins">
-                        Shipping Time Prime
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["shipping_time"]["prime"]' type="text"><br>
-
-                    <span class="font-bold no-margins">
-                        Prime
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='offer["prime"]' type="text"><br>
-                </div>
             </div>
         </div>
     </div>
+
+
 </div>
 
 </div>
