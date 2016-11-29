@@ -5,8 +5,8 @@
             function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
                 $scope.kafka_restful_service = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
-                $scope.kafka_restful_service_sales = $scope.kafka_restful_service + "/log/sales";
-                $scope.kafka_restful_service_offers = $scope.kafka_restful_service + "/log/buyOffer";
+                $scope.kafka_restful_service_sales = $scope.kafka_restful_service + "log/buyOffer";
+                $scope.kafka_restful_service_salesPerMinute = $scope.kafka_restful_service + "log/salesPerMinutes";
 
                 // Toastr options
                 toastr.options = {
@@ -36,48 +36,22 @@
                     }, 50);
                 });
 
-                const logItems = [
-                    {
-                        offer_id: 1,
-                        amount: 5,
-                        price: 123.45,
-                        timestamp: '2016-11-22T12:10:16+00:00'
-                    },
-                    {
-                        offer_id: 1,
-                        amount: 2,
-                        price: 140.45,
-                        timestamp: '2016-11-22T12:10:17+00:00'
-                    },
-                    {
-                        offer_id: 1,
-                        amount: 10,
-                        price: 103.45,
-                        timestamp: '2016-11-22T12:10:18+00:00'
-                    }
-                ];
+                $scope.data = [];
+                $scope.charts = [];
 
-                var filterFromDate = new Date();
-                filterFromDate.setMonth(10);
-                filterFromDate.setDate(23);
-
-                $scope.fetchSellingData = function(){
+                $scope.fetchGraphData = function(){
                     $("#loadingModal").modal("show");
                     $http.get($scope.kafka_restful_service_sales).then((result) => {
-                        //TODO: check whether result.data returns empty array
 
-                        $scope.logItems = result.data;
+                        $scope.data.liveSales = result.data;
 
-						// only show last 20 sales
-						//$scope.logItems = $scope.logItems.slice($scope.logItems.length - 21, $scope.logItems.length - 1);
-
-                        $scope.chart = c3.generate({
-                            bindto: '#timeChart',
+                        $scope.charts.liveSales = c3.generate({
+                            bindto: '#chart-live-sales',
                             data: {
                                 x: 'x',
                                 columns: [
-                                    ['x'].concat($scope.logItems.map(e => new Date(e.value.timestamp))),
-                                    ['price'].concat($scope.logItems.map(e => e.value.price))
+                                    ['x'].concat($scope.data.liveSales.map(e => new Date(e.value.timestamp))),
+                                    ['price'].concat($scope.data.liveSales.map(e => e.value.price))
                                 ]
                             },
                             point: {
@@ -100,27 +74,21 @@
                         });
 
                         $("#loadingModal").modal("hide");
-                        setTimeout( $scope.updateGraph(), 3000);
+                        setTimeout( $scope.updateLiveGraph(), 3000);
                     });
 
-                    $http.get($scope.kafka_restful_service_offers).then((result) => {
-                        //TODO: check whether result.data returns empty array
-                        filterDataWithDate(result.data, filterFromDate);
+                    $http.get($scope.kafka_restful_service_salesPerMinute).then((result) => {
+                        $scope.data.salesPerMinute = result.data;
 
-                        $scope.logItems_2 = result.data;
-
-                        // only show last 20 sales
-                        //$scope.logItems = $scope.logItems.slice($scope.logItems.length - 21, $scope.logItems.length - 1);
-
-                        $scope.chart_2 = c3.generate({
-                            bindto: '#timeChart_2',
+                        $scope.charts.salesPerMinute = c3.generate({
+                            bindto: '#chart-salesPerMinute',
                             data: {
                                 x: 'x',
                                 columns: [
-                                    ['x'].concat($scope.logItems_2.map(e => new Date(e.value.timestamp))),
-                              ['price'].concat($scope.logItems_2.map(e => e.value.price))
-                        ]
-                        },
+                                    ['x'].concat($scope.data.salesPerMinute.map(e => new Date(e.value.timestamp))),
+                                ['price'].concat($scope.data.salesPerMinute.map(e => e.value.price))
+                                ]
+                            },
                             point: {
                                 show: false
                             },
@@ -140,75 +108,61 @@
                             }
                         });
 
-                        setTimeout( $scope.updateGraph2(), 3000);
+                        setTimeout( $scope.updateSalesPerMinuteData(), 3000);
                     });
                 };
 
-                $scope.updateGraph = function() {
-                    console.log("requesting updated data from kafka");
+                $scope.updateLiveGraph = function() {
+                    console.log("requesting updated live data from kafka");
                     $http.get($scope.kafka_restful_service_sales).then((result) => {
-                        var dataChanged = $scope.logItems.length != result.data.length;
-                        var dataChangedText = !dataChanged ? 'data did not change' : (result.data.length - $scope.logItems.length) + ' new items';
+                        var dataChanged = $scope.data.liveSales.length != result.data.length;
+                        var dataChangedText = !dataChanged ? 'live data did not change' : (result.data.length - $scope.data.liveSales.length) + ' new items';
                         console.log("received answer from kafka - " + dataChangedText);
 
                         if (dataChanged) {
-                            $scope.logItems = result.data;
+                            $scope.data.liveSales = result.data;
 
-
-                            $scope.chart.load({
-                                bindto: "#timeChart",
+                            $scope.charts.liveSales.load({
+                                bindto: "#chart-live-sales",
                                 x: 'x',
                                 columns: [
-                                    ['x'].concat($scope.logItems_2.map(e => new Date(e.value.timestamp))),
-                                ['price'].concat($scope.logItems.map(e => e.value.price))
+                                    ['x'].concat($scope.data.liveSales.map(e => new Date(e.value.timestamp))),
+                                ['price'].concat($scope.data.liveSales.map(e => e.value.price))
                                 ]
                             });
                         }
 
-                        setTimeout( $scope.updateGraph(), 1000);
+                        setTimeout( $scope.updateLiveGraph(), 1000);
                     });
                 };
 
-                $scope.updateGraph2 = function() {
-                    console.log("requesting updated data_2 from kafka");
-                    $http.get($scope.kafka_restful_service_offers).then((result) => {
-                        filterDataWithDate(result.data, filterFromDate);
-
-                        var dataChanged = $scope.logItems_2.length != result.data.length;
-                        var dataChangedText = !dataChanged ? 'data_2 did not change' : (result.data.length - $scope.logItems_2.length) + ' new items';
-                        console.log("received answer for data_2 from kafka - " + dataChangedText);
+                $scope.updateSalesPerMinuteData = function() {
+                    console.log("requesting updated spm-data from kafka");
+                    $http.get($scope.kafka_restful_service_salesPerMinute).then((result) => {
+                        var dataChanged = $scope.data.salesPerMinute.length != result.data.length;
+                        var dataChangedText = !dataChanged ? 'spm-data did not change' : (result.data.length - $scope.data.salesPerMinute.length) + ' new items';
+                        console.log("received answer for spm-data from kafka - " + dataChangedText);
 
                         if (dataChanged) {
-                            $scope.logItems_2 = result.data;
+                            $scope.data.salesPerMinute = result.data;
 
-                            $scope.chart_2.load({
-                                bindto: "#timeChart_2",
+                            $scope.charts.salesPerMinute.load({
+                                bindto: "#chart-salesPerMinute",
                                 x: 'x',
                                 columns: [
-                                    ['x'].concat($scope.logItems_2.map(e => new Date(e.value.timestamp))),
-                                ['price'].concat($scope.logItems_2.map(e => e.value.price))
-                                ]
-                            });
+                                    ['x'].concat($scope.data.salesPerMinute.map(e => new Date(e.value.timestamp))),
+                                ['price'].concat($scope.data.salesPerMinute.map(e => e.value.price))
+                        ]
+                        });
                         }
 
-                         setTimeout( $scope.updateGraph2(), 1000);
+                        setTimeout( $scope.updateSalesPerMinuteData(), 1000);
                     });
                 };
 
-                function filterDataWithDate(data, fromDate) {
-                    for (i = 0; i < data.length; ++i) {
-                        if (new Date(data[i].value.timestamp) < fromDate) {
-                            data.splice(i--, 1);
-                        }
-                    }
-                }
 
                 //load real data asap
-                $scope.fetchSellingData();
-
-                socket.on('byOffer', function(data) {
-                    console.log(data);
-                });
+                $scope.fetchGraphData();
 
             }] //END: controller function
     );  // END: dashboardController
