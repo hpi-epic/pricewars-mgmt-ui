@@ -57,7 +57,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Consumer was successfully registered.");
+                            toastr.success("Merchant was successfully registered.");
                     });
               }
 
