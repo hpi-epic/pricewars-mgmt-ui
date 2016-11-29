@@ -46,7 +46,8 @@
            // query: 'id=mgmt-ui'
         });*/
 
-        var socket = io.connect();
+        //var socket = io.connect('http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/socketio');
+        var socket = io.connect('http://localhost:8001/socketio/');
 
         /*socket.on('some-server-msg', function (msg) {
             // do something

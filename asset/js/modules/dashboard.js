@@ -99,8 +99,8 @@
                 //load real data asap
                 $scope.fetchSellingData();
 
-                socket.on('offer-data-update', function(data) {
-                    // TODO
+                socket.on('byOffer', function(data) {
+                    console.log(data);
                 });
 
             }] //END: controller function
