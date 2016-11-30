@@ -89,7 +89,6 @@
                             if (response.data.hasOwnProperty(key)) {
                                 var merchant = response.data[key];
                                 var merchantID = -1;
-                                var merchantDetails = {};
                                 for (var merch_key in merchant) {
                                     if (merch_key == "merchant_id") {
                                         merchantID = merchant[merch_key];
@@ -119,7 +118,7 @@
               };
 
               $scope.startMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"start"},
@@ -132,7 +131,7 @@
               };
 
               $scope.terminateMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"kill"},
@@ -145,7 +144,7 @@
               };
 
               $scope.stopMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"stop"},
@@ -158,10 +157,10 @@
               };
 
               $scope.updateMerchantSettings = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings",
                       dataType: "json",
                       method: "PUT",
-                      data: $scope.merchantDetails[merchant_id],
+                      data: $scope.merchants[merchant_id],
                       headers: {
                           "Content-Type": "application/json"
                       }
