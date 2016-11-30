@@ -305,6 +305,14 @@
                 $http.get($scope.marketplace_url + "/offers")
                     .then(function(response) {
                         $scope.offers = response.data;
+
+                        // sort the offers by offer_id
+                        $scope.offers.sort(function(a, b){
+                            if(a.offer_id < b.offer_id) return -1;
+                            if(a.offer_id > b.offer_id) return 1;
+                            return 0;
+                        });
+
                         if ($scope.offerPullTimeout) clearTimeout($scope.offerPullTimeout);
                         $scope.offerPullTimeout = setTimeout( $scope.getOffers, $scope.updateInterval);
                     });
