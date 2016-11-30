@@ -57,6 +57,20 @@
                       });
                 }
 
+                $scope.merchantStatus = function(merchant){
+                  if(merchant["state"] == "init"){
+                    return "hpanel hbgblue";
+                  } else if (merchant["state"] == "running") {
+                    return "hpanel hbggreen";
+                  } else if (merchant["state"] == "exiting") {
+                    return "hpanel hbgyellow";
+                  } else if (merchant["state"] == "stopping") {
+                    return "hpanel hbgred";
+                  } else {
+                    return "hpanel hbgred";
+                  }
+                }
+
 
                 $scope.data = [];
                 $scope.charts = [];
