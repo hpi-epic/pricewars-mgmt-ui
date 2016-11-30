@@ -48,13 +48,13 @@
         }
     ]);
 
-    /*frontend.factory('socket', function ($rootScope) {
+    frontend.factory('socket', function ($rootScope) {
 
-       /* var socket = io.connect("", {
-           // query: 'id=mgmt-ui'
-        });*
+        //var socket = io.connect("", {
+        //    query: 'id=mgmt-ui'
+        //});
 
-        var socket = io.connect("http://localhost:3080");
+        var socket = io.connect("http://localhost:8001/", {query: 'id=mgmt-ui'});
 
         return {
             on: function (eventName, callback) {
@@ -76,5 +76,5 @@
                 })
             }
         };
-    });*/
+    });
 })();
