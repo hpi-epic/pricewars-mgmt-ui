@@ -16,6 +16,21 @@
 <div class="content animate-panel">
 
 <div class="row">
+   <div style="" class="col-md-3" ng-repeat="merchant in merchants">
+         <div class="hpanel hbggreen">
+             <div class="panel-body">
+                 <div class="text-center">
+                     <h3>Merchant {{merchant["merchant_id"]}}</h3>
+                     <p class="text-big font-light">
+                         {{merchant["state"]}}
+                     </p>
+                 </div>
+             </div>
+         </div>
+    </div>
+</div>
+
+<div class="row">
 
   <div style="" class="col-md-12">
       <div class="hpanel">

@@ -4,11 +4,13 @@
     da.controller('dashboardCtrl', ['socket', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function (socket, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
-                $scope.kafka_restful_service = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
-                $scope.kafka_restful_service_sales = $scope.kafka_restful_service + "log/buyOffer";
+                $scope.kafka_restful_service                = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
+                $scope.kafka_restful_service_sales          = $scope.kafka_restful_service + "log/buyOffer";
                 $scope.kafka_restful_service_salesPerMinute = $scope.kafka_restful_service + "log/salesPerMinutes";
+                $scope.marketplace_url                      = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
                 $scope.liveGraphData = [];
+                $scope.merchants = [];
 
                 // Toastr options
                 toastr.options = {
@@ -37,6 +39,24 @@
                         hpanel.find('[id^=map-]').resize();
                     }, 50);
                 });
+
+                $scope.getMerchantDetails = function(url){
+                  $http.get(url + "/settings")
+                      .then(function(response) {
+                          $scope.merchants.push(response.data);
+                      });
+                }
+
+                $scope.getMerchants = function(){
+                  $http.get($scope.marketplace_url + "/merchants")
+                      .then(function(response) {
+                          angular.forEach(response.data, function(value, key) {
+                            console.log(value);
+                              $scope.getMerchantDetails(value["api_endpoint_url"]);
+                          });
+                      });
+                }
+
 
                 $scope.data = [];
                 $scope.charts = [];
@@ -127,6 +147,8 @@
                   });
                 }
 
+
+                $scope.getMerchants();
 
                 //load real data asap
                 $scope.drawLiveSalesGraph();
