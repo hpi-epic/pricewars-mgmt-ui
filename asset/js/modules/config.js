@@ -80,24 +80,41 @@
                   "timeOut": "2000",
               };
 
+              $scope.merchants = {};
+
               $scope.getMerchants = function(){
                 $http.get($scope.marketplace_url + "/merchants")
                     .then(function(response) {
-                        $scope.merchants = response.data;
-                        $scope.getDetails();
+                        for (var key in response.data) {
+                            if (response.data.hasOwnProperty(key)) {
+                                var merchant = response.data[key];
+                                var merchantID = -1;
+                                var merchantDetails = {};
+                                for (var merch_key in merchant) {
+                                    if (merch_key == "merchant_id") {
+                                        merchantID = merchant[merch_key];
+                                        delete(merchant[merch_key]);
+                                    }
+                                }
+                                $scope.merchants[merchantID] = merchant;
+                            }
+                        }
+                        getMerchantDetails();
                     });
-              }
+              };
 
-              $scope.getDetails = function(){
-                $scope.merchantDetails = {};
-
-                angular.forEach($scope.merchants, function(value, key) {
-                  $http.get(value["api_endpoint_url"] + "/settings")
-                      .then(function(response) {
-                          $scope.merchantDetails[value["merchant_id"]] = response.data;
-                      });
-                });
-              }
+              function getMerchantDetails() {
+                for (var merchantID in $scope.merchants) {
+                    (function(merchant_id) {
+                        $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
+                            .then(function(response) {
+                                    Object.keys(response.data).sort().forEach(function(key) {
+                                        $scope.merchants[merchant_id][key] = response.data[key];
+                                    });
+                                });
+                    })(merchantID);
+                }
+              };
 
               $scope.startMerchant = function(merchant_id){
                 $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
@@ -110,7 +127,7 @@
                     }).success(function (data) {
                             toastr.success("Merchant was successfully started.");
                     });
-              }
+              };
 
               $scope.terminateMerchant = function(merchant_id){
                 $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
@@ -123,7 +140,7 @@
                     }).success(function (data) {
                             toastr.warning("Merchant was successfully terminated.");
                     });
-              }
+              };
 
               $scope.stopMerchant = function(merchant_id){
                 $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
@@ -136,7 +153,7 @@
                     }).success(function (data) {
                             toastr.warning("Merchant was successfully stopped.");
                     });
-              }
+              };
 
               $scope.updateMerchantSettings = function(merchant_id){
                 $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings",
@@ -149,7 +166,7 @@
                     }).success(function (data) {
                             toastr.success("Merchant was successfully stopped.");
                     });
-              }
+              };
 
               $scope.deleteMerchant = function(merchant_id){
                 $http({url: $scope.marketplace_url + "/merchants/"+merchant_id,
@@ -162,7 +179,7 @@
                     }).success(function (data) {
                             toastr.success("Merchant was successfully stopped.");
                     });
-              }
+              };
 
               $scope.getMerchants();
 
