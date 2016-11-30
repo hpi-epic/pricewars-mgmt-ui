@@ -302,17 +302,20 @@
                   "timeOut": "2000",
               };
 
-              var runningUpdate ;
               $scope.getOffers = function(){
                 $http.get($scope.marketplace_url + "/offers")
                     .then(function(response) {
                         $scope.offers = response.data;
-                        setTimeout( $scope.getOffers, $scope.updateInterval);
+                        if ($scope.offerPullTimeout) clearTimeout($scope.offerPullTimeout);
+                        $scope.offerPullTimeout = setTimeout( $scope.getOffers, $scope.updateInterval);
                     });
               };
 
-
               $scope.getOffers();
+
+              $scope.$on('$destroy', function(){
+                 if ($scope.offerPullTimeout) clearTimeout($scope.offerPullTimeout);
+              });
 
               $scope.getProductInfo = function(){
                     $http.get($scope.producer_url + "/products/")
