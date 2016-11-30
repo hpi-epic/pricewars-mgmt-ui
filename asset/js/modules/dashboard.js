@@ -88,9 +88,9 @@
                       point: {
                         show: false
                       },
-        							zoom: {
-        								enabled: true
-        							},
+                      zoom: {
+                        enabled: true
+                      },
                       axis: {
                           x: {
                               type: 'timeseries',

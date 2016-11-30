@@ -54,7 +54,7 @@
         //    query: 'id=mgmt-ui'
         //});
 
-        var socket = io.connect("http://localhost:8001/", {query: 'id=mgmt-ui'});
+        var socket = io.connect("http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/", {query: 'id=mgmt-ui'});
 
         return {
             on: function (eventName, callback) {
