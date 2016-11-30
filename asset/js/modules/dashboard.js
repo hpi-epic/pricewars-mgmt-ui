@@ -172,8 +172,7 @@
                 $scope.data.liveGraphData = [];
 
                 socket.on('buyOffer', function (data) {
-                  data  = angular.fromJson(data);
-                  data.value  = angular.fromJson(data.value);
+                  data = angular.fromJson(data);
 
                   $scope.data.liveGraphData.push(data);
                   console.log("buyOffer: New event");
@@ -184,9 +183,8 @@
                     $scope.updateLiveGraph();
                     $scope.counter = 0;
                   }
-                  if($scope.data.liveGraphData.length > 100){
-                    $scope.data.liveGraphData = $scope.data.liveGraphData.splice(0,15);
-                  }
+                  // keep 100 elements
+                  $scope.data.liveGraphData = $scope.data.liveGraphData.splice(-100);
                 });
 
                 //socket.on('connect', function (data) {
