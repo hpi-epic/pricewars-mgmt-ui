@@ -8,6 +8,8 @@
                 $scope.kafka_restful_service_sales = $scope.kafka_restful_service + "log/buyOffer";
                 $scope.kafka_restful_service_salesPerMinute = $scope.kafka_restful_service + "log/salesPerMinutes";
 
+                $scope.liveGraphData = [];
+
                 // Toastr options
                 toastr.options = {
                     "debug": false,
@@ -39,145 +41,121 @@
                 $scope.data = [];
                 $scope.charts = [];
 
-                $scope.fetchGraphData = function(){
-                    $("#loadingModal").modal("show");
-                    $http.get($scope.kafka_restful_service_sales).then((result) => {
-
-                        $scope.data.liveSales = result.data;
-
-                        $scope.charts.liveSales = c3.generate({
-                            bindto: '#chart-live-sales',
-                            data: {
-                                x: 'x',
-                                columns: [
-                                    ['x'].concat($scope.data.liveSales.map(e => new Date(e.value.timestamp))),
-                                    ['price'].concat($scope.data.liveSales.map(e => e.value.price))
-                                ]
-                            },
-                            point: {
-                              show: false
-                            },
-              							zoom: {
-              								enabled: true
-              							},
-                            axis: {
-                                x: {
-                                    type: 'timeseries',
-                                    tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
-                                }
-                            },
-                            line: {
-                               step: {
-                                 type: 'step-after'
-                               }
-                            }
-                        });
-
-                        $("#loadingModal").modal("hide");
-                        setTimeout( $scope.updateLiveGraph, 3000);
-                    });
-
-                    $http.get($scope.kafka_restful_service_salesPerMinute).then((result) => {
-                        $scope.data.salesPerMinute = result.data;
-
-                        $scope.charts.salesPerMinute = c3.generate({
-                            bindto: '#chart-salesPerMinute',
-                            data: {
-                                x: 'x',
-                                columns: [
-                                    ['x'].concat($scope.data.salesPerMinute.map(e => new Date(e.value.timestamp))),
-                                ['price'].concat($scope.data.salesPerMinute.map(e => e.value.price))
-                                ]
-                            },
-                            point: {
-                                show: false
-                            },
-                            zoom: {
-                                enabled: true
-                            },
-                            axis: {
-                                x: {
-                                    type: 'timeseries',
-                                        tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
-                                }
-                            },
-                            line: {
-                                step: {
-                                    type: 'step-after'
-                                }
-                            }
-                        });
-
-                        setTimeout( $scope.updateSalesPerMinuteData, 3000);
-                    });
-                };
-
-                $scope.updateLiveGraph = function() {
-                    console.log("requesting updated live data from kafka");
-                    $http.get($scope.kafka_restful_service_sales).then((result) => {
-                        $scope.drawLiveGraph(result);
-                        setTimeout( $scope.updateLiveGraph, 1000);
-                    });
-                };
-
-                $scope.updateSalesPerMinuteData = function() {
-                    console.log("requesting updated spm-data from kafka");
-                    $http.get($scope.kafka_restful_service_salesPerMinute).then((result) => {
-                        $scope.drawSalesPerMinuteGraph(result);
-                        setTimeout( $scope.updateSalesPerMinuteData, 1000);
-                    });
-                };
-
-                $scope.drawLiveGraph = function(result) {
-                  var dataChanged = $scope.data.liveSales.length != result.data.length;
-                  var dataChangedText = !dataChanged ? 'live data did not change' : (result.data.length - $scope.data.liveSales.length) + ' new items';
-                  console.log("received answer from kafka - " + dataChangedText);
-
-                  if (dataChanged) {
-                      $scope.data.liveSales = result.data;
-
-                      $scope.charts.liveSales.load({
-                          bindto: "#chart-live-sales",
+                $scope.drawLiveSalesGraph = function() {
+                  $scope.charts.liveSales = c3.generate({
+                      bindto: '#chart-live-sales',
+                      data: {
                           x: 'x',
                           columns: [
-                              ['x'].concat($scope.data.liveSales.map(e => new Date(e.value.timestamp))),
-                          ['price'].concat($scope.data.liveSales.map(e => e.value.price))
+                              ['x'],
+                              ['price']
                           ]
-                      });
-                  }
+                      },
+                      point: {
+                        show: false
+                      },
+        							zoom: {
+        								enabled: true
+        							},
+                      axis: {
+                          x: {
+                              type: 'timeseries',
+                              tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
+                          }
+                      },
+                      line: {
+                         step: {
+                           type: 'step-after'
+                         }
+                      }
+                  });
                 }
 
-                $scope.drawSalesPerMinuteGraph = function(result){
-                  var dataChanged = $scope.data.salesPerMinute.length != result.data.length;
-                  var dataChangedText = !dataChanged ? 'spm-data did not change' : (result.data.length - $scope.data.salesPerMinute.length) + ' new items';
-                  console.log("received answer for spm-data from kafka - " + dataChangedText);
-
-                  if (dataChanged) {
-                      $scope.data.salesPerMinute = result.data;
-
-                      $scope.charts.salesPerMinute.load({
-                          bindto: "#chart-salesPerMinute",
+                $scope.drawSalesPerMinuteGraph = function() {
+                  $scope.charts.salesPerMinute = c3.generate({
+                      bindto: '#chart-salesPerMinute',
+                      data: {
                           x: 'x',
                           columns: [
-                              ['x'].concat($scope.data.salesPerMinute.map(e => new Date(e.value.timestamp))),
-                          ['price'].concat($scope.data.salesPerMinute.map(e => e.value.price))
+                              ['x'],
+                          ['price']
                           ]
-                      });
-                  }
+                      },
+                      point: {
+                          show: false
+                      },
+                      zoom: {
+                          enabled: true
+                      },
+                      axis: {
+                          x: {
+                              type: 'timeseries',
+                                  tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
+                          }
+                      },
+                      line: {
+                          step: {
+                              type: 'step-after'
+                          }
+                      }
+                  });
+                }
+
+                $scope.updateLiveGraph = function() {
+                  console.log("updating Graph: LiveGraph");
+
+                  $scope.charts.liveSales.load({
+                      bindto: "#chart-live-sales",
+                      x: 'x',
+                      columns: [
+                          ['x'].concat($scope.data.liveGraphData.map(e => new Date(e.value.timestamp))),
+                      ['price'].concat($scope.data.liveGraphData.map(e => e.value.price))
+                      ]
+                  });
+                }
+
+                $scope.updateSalesPerMinuteGraph = function(){
+                  console.log("updating Graph: updateSalesPerMinuteGraph");
+
+                  $scope.charts.salesPerMinute.load({
+                      bindto: "#chart-salesPerMinute",
+                      x: 'x',
+                      columns: [
+                          ['x'].concat($scope.data.salesPerMinute.map(e => new Date(e.value.timestamp))),
+                      ['price'].concat($scope.data.salesPerMinute.map(e => e.value.price))
+                      ]
+                  });
                 }
 
 
                 //load real data asap
-                $scope.fetchGraphData();
+                $scope.drawLiveSalesGraph();
+                $scope.drawSalesPerMinuteGraph();
+
+                $scope.counter = 0;
+                $scope.data.liveGraphData = [];
 
                 socket.on('buyOffer', function (data) {
-                  console.log("buyOffer", data);
+                  data  = angular.fromJson(data);
+                  data.value  = angular.fromJson(data.value);
+
+                  $scope.data.liveGraphData.push(data);
+                  console.log("buyOffer: New event");
+                  console.log(angular.fromJson(data));
+
+                  $scope.counter = $scope.counter+1; //lets only update the graph every X messages
+                  if($scope.counter > 10){
+                    $scope.updateLiveGraph();
+                    $scope.counter = 0;
+                  }
+                  if($scope.data.liveGraphData.length > 100){
+                    $scope.data.liveGraphData = $scope.data.liveGraphData.splice(0,15);
+                  }
                 });
 
-                socket.on('connect', function (data) {
-                  console.log("conntect",data);
-                });
-
+                //socket.on('connect', function (data) {
+                //  console.log("conntect",data);
+                //});
 
             }] //END: controller function
     );  // END: dashboardController
