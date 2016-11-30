@@ -109,7 +109,9 @@
                         $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
                             .then(function(response) {
                                     Object.keys(response.data).sort().forEach(function(key) {
-                                        $scope.merchants[merchant_id][key] = response.data[key];
+                                        if (key != "merchant_id" && key != "merchant_url") {
+                                            $scope.merchants[merchant_id][key] = response.data[key];
+                                        }
                                     });
                                 });
                     })(merchantID);
