@@ -89,7 +89,6 @@
                             if (response.data.hasOwnProperty(key)) {
                                 var merchant = response.data[key];
                                 var merchantID = -1;
-                                var merchantDetails = {};
                                 for (var merch_key in merchant) {
                                     if (merch_key == "merchant_id") {
                                         merchantID = merchant[merch_key];
@@ -119,7 +118,7 @@
               };
 
               $scope.startMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"start"},
@@ -132,7 +131,7 @@
               };
 
               $scope.terminateMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"kill"},
@@ -145,7 +144,7 @@
               };
 
               $scope.stopMerchant = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings/execution",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"stop"},
@@ -158,10 +157,10 @@
               };
 
               $scope.updateMerchantSettings = function(merchant_id){
-                $http({url: $scope.merchantDetails[merchant_id]["merchant_url"] + "/settings",
+                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings",
                       dataType: "json",
                       method: "PUT",
-                      data: $scope.merchantDetails[merchant_id],
+                      data: $scope.merchants[merchant_id],
                       headers: {
                           "Content-Type": "application/json"
                       }
@@ -289,7 +288,7 @@
               $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
               $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
               $scope.offers                       = {};
-              $scope.producer                     = {};
+              $scope.products                     = {};
               $scope.updateInterval               = 1000;
 
               // Toastr options
@@ -302,36 +301,44 @@
                   "timeOut": "2000",
               };
 
-              var runningUpdate ;
               $scope.getOffers = function(){
                 $http.get($scope.marketplace_url + "/offers")
                     .then(function(response) {
                         $scope.offers = response.data;
-                        setTimeout( $scope.getOffers, $scope.updateInterval);
+
+                        // sort the offers by offer_id
+                        $scope.offers.sort(function(a, b){
+                            if(a.offer_id < b.offer_id) return -1;
+                            if(a.offer_id > b.offer_id) return 1;
+                            return 0;
+                        });
+
+                        if ($scope.offerPullTimeout) clearTimeout($scope.offerPullTimeout);
+                        $scope.offerPullTimeout = setTimeout( $scope.getOffers, $scope.updateInterval);
                     });
               };
 
-
               $scope.getOffers();
+
+              $scope.$on('$destroy', function(){
+                 if ($scope.offerPullTimeout) clearTimeout($scope.offerPullTimeout);
+              });
 
               $scope.getProductInfo = function(){
                     $http.get($scope.producer_url + "/products/")
                         .then(function(response) {
-                            $scope.producer = response.data;
+                            for (var key in response.data) {
+                                var product = response.data[key];
+                                $scope.products[product["uid"]] = product;
+                                delete($scope.products[product["uid"]].uid);
+                            }
                         });
                };
 
                $scope.getProductInfo();
 
                $scope.findNameOfProduct = function(productUID) {
-                    for (var key in $scope.producer["products"]) {
-                        if ($scope.producer["products"].hasOwnProperty(key)) {
-                            var product =  $scope.producer["products"][key];
-                            if (product.uid === productUID) {
-                                return product.name;
-                            }
-                        }
-                    }
+                   return $scope.products[productUID].name;
                };
             }] //END: controller function
     );  // END: dashboardController
