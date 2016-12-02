@@ -54,7 +54,7 @@
         //    query: 'id=mgmt-ui'
         //});
 
-        var socket = io.connect("http://localhost:8001/", {query: 'id=mgmt-ui'});
+        var socket = io.connect("http://192.168.31.91:8001/", {query: 'id=mgmt-ui'});
 
         return {
             on: function (eventName, callback) {
