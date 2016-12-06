@@ -51,7 +51,7 @@
                   $http.get($scope.marketplace_url + "/merchants")
                       .then(function(response) {
                           angular.forEach(response.data, function(value, key) {
-                            console.log(value);
+                            //console.log(value);
                               $scope.getMerchantDetails(value["api_endpoint_url"]);
                           });
                       });
@@ -135,6 +135,37 @@
                   });
                 }
 
+                $scope.drawRevenueGraph = function() {
+                  $scope.charts.revenue = c3.generate({
+                      bindto: '#chart-revenue',
+                      data: {
+                          x: 'x',
+                          columns: [
+                              ['x'],
+                          ['price']
+                          ]
+                      },
+                      point: {
+                          show: false
+                      },
+                      zoom: {
+                          enabled: true
+                      },
+                      axis: {
+                          x: {
+                              type: 'timeseries',
+                                  tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
+                          }
+                      },
+                      line: {
+                          step: {
+                              type: 'step-after'
+                          }
+                      }
+                  });
+                }
+
+
                 $scope.updateLiveGraph = function() {
                   console.log("updating Graph: LiveGraph");
 
@@ -144,6 +175,19 @@
                       columns: [
                           ['x'].concat($scope.data.liveGraphData.map(e => new Date(e.value.timestamp))),
                       ['price'].concat($scope.data.liveGraphData.map(e => e.value.price))
+                      ]
+                  });
+                }
+
+                $scope.updateRevenueGraph = function() {
+                  console.log("updating Graph: RevenueGraph");
+
+                  $scope.charts.revenue.load({
+                      bindto: "#chart-revenue",
+                      x: 'x',
+                      columns: [
+                          ['x'].concat($scope.data.revenueGraphData.map(e => new Date(e.value.timestamp))),
+                      ['price'].concat($scope.data.revenueGraphData.map(e => e.value.price))
                       ]
                   });
                 }
@@ -167,9 +211,12 @@
                 //load real data asap
                 $scope.drawLiveSalesGraph();
                 $scope.drawSalesPerMinuteGraph();
+                $scope.drawRevenueGraph();
 
-                $scope.counter = 0;
+                $scope.counter_liveGraphData = 0;
+                $scope.counter_revenueGraphData = 0;
                 $scope.data.liveGraphData = [];
+                $scope.data.revenueGraphData = [];
 
                 socket.on('buyOffer', function (data) {
                   data = angular.fromJson(data);
@@ -178,13 +225,29 @@
                   console.log("buyOffer: New event");
                   console.log(angular.fromJson(data));
 
-                  $scope.counter = $scope.counter+1; //lets only update the graph every X messages
-                  if($scope.counter > 10){
+                  $scope.counter_liveGraphData = $scope.counter_liveGraphData+1; //lets only update the graph every X messages
+                  if($scope.counter_liveGraphData > 10){
                     $scope.updateLiveGraph();
-                    $scope.counter = 0;
+                    $scope.counter_liveGraphData = 0;
                   }
                   // keep 100 elements
                   $scope.data.liveGraphData = $scope.data.liveGraphData.splice(-100);
+                });
+
+                socket.on('revenue', function (data) {
+                  data = angular.fromJson(data);
+
+                  $scope.data.revenueGraphData.push(data);
+                  console.log("Revenue: New event");
+                  console.log(angular.fromJson(data));
+
+                  $scope.counter_revenueGraphData = $scope.counter_revenueGraphData+1; //lets only update the graph every X messages
+                  if($scope.counter_revenueGraphData > 10){
+                    $scope.updateRevenueGraph();
+                    $scope.counter_revenueGraphData = 0;
+                  }
+                  // keep 100 elements
+                  $scope.data.revenueGraphData = $scope.data.revenueGraphData.splice(-100);
                 });
 
                 //socket.on('connect', function (data) {
