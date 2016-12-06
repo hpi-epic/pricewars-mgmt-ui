@@ -127,6 +127,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Merchant was successfully started.");
+                            $scope.getMerchants();
                     });
               };
 
@@ -140,6 +141,7 @@
                       }
                     }).success(function (data) {
                             toastr.warning("Merchant was successfully terminated.");
+                            $scope.getMerchants();
                     });
               };
 
@@ -153,6 +155,7 @@
                       }
                     }).success(function (data) {
                             toastr.warning("Merchant was successfully stopped.");
+                            $scope.getMerchants();
                     });
               };
 
@@ -166,6 +169,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Merchant was successfully stopped.");
+                            $scope.getMerchants();
                     });
               };
 
@@ -179,6 +183,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Merchant was successfully stopped.");
+                            $scope.getMerchants();
                     });
               };
 
