@@ -207,7 +207,7 @@
                   "positionClass": "toast-top-center",
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
-                  "timeOut": "2000",
+                  "timeOut": "2000"
               };
 
               $scope.getProducts = function(){
@@ -215,7 +215,7 @@
                     .then(function(response) {
                         $scope.producer = response.data;
                     });
-              }
+              };
 
               $scope.updateProducts = function(){
                 $http({url: $scope.producer_url + "/products/",
@@ -229,21 +229,23 @@
                             toastr.success("Products were successfully updated.");
                             $scope.getProducts();
                     });
-              }
+              };
 
               $scope.updateProduct = function(product_uid){
                 $http({url: $scope.producer_url + "/products/"+ product_uid,
                       dataType: "json",
                       method: "PUT",
-                      data: [ $filter('filter')($scope.producer["products"], {uid:product_uid})[0] ],
+                      data: [ $filter('filter')($scope.producer, {uid:product_uid})[0] ],
                       headers: {
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
                             toastr.success("Product was successfully updated.");
                             $scope.getProducts();
+                    }).error(function (error) {
+                            toastr.warning(error.message);
                     });
-              }
+              };
 
               $scope.deleteProduct = function(uid){
                 $http({url: $scope.producer_url + "/products/"+ uid,
@@ -257,7 +259,7 @@
                             toastr.success("Products was successfully deleted.");
                             $scope.getProducts();
                     });
-              }
+              };
 
               $scope.createProduct = function(){
                 $http({url: $scope.producer_url + "/products/",
@@ -272,15 +274,15 @@
                             $scope.getProducts();
                             $("#newProductModal").modal("hide");
                     });
-              }
+              };
 
               $scope.new = function(){
                 $("#newProductModal").modal("show");
-              }
+              };
 
               $scope.close = function(){
                 $("#newProductModal").modal("hide");
-              }
+              };
 
               $scope.getProducts();
 
@@ -343,7 +345,9 @@
                $scope.getProductInfo();
 
                $scope.findNameOfProduct = function(productUID) {
-                   return $scope.products[productUID].name;
+                   if ($scope.products[productUID])
+                     return $scope.products[productUID].name;
+                   return "No longer available";
                };
             }] //END: controller function
     );  // END: dashboardController
