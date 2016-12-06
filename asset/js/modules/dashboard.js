@@ -188,12 +188,17 @@
                   var x_arry = ['x'];
 
                   angular.forEach($scope.data.revenueGraphData, function(value, key) {
+                    // initialize a new array for each merchant id if not present already
                     if(merchants_list.indexOf(value.value.merchant_id) == -1) {
                       merchants_list.push(value.value.merchant_id);
                       merchants_entries[''+value.value.merchant_id] = [];
                       merchants_entries[''+value.value.merchant_id].push(''+value.value.merchant_id);
                     }
-                    x_arry.push(new Date(value.value.timestamp));
+                    // push timestamp once in timestamp array
+                    if(x_arry.indexOf(new Date(value.value.timestamp)) == -1) {
+                      x_arry.push(new Date(value.value.timestamp));
+                    }
+                    // push revenue in merchant array
                     merchants_entries[''+value.value.merchant_id].push(value.value.revenue);
                   });
 
@@ -202,7 +207,6 @@
                     columns_array.push(merchants_entries[''+merchant_id]);
                   });
 
-                  console.log(columns_array);
                   $scope.charts.revenue.load({
                       bindto: "#chart-revenue",
                       x: 'x',
