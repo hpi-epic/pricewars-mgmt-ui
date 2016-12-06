@@ -182,13 +182,30 @@
                 $scope.updateRevenueGraph = function() {
                   console.log("updating Graph: RevenueGraph");
 
+                  var columns_array = [];
+                  var merchants_list = [];
+                  var merchants_entries = [];
+                  var x_arry = ['x'];
+
+                  angular.forEach($scope.data.revenueGraphData, function(value, key) {
+                    if(merchants_list.indexOf(value.value.merchant_id) == -1) {
+                      merchants_list.push(value.value.merchant_id);
+                      merchants_entries[''+value.value.merchant_id] = [];
+                    }
+                    x_arry.push(new Date(value.value.timestamp));
+                    merchants_entries[''+value.value.merchant_id].push(value.value.revenue);
+                  });
+
+                  columns_array.push(x_arry);
+                  angular.forEach(merchants_list, function(merchant_id, key) {
+                    columns_array.push(merchants_entries[''+merchant_id]);
+                  });
+
+                  console.log(columns_array);
                   $scope.charts.revenue.load({
                       bindto: "#chart-revenue",
                       x: 'x',
-                      columns: [
-                          ['x'].concat($scope.data.revenueGraphData.map(e => new Date(e.value.timestamp))),
-                      ['price'].concat($scope.data.revenueGraphData.map(e => e.value.price))
-                      ]
+                      columns: columns_array
                   });
                 }
 
@@ -200,11 +217,10 @@
                       x: 'x',
                       columns: [
                           ['x'].concat($scope.data.salesPerMinute.map(e => new Date(e.value.timestamp))),
-                      ['price'].concat($scope.data.salesPerMinute.map(e => e.value.price))
+                      ['price'].concat($scope.data.salesPerMinute.map(e => e.value.revenue))
                       ]
                   });
                 }
-
 
                 $scope.getMerchants();
 
@@ -223,7 +239,7 @@
 
                   $scope.data.liveGraphData.push(data);
                   console.log("buyOffer: New event");
-                  console.log(angular.fromJson(data));
+                  //console.log(angular.fromJson(data));
 
                   $scope.counter_liveGraphData = $scope.counter_liveGraphData+1; //lets only update the graph every X messages
                   if($scope.counter_liveGraphData > 10){
@@ -239,10 +255,10 @@
 
                   $scope.data.revenueGraphData.push(data);
                   console.log("Revenue: New event");
-                  console.log(angular.fromJson(data));
+                  //console.log(angular.fromJson(data));
 
                   $scope.counter_revenueGraphData = $scope.counter_revenueGraphData+1; //lets only update the graph every X messages
-                  if($scope.counter_revenueGraphData > 10){
+                  if($scope.counter_revenueGraphData > 1){
                     $scope.updateRevenueGraph();
                     $scope.counter_revenueGraphData = 0;
                   }
