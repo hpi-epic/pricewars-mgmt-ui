@@ -17,7 +17,7 @@
 <div class="content animate-panel">
 
 <div class="row">
-    <div style="" class="col-lg-2" ng-repeat='product in producer["products"] track by $index'>
+    <div style="" class="col-lg-2" ng-repeat='product in producer track by $index'>
         <div class="hpanel stats">
             <div class="panel-body h-140">
                 <div class="stats-title pull-left">
@@ -31,25 +31,25 @@
                         UID
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer["products"][$index]["uid"]' type="number"><br>
+                    <input class="form-control" ng-model='producer[$index]["uid"]' type="number"><br>
 
                     <span class="font-bold no-margins">
                         Product ID
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer["products"][$index]["product_id"]' type="number"><br>
+                    <input class="form-control" ng-model='producer[$index]["product_id"]' type="number"><br>
 
                     <span class="font-bold no-margins">
                         Quality
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer["products"][$index]["quality"]' type="number"><br>
+                    <input class="form-control" ng-model='producer[$index]["quality"]' type="number"><br>
 
                     <span class="font-bold no-margins">
                         Price
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer["products"][$index]["price"]' type="number"><br>
+                    <input class="form-control" ng-model='producer[$index]["price"]' type="number"><br>
 
 
                     <br>
