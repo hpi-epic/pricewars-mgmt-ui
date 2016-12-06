@@ -191,6 +191,7 @@
                     if(merchants_list.indexOf(value.value.merchant_id) == -1) {
                       merchants_list.push(value.value.merchant_id);
                       merchants_entries[''+value.value.merchant_id] = [];
+                      merchants_entries[''+value.value.merchant_id].push(''+value.value.merchant_id);
                     }
                     x_arry.push(new Date(value.value.timestamp));
                     merchants_entries[''+value.value.merchant_id].push(value.value.revenue);
