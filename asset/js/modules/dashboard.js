@@ -10,7 +10,9 @@
                 $scope.marketplace_url                      = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
                 $scope.liveGraphData = [];
-                $scope.merchants = [];
+                $scope.merchants     = [];
+                $scope.merchant_ids  = [];
+                $scope.product_ids   = [];
 
                 // Toastr options
                 toastr.options = {
@@ -75,129 +77,80 @@
                 $scope.data = [];
                 $scope.charts = [];
 
-                $scope.drawLiveSalesGraph = function() {
-                  $scope.charts.liveSales = c3.generate({
-                      bindto: '#chart-live-sales',
-                      data: {
-                          x: 'x',
-                          columns: [
-                              ['x'],
-                              ['price']
-                          ]
-                      },
-                      point: {
-                        show: false
-                      },
-                      zoom: {
-                        enabled: true
-                      },
-                      axis: {
-                          x: {
-                              type: 'timeseries',
-                              tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
-                          }
-                      },
-                      line: {
-                         step: {
-                           type: 'step-after'
-                         }
-                      }
-                  });
-                }
-
-                $scope.drawSalesPerMinuteGraph = function() {
-                  $scope.charts.salesPerMinute = c3.generate({
-                      bindto: '#chart-salesPerMinute',
-                      data: {
-                          x: 'x',
-                          columns: [
-                              ['x'],
-                          ['price']
-                          ]
-                      },
-                      point: {
+                $scope.drawGraphs = function() {
+                  const graphNames = ["liveSales", "salesPerMinute", "revenue"];
+                  angular.forEach(graphNames, function(value, key) {
+                    $scope.charts[value] = c3.generate({
+                        bindto: '#chart-'+value,
+                        data: {
+                            x: 'x',
+                            columns: [
+                                ['x'],
+                                ['price']
+                            ]
+                        },
+                        point: {
                           show: false
-                      },
-                      zoom: {
+                        },
+                        zoom: {
                           enabled: true
-                      },
-                      axis: {
-                          x: {
-                              type: 'timeseries',
-                                  tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
-                          }
-                      },
-                      line: {
-                          step: {
-                              type: 'step-after'
-                          }
-                      }
-                  });
-                }
-
-                $scope.drawRevenueGraph = function() {
-                  $scope.charts.revenue = c3.generate({
-                      bindto: '#chart-revenue',
-                      data: {
-                          x: 'x',
-                          columns: [
-                              ['x'],
-                          ['price']
-                          ]
-                      },
-                      point: {
-                          show: false
-                      },
-                      zoom: {
-                          enabled: true
-                      },
-                      axis: {
-                          x: {
-                              type: 'timeseries',
-                                  tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
-                          }
-                      },
-                      line: {
-                          step: {
-                              type: 'step-after'
-                          }
-                      }
-                  });
-                }
-
-                $scope.drawPriceGraph = function() {
-                  $scope.charts.price = c3.generate({
-                    bindto: '#chart-price',
-                    data: {
-                        xs: {},
-                        columns: []
-                    },
-                    point: {
-                        show: false
-                    },
-                    zoom: {
-                        enabled: true
-                    },
-                    axis: {
-                        x: {
-                            type: 'timeseries',
-                                tick: { fit: true, format: '%H:%M:%S' }
+                        },
+                        axis: {
+                            x: {
+                                type: 'timeseries',
+                                tick: { fit: true, format: '%Y-%m-%d %H:%M:%S' }
+                            }
+                        },
+                        line: {
+                           step: {
+                             type: 'step-after'
+                           }
                         }
-                    },
-                      line: {
-                          step: {
-                              type: 'step-after'
+                    });
+                  });
+                }
+
+
+                $scope.drawPriceGraphs = function() {
+                  var graphNames = ["price"];
+                  angular.forEach($scope.merchant_ids, function(value, key) {
+                    graphNames.push("price-"+toString(value));
+                  });
+                  angular.forEach(graphNames, function(value, key) {
+                    console.log("drawing #chart-"+value)
+                    $scope.charts[value] = c3.generate({
+                      bindto: '#chart-'+value,
+                      data: {
+                          xs: {},
+                          columns: []
+                      },
+                      point: {
+                          show: false
+                      },
+                      zoom: {
+                          enabled: true
+                      },
+                      axis: {
+                          x: {
+                              type: 'timeseries',
+                                  tick: { fit: true, format: '%H:%M:%S' }
                           }
-                      }
-                  })
+                      },
+                        line: {
+                            step: {
+                                type: 'step-after'
+                            }
+                        }
+                    })
+                  });
                 }
 
 
                 $scope.updateLiveGraph = function() {
                   console.log("updating Graph: LiveGraph");
 
-                  $scope.charts.liveSales.load({
-                      bindto: "#chart-live-sales",
+                  $scope.charts["liveSales"].load({
+                      bindto: "#chart-liveSales",
                       x: 'x',
                       columns: [
                           ['x'].concat($scope.data.liveGraphData.map(e => new Date(e.value.timestamp))),
@@ -234,7 +187,7 @@
                     columns_array.push(merchants_entries[''+merchant_id]);
                   });
 
-                  $scope.charts.revenue.load({
+                  $scope.charts["revenue"].load({
                       bindto: "#chart-revenue",
                       x: 'x',
                       columns: columns_array
@@ -244,7 +197,7 @@
                 $scope.updateSalesPerMinuteGraph = function(){
                   console.log("updating Graph: updateSalesPerMinuteGraph");
 
-                  $scope.charts.salesPerMinute.load({
+                  $scope.charts["salesPerMinute"].load({
                       bindto: "#chart-salesPerMinute",
                       x: 'x',
                       columns: [
@@ -257,10 +210,8 @@
                 $scope.getMerchants();
 
                 //load real data asap
-                $scope.drawLiveSalesGraph();
-                $scope.drawSalesPerMinuteGraph();
-                $scope.drawRevenueGraph();
-                $scope.drawPriceGraph();
+                $scope.drawGraphs();
+                $scope.drawPriceGraphs();
 
                 $scope.counter_liveGraphData = 0;
                 $scope.counter_revenueGraphData = 0;
@@ -268,6 +219,7 @@
                 $scope.data.liveGraphData = [];
                 $scope.data.revenueGraphData = [];
                 $scope.data.priceGraphData = [];
+                $scope.data.priceGraphPerMerchantData = [];
 
                 socket.on('buyOffer', function (data) {
                   data = angular.fromJson(data);
@@ -299,17 +251,27 @@
                   $scope.data.revenueGraphData = $scope.data.revenueGraphData.splice(-100);
                 });
 
+                $scope.arraysEqual = function(arr1, arr2) {
+                    if(arr1.length !== arr2.length)
+                        return false;
+                    for(var i = arr1.length; i--;) {
+                        if(arr1[i] !== arr2[i])
+                            return false;
+                    }
+
+                    return true;
+                }
+
                 $scope.updatePriceGraph = function() {
                   let xs_mapping = {}
                   let columns_array = []
 
                   const data = $scope.data.priceGraphData
+                  $scope.merchant_ids = new Set(data.map(x => x.merchant_id))
+                  $scope.product_ids  = new Set(data.map(x => x.product_id))
 
-                  const merchant_ids = new Set(data.map(x => x.merchant_id))
-                  const product_ids = new Set(data.map(x => x.product_id))
-
-                  merchant_ids.forEach(mId => {
-                    product_ids.forEach(pId => {
+                  $scope.merchant_ids.forEach(mId => {
+                    $scope.product_ids.forEach(pId => {
                       const line_id = mId + '-' + pId
                       const filtered_data = data.filter(x => x.merchant_id === mId && x.product_id === pId)
                       const prices = filtered_data.map(x => x.price)
@@ -322,7 +284,7 @@
                   })
 
                   console.log('load graph')
-                  $scope.charts.price.load({
+                  $scope.charts["price"].load({
                     bindto: "#chart-price",
                     xs: xs_mapping,
                     columns: columns_array
@@ -344,6 +306,43 @@
                   // });
                 }
 
+                $scope.updatePriceGraphPerMerchant = function() {
+                  let xs_mapping = {}
+                  let columns_array = []
+
+                  const data = $scope.data.priceGraphData
+                  const new_merchants = new Set(data.map(x => x.merchant_id))
+                  $scope.product_ids  = new Set(data.map(x => x.product_id))
+
+                  // check if new merchants are in place. if so, draw graphs for them
+                  if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
+                    $scope.drawPriceGraphs();
+                    $scope.merchant_ids = new_merchants;
+                    console.log("updating merchant_ids array")
+                  }
+
+                  $scope.merchant_ids.forEach(mId => {
+                    $scope.product_ids.forEach(pId => {
+                      const line_id = mId + '-' + pId
+                      const filtered_data = data.filter(x => x.merchant_id === mId && x.product_id === pId)
+                      const prices = filtered_data.map(x => x.price)
+                      const times = filtered_data.map(x => new Date(x.timestamp))
+
+                      xs_mapping['y'+line_id] = 'x'+line_id
+                      columns_array.push(['y'+line_id].concat(prices))
+                      columns_array.push(['x'+line_id].concat(times))
+                    })
+                    console.log(columns_array)
+                    console.log(mId)
+                    console.log($scope.charts)
+                    $scope.charts["price-"+mId].load({
+                      bindto: "#chart-price-"+mId,
+                      xs: xs_mapping,
+                      columns: columns_array
+                    });
+                  })
+                }
+
                 socket.on('updateOffer', function (data) {
                   console.log('socket updateOffer')
                   data = angular.fromJson(data);
@@ -351,18 +350,18 @@
                   //   "topic": msg.topic,
                   //   "timestamp": msg.timestamp,
                   //   "value": {
-                  //     "offer_id": 31, 
-                  //     "uid": 32, 
-                  //     "product_id": 3, 
-                  //     "quality": 2, 
-                  //     "merchant_id": 10, 
-                  //     "amount": 3, 
-                  //     "price": 34.0, 
-                  //     "shipping_time_standard": 5, 
-                  //     "shipping_time_prime": 1, 
-                  //     "prime": true, 
-                  //     "signature": "+D2Pew02v4TTCIlPIZoW7+cQCmWyp6ZRs46eJPoAbTU=", 
-                  //     "http_code": 200, 
+                  //     "offer_id": 31,
+                  //     "uid": 32,
+                  //     "product_id": 3,
+                  //     "quality": 2,
+                  //     "merchant_id": 10,
+                  //     "amount": 3,
+                  //     "price": 34.0,
+                  //     "shipping_time_standard": 5,
+                  //     "shipping_time_prime": 1,
+                  //     "prime": true,
+                  //     "signature": "+D2Pew02v4TTCIlPIZoW7+cQCmWyp6ZRs46eJPoAbTU=",
+                  //     "http_code": 200,
                   //     "timestamp": "2016-12-06T15:33:17.737Z"
                   //   }
                   // }
@@ -377,9 +376,10 @@
                   $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
                   if ($scope.counter_priceGraphData >= 10) {
                     $scope.updatePriceGraph()
+                    $scope.updatePriceGraphPerMerchant();
                     $scope.counter_priceGraphData = 0
                   }
-                  
+
                   $scope.data.priceGraphData = $scope.data.priceGraphData.splice(-100);
                 });
 
