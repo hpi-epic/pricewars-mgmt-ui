@@ -112,8 +112,8 @@
 
                 $scope.drawPriceGraphs = function() {
                   var graphNames = ["price"];
-                  angular.forEach($scope.merchant_ids, function(id, key) {
-                    graphNames.push("price-"+id.toString);
+                  angular.forEach($scope.merchant_ids, function(mId) {
+                    graphNames.push("price-"+mId);
                   });
                   console.log(graphNames)
                   angular.forEach(graphNames, function(grapName, key) {
@@ -268,13 +268,13 @@
                   let columns_array = []
 
                   const data = $scope.data.priceGraphData
-                  $scope.merchant_ids = new Set(data.map(x => x.merchant_id))
-                  $scope.product_ids  = new Set(data.map(x => x.product_id))
+                  $scope.merchant_ids = Array.from((new Set(data.map(x => x.merchant_id))).values())
+                  $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values())
 
-                  $scope.merchant_ids.forEach(mId => {
-                    $scope.product_ids.forEach(pId => {
-                      const line_id = mId + '-' + pId
-                      const filtered_data = data.filter(x => x.merchant_id === mId && x.product_id === pId)
+                  $scope.product_ids.forEach(pId => {
+                    $scope.merchant_ids.forEach(mId => {
+                      const line_id = pId + '-' + mId
+                      const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
                       const prices = filtered_data.map(x => x.price)
                       const times = filtered_data.map(x => new Date(x.timestamp))
 
@@ -312,8 +312,8 @@
                   let columns_array = []
 
                   const data = $scope.data.priceGraphData
-                  const new_merchants = new Set(data.map(x => x.merchant_id))
-                  $scope.product_ids  = new Set(data.map(x => x.product_id))
+                  const new_merchants = Array.from((new Set(data.map(x => x.merchant_id))).values())
+                  $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values())
 
                   // check if new merchants are in place. if so, draw graphs for them
                   if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
@@ -333,12 +333,10 @@
                       columns_array.push(['y'+line_id].concat(prices))
                       columns_array.push(['x'+line_id].concat(times))
                     })
-                    console.log(columns_array)
-                    console.log(mId)
-                    console.log($scope.charts)
-                    if($scope.charts.indexOf("price-"+mId.toString()) !== -1) {
-                      $scope.charts["price-"+mId.toString()].load({
-                        bindto: "#chart-price-"+mId.toString(),
+
+                    if($scope.charts["price-"+mId]) {
+                      $scope.charts["price-"+mId].load({
+                        bindto: "#chart-price-"+mId,
                         xs: xs_mapping,
                         columns: columns_array
                       });
@@ -373,6 +371,7 @@
 
                   $scope.data.priceGraphData.push({
                     merchant_id: data.value.merchant_id,
+                    uid: data.value.uid,
                     price: data.value.price,
                     product_id: data.value.product_id,
                     timestamp: data.value.timestamp,
