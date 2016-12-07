@@ -115,10 +115,8 @@
                   angular.forEach($scope.merchant_ids, function(mId) {
                     graphNames.push("price-"+mId);
                   });
-                  console.log(graphNames)
                   angular.forEach(graphNames, function(grapName, key) {
                     const chartname = '#chart-'+grapName
-                    console.log(chartname)
                     $scope.charts[""+grapName] = c3.generate({
                       bindto: chartname,
                       data: {
@@ -149,7 +147,6 @@
 
                 $scope.updateLiveGraph = function() {
                   console.log("updating Graph: LiveGraph");
-
                   $scope.charts["liveSales"].load({
                       bindto: "#chart-liveSales",
                       x: 'x',
@@ -226,7 +223,6 @@
                   data = angular.fromJson(data);
 
                   $scope.data.liveGraphData.push(data);
-                  //console.log(angular.fromJson(data));
 
                   $scope.counter_liveGraphData = $scope.counter_liveGraphData+1; //lets only update the graph every X messages
                   if($scope.counter_liveGraphData > 10){
@@ -241,15 +237,13 @@
                   data = angular.fromJson(data);
 
                   $scope.data.revenueGraphData.push(data);
-                  //console.log(angular.fromJson(data));
 
                   $scope.counter_revenueGraphData = $scope.counter_revenueGraphData+1; //lets only update the graph every X messages
                   if($scope.counter_revenueGraphData > 1){
                     $scope.updateRevenueGraph();
                     $scope.counter_revenueGraphData = 0;
                   }
-                  // keep 100 elements
-                  $scope.data.revenueGraphData = $scope.data.revenueGraphData.splice(-100);
+                  $scope.data.revenueGraphData = $scope.data.revenueGraphData.splice(-100); // keep 100 elements
                 });
 
                 $scope.arraysEqual = function(arr1, arr2) {
@@ -259,7 +253,6 @@
                         if(arr1[i] !== arr2[i])
                             return false;
                     }
-
                     return true;
                 }
 
@@ -284,7 +277,6 @@
                     })
                   })
 
-                  //console.log('load graph')
                   $scope.charts["price"].load({
                     bindto: "#chart-price",
                     xs: xs_mapping,
