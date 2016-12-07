@@ -111,6 +111,7 @@
                 }
 
                 $scope.drawPriceGraphs = function() {
+                  console.log("drawPriceGraphs")
                   var graphNames = ["price"];
                   angular.forEach($scope.merchant_ids, function(mId) {
                     graphNames.push("price-"+mId);
@@ -257,6 +258,7 @@
                 }
 
                 $scope.updatePriceGraph = function() {
+                  console.log("updatePriceGraph")
                   let xs_mapping = {}
                   let columns_array = []
 
@@ -300,24 +302,25 @@
                 }
 
                 $scope.updatePriceGraphPerMerchant = function() {
-                  let xs_mapping = {}
-                  let columns_array = []
+                  console.log("updatePriceGraphPerMerchant")
 
                   const data = $scope.data.priceGraphData
                   const new_merchants = Array.from((new Set(data.map(x => x.merchant_id))).values())
                   $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values())
 
                   // check if new merchants are in place. if so, draw graphs for them
-                  if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
-                    $scope.drawPriceGraphs();
-                    $scope.merchant_ids = new_merchants;
-                    console.log("updating merchant_ids array")
-                  }
+                  //if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
+                  //  $scope.drawPriceGraphs();
+                  //  $scope.merchant_ids = new_merchants;
+                  //}
 
                   $scope.merchant_ids.forEach(mId => {
+                    let xs_mapping = {}
+                    let columns_array = []
+
                     $scope.product_ids.forEach(pId => {
                       const line_id = mId + '-' + pId
-                      const filtered_data = data.filter(x => x.merchant_id === mId && x.product_id === pId)
+                      const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
                       const prices = filtered_data.map(x => x.price)
                       const times = filtered_data.map(x => new Date(x.timestamp))
 
@@ -326,6 +329,7 @@
                       columns_array.push(['x'+line_id].concat(times))
                     })
 
+                    //if($scope.charts.indexOf("price-"+mId) !== -1){
                     if($scope.charts["price-"+mId]) {
                       $scope.charts["price-"+mId].load({
                         bindto: "#chart-price-"+mId,
@@ -370,7 +374,7 @@
                   })
 
                   $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
-                  if ($scope.counter_priceGraphData >= 100) {
+                  if ($scope.counter_priceGraphData >= 3) {
                     $scope.updatePriceGraph()
                     $scope.updatePriceGraphPerMerchant();
                     $scope.counter_priceGraphData = 0
