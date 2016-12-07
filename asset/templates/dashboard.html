@@ -42,7 +42,7 @@
 	                  </h4>
 	              </div>
 	              <!--<button class="btn btn-success btn-block" ng-click="fetchSellingData()">Fetch selling data</button>-->
-	              <div id="chart-live-sales"></div>
+	              <div id="chart-liveSales"></div>
 	          </div>
 
 	      </div>
@@ -103,6 +103,43 @@
                    </div>
                    <!--<button class="btn btn-success btn-block" ng-click="fetchSellingData()">Fetch selling data</button>-->
                    <div id="chart-price"></div>
+               </div>
+
+           </div>
+       </div>
+
+    </div>
+
+    <div class="row">
+
+       <div style="" class="col-md-12">
+           <div class="hpanel">
+
+               <div class="panel-body">
+                   <div class="m-b-md">
+                       <h4>
+                           Price Chart Per Merchant
+                       </h4>
+                   </div>
+
+                   <div id="chart-price"></div>
+               </div>
+
+           </div>
+        </div>
+
+        <div style="" class="col-md-4" ng-repeat="merchant in merchant_ids">
+           <div class="hpanel">
+
+               <div class="panel-body">
+                   <div class="m-b-md">
+                       <h4>
+                            Merchant {{merchant}}
+                       </h4>
+                   </div>
+
+
+                   <div id="chart-price-{{merchant}}"></div>
                </div>
 
            </div>
