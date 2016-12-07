@@ -17,13 +17,13 @@
               $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
               $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
               $scope.consumer.tick                = 1;
-              $scope.consumer.amount_of_consumers = 10;
-              $scope.consumer.probability_of_sell = 50;
-              $scope.consumer.behaviors           = [{"name":"cheap","amount":20},
+              $scope.consumer.amount_of_consumers = 2;
+              $scope.consumer.probability_of_sell = 2;
+              $scope.consumer.behaviors           = [{"name":"cheap","amount":10},
                                                     {"name":"expensive","amount":20},
-                                                    {"name":"cheap_and_prime","amount":20},
-                                                    {"name":"random","amount":20},
-                                                    {"name":"first","amount":20}];
+                                                    {"name":"cheap_and_prime","amount":50},
+                                                    {"name":"random","amount":10},
+                                                    {"name":"first","amount":10}];
 
               // Toastr options
               toastr.options = {
