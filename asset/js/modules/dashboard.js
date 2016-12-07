@@ -392,6 +392,16 @@
 
                 $scope.filterPriceGraphFor = function(product_uid) {
                   console.log("Filtering for " + product_uid);
+                    /*
+                     $scope.charts.price.hide(null, {
+                        withLegend: true
+                     });
+                     // filter all columns by productUID and pass them to show below
+                     colsToShow = columns_array.filter ...
+                     $scope.charts.price.show(colsToShow, {
+                        withLegend: true
+                     });
+                    */
                 };
 
                 //socket.on('connect', function (data) {
