@@ -81,7 +81,7 @@
                   const graphNames = ["liveSales", "salesPerMinute", "revenue"];
                   angular.forEach(graphNames, function(value, key) {
                     $scope.charts[value] = c3.generate({
-                        bindto: '#chart-'+value,
+                        bindto: '#chart-'+value.toString(),
                         data: {
                             x: 'x',
                             columns: [
@@ -112,13 +112,15 @@
 
                 $scope.drawPriceGraphs = function() {
                   var graphNames = ["price"];
-                  angular.forEach($scope.merchant_ids, function(value, key) {
-                    graphNames.push("price-"+toString(value));
+                  angular.forEach($scope.merchant_ids, function(id, key) {
+                    graphNames.push("price-"+id.toString);
                   });
-                  angular.forEach(graphNames, function(value, key) {
-                    console.log("drawing #chart-"+value)
-                    $scope.charts[value] = c3.generate({
-                      bindto: '#chart-'+value,
+                  console.log(graphNames)
+                  angular.forEach(graphNames, function(grapName, key) {
+                    const chartname = '#chart-'+grapName
+                    console.log(chartname)
+                    $scope.charts[""+grapName] = c3.generate({
+                      bindto: chartname,
                       data: {
                           xs: {},
                           columns: []
@@ -282,7 +284,7 @@
                     })
                   })
 
-                  console.log('load graph')
+                  //console.log('load graph')
                   $scope.charts["price"].load({
                     bindto: "#chart-price",
                     xs: xs_mapping,
@@ -334,9 +336,9 @@
                     console.log(columns_array)
                     console.log(mId)
                     console.log($scope.charts)
-                    if($scope.charts.indexOf("price-"+mId) !== -1) {
-                      $scope.charts["price-"+mId].load({
-                        bindto: "#chart-price-"+mId,
+                    if($scope.charts.indexOf("price-"+mId.toString()) !== -1) {
+                      $scope.charts["price-"+mId.toString()].load({
+                        bindto: "#chart-price-"+mId.toString(),
                         xs: xs_mapping,
                         columns: columns_array
                       });
@@ -377,7 +379,7 @@
                   })
 
                   $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
-                  if ($scope.counter_priceGraphData >= 10) {
+                  if ($scope.counter_priceGraphData >= 100) {
                     $scope.updatePriceGraph()
                     $scope.updatePriceGraphPerMerchant();
                     $scope.counter_priceGraphData = 0
