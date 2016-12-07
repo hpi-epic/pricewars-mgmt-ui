@@ -110,7 +110,6 @@
                   });
                 }
 
-
                 $scope.drawPriceGraphs = function() {
                   var graphNames = ["price"];
                   angular.forEach($scope.merchant_ids, function(value, key) {
@@ -335,11 +334,15 @@
                     console.log(columns_array)
                     console.log(mId)
                     console.log($scope.charts)
-                    $scope.charts["price-"+mId].load({
-                      bindto: "#chart-price-"+mId,
-                      xs: xs_mapping,
-                      columns: columns_array
-                    });
+                    if($scope.charts.indexOf("price-"+mId) !== -1) {
+                      $scope.charts["price-"+mId].load({
+                        bindto: "#chart-price-"+mId,
+                        xs: xs_mapping,
+                        columns: columns_array
+                      });
+                    } else {
+                      $scope.drawPriceGraphs();
+                    }
                   })
                 }
 
@@ -380,7 +383,7 @@
                     $scope.counter_priceGraphData = 0
                   }
 
-                  $scope.data.priceGraphData = $scope.data.priceGraphData.splice(-100);
+                  $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
                 });
 
                 //socket.on('connect', function (data) {
