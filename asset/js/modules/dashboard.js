@@ -14,6 +14,8 @@
                 $scope.merchant_ids  = [];
                 $scope.product_ids   = [];
 
+                $scope.currentUIDFilter = "ALL";
+
                 // Toastr options
                 toastr.options = {
                     "debug": false,
@@ -248,10 +250,10 @@
                 });
 
                 $scope.arraysEqual = function(arr1, arr2) {
-                    if(arr1.length !== arr2.length)
+                    if (arr1.length !== arr2.length)
                         return false;
-                    for(var i = arr1.length; i--;) {
-                        if(arr1[i] !== arr2[i])
+                    for (var i = arr1.length; i--;) {
+                        if (arr1[i] !== arr2[i])
                             return false;
                     }
                     return true;
@@ -264,7 +266,7 @@
 
                   const data = $scope.data.priceGraphData
                   $scope.merchant_ids = Array.from((new Set(data.map(x => x.merchant_id))).values())
-                  $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values())
+                  $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values()).sort()
 
                   $scope.product_ids.forEach(pId => {
                     $scope.merchant_ids.forEach(mId => {
@@ -345,9 +347,29 @@
                   $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
                 });
 
-                socket.on('marketshare', function (data) {
-                  console.log("marketshare: ", data);
-                });
+                $scope.filterPriceGraphFor = function(product_uid) {
+                    console.log("Filtering for " + product_uid);
+                    $scope.currentUIDFilter = product_uid;
+
+                    // get all columns from the graph and filter for the given product_uid, then only take the IDs
+                    let colsToShow = [];
+                    if (product_uid == ("ALL")) {
+                        colsToShow = $scope.charts["price"].internal.data.targets
+                    } else {
+                        colsToShow = $scope.charts["price"].internal.data.targets.filter(col => col.id.includes(product_uid + '-'))
+                    }
+                    let colsIDsToShow = colsToShow.map(col => col.id)
+
+                    // hide all columns
+                     $scope.charts["price"].hide(null, {
+                        withLegend: true
+                     });
+
+                     // show only filtered columns
+                    $scope.charts["price"].show(colsIDsToShow, {
+                         withLegend: true
+                     });
+                };
 
             }] //END: controller function
     );  // END: dashboardController
