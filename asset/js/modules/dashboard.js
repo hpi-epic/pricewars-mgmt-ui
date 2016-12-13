@@ -53,7 +53,6 @@
                   $http.get($scope.marketplace_url + "/merchants")
                       .then(function(response) {
                           angular.forEach(response.data, function(value, key) {
-                            //console.log(value);
                               $scope.getMerchantDetails(value["api_endpoint_url"]);
                           });
                       });
@@ -72,7 +71,6 @@
                     return "hpanel hbgred";
                   }
                 }
-
 
                 $scope.data = [];
                 $scope.charts = [];
@@ -111,7 +109,6 @@
                 }
 
                 $scope.drawPriceGraphs = function() {
-                  console.log("drawPriceGraphs")
                   var graphNames = ["price"];
                   angular.forEach($scope.merchant_ids, function(mId) {
                     graphNames.push("price-"+mId);
@@ -147,7 +144,6 @@
 
 
                 $scope.updateLiveGraph = function() {
-                  console.log("updating Graph: LiveGraph");
                   $scope.charts["liveSales"].load({
                       bindto: "#chart-liveSales",
                       x: 'x',
@@ -159,8 +155,6 @@
                 }
 
                 $scope.updateRevenueGraph = function() {
-                  console.log("updating Graph: RevenueGraph");
-
                   var columns_array = [];
                   var merchants_list = [];
                   var merchants_entries = [];
@@ -194,8 +188,6 @@
                 }
 
                 $scope.updateSalesPerMinuteGraph = function(){
-                  console.log("updating Graph: updateSalesPerMinuteGraph");
-
                   $scope.charts["salesPerMinute"].load({
                       bindto: "#chart-salesPerMinute",
                       x: 'x',
@@ -207,7 +199,6 @@
                 }
 
                 $scope.getMerchants();
-
                 $scope.drawGraphs();
                 $scope.drawPriceGraphs();
 
@@ -220,8 +211,6 @@
                 //$scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
                 //  $scope.drawPriceGraphs();
                 //});
-
-
 
                 $scope.counter_liveGraphData = 0;
                 $scope.counter_revenueGraphData = 0;
@@ -295,26 +284,9 @@
                     xs: xs_mapping,
                     columns: columns_array
                   });
-
-                  // var chart = c3.generate({
-                  //     data: {
-                  //         xs: {
-                  //             'data1': 'x1',
-                  //             'data2': 'x2',
-                  //         },
-                  //         columns: [
-                  //             ['x1', 10, 30, 45, 50, 70, 100],
-                  //             ['x2', 30, 50, 75, 100, 120],
-                  //             ['data1', 30, 200, 100, 400, 150, 250],
-                  //             ['data2', 20, 180, 240, 100, 190]
-                  //         ]
-                  //     }
-                  // });
                 }
 
                 $scope.updatePriceGraphPerMerchant = function() {
-                  console.log("updatePriceGraphPerMerchant")
-
                   const data = $scope.data.priceGraphData
                   const new_merchants = Array.from((new Set(data.map(x => x.merchant_id))).values())
                   $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values())
@@ -330,7 +302,7 @@
                     let columns_array = []
 
                     $scope.product_ids.forEach(pId => {
-                      const line_id = mId + '-' + pId
+                      const line_id = 'Product ID: ' + pId
                       const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
                       const prices = filtered_data.map(x => x.price)
                       const times = filtered_data.map(x => new Date(x.timestamp))
@@ -340,7 +312,6 @@
                       columns_array.push(['x'+line_id].concat(times))
                     })
 
-                    //if($scope.charts.indexOf("price-"+mId) !== -1){
                     if($scope.charts["price-"+mId]) {
                       $scope.charts["price-"+mId].load({
                         bindto: "#chart-price-"+mId,
@@ -354,27 +325,7 @@
                 }
 
                 socket.on('updateOffer', function (data) {
-                  console.log('socket updateOffer')
                   data = angular.fromJson(data);
-                  // {
-                  //   "topic": msg.topic,
-                  //   "timestamp": msg.timestamp,
-                  //   "value": {
-                  //     "offer_id": 31,
-                  //     "uid": 32,
-                  //     "product_id": 3,
-                  //     "quality": 2,
-                  //     "merchant_id": 10,
-                  //     "amount": 3,
-                  //     "price": 34.0,
-                  //     "shipping_time_standard": 5,
-                  //     "shipping_time_prime": 1,
-                  //     "prime": true,
-                  //     "signature": "+D2Pew02v4TTCIlPIZoW7+cQCmWyp6ZRs46eJPoAbTU=",
-                  //     "http_code": 200,
-                  //     "timestamp": "2016-12-06T15:33:17.737Z"
-                  //   }
-                  // }
 
                   $scope.data.priceGraphData.push({
                     merchant_id: data.value.merchant_id,
@@ -394,9 +345,9 @@
                   $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
                 });
 
-                //socket.on('connect', function (data) {
-                //  console.log("conntect",data);
-                //});
+                socket.on('marketshare', function (data) {
+                  console.log("marketshare: ", data);
+                });
 
             }] //END: controller function
     );  // END: dashboardController
