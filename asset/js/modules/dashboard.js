@@ -224,15 +224,10 @@
                 $scope.drawPriceGraphs();
                 $scope.drawMarketshareGraph();
 
-                setTimeout(function(){
-                  $scope.drawGraphs();
-                  $scope.drawPriceGraphs();
-                }, 3000);
-
                 //load real data asap
-                //$scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-                //  $scope.drawPriceGraphs();
-                //});
+                $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+                  $scope.drawPriceGraphs();
+                });
 
                 $scope.counter_liveGraphData = 0;
                 $scope.counter_revenueGraphData = 0;
@@ -307,6 +302,9 @@
                     xs: xs_mapping,
                     columns: columns_array
                   });
+
+                  // make sure to only show currently filtered lines in case new products have been added
+                  showOnlyFilteredPriceColumns();
                 }
 
                 $scope.updatePriceGraphPerMerchant = function() {
@@ -430,6 +428,38 @@
                          withLegend: true
                      });
                 };
+
+                $scope.filterPriceGraphFor = function(product_uid) {
+                    console.log("Filtering for " + product_uid);
+                    $scope.currentUIDFilter = product_uid;
+
+                    showOnlyFilteredPriceColumns();
+                };
+
+                // get all columns from the graph and filter for the currently chosen product_uid, then only take the IDs of those
+                function getFilteredPriceColumns() {
+                    let colsToShow = [];
+                    if ($scope.currentUIDFilter == ("ALL")) {
+                        colsToShow = $scope.charts["price"].internal.data.targets
+                    } else {
+                        colsToShow = $scope.charts["price"].internal.data.targets.filter(col => col.id.includes($scope.currentUIDFilter + '-'))
+                    }
+                    return colsToShow.map(col => col.id)
+                }
+
+                function showOnlyFilteredPriceColumns() {
+                    let colsIDsToShow = getFilteredPriceColumns();
+
+                    // hide all columns
+                    $scope.charts["price"].hide(null, {
+                        withLegend: true
+                    });
+
+                    // show only filtered columns
+                    $scope.charts["price"].show(colsIDsToShow, {
+                        withLegend: true
+                    });
+                }
 
             }] //END: controller function
     );  // END: dashboardController
