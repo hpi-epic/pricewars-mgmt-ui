@@ -87,7 +87,8 @@
                             columns: [
                                 ['x'],
                                 ['price']
-                            ]
+                            ],
+                            types: 'step'
                         },
                         point: {
                           show: false
@@ -138,7 +139,8 @@
                       bindto: chartname,
                       data: {
                           xs: {},
-                          columns: []
+                          columns: [],
+                          types: 'step'
                       },
                       point: {
                           show: false
@@ -280,7 +282,6 @@
                 }
 
                 $scope.updatePriceGraph = function() {
-                  console.log("updatePriceGraph")
                   let xs_mapping = {}
                   let columns_array = []
 
@@ -323,7 +324,7 @@
                     let columns_array = []
 
                     $scope.product_ids.forEach(pId => {
-                      const line_id = 'Product ID: ' + pId
+                      const line_id = '_product_id_' + pId
                       const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
                       const prices = filtered_data.map(x => x.price)
                       const times = filtered_data.map(x => new Date(x.timestamp))
@@ -346,7 +347,6 @@
                 }
 
                 socket.on('updateOffer', function (data) {
-                //socket.on('false', function (data) {
                   data = angular.fromJson(data);
 
                   $scope.data.priceGraphData.push({
@@ -394,7 +394,7 @@
                   }
                 }
 
-                socket.on('marketshare', function (data) {
+                socket.on('kumulativeTurnoverBasedMarketshare', function (data) {
                   data = angular.fromJson(data);
                   $scope.data.marketshareData.push(data.value);
 
