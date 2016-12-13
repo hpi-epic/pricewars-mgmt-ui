@@ -309,10 +309,10 @@
                   $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values())
 
                   // check if new merchants are in place. if so, draw graphs for them
-                  //if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
-                  //  $scope.drawPriceGraphs();
-                  //  $scope.merchant_ids = new_merchants;
-                  //}
+                  if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
+                    //$scope.drawPriceGraphs();
+                    $scope.merchant_ids = new_merchants;
+                  }
 
                   $scope.merchant_ids.forEach(mId => {
                     let xs_mapping = {}
