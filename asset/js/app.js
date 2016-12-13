@@ -6,13 +6,13 @@
         'deployment',
         'log',
         'config',
-        'dashboard'
+        'dashboard',
+        'prices'
         ]);
 
     frontend.config(['$routeProvider',
         function ($routeProvider) {
             $routeProvider.
-                // Common Views
                 when('/deployment', {
                     templateUrl: 'asset/templates/deployment.html',
                     controller: 'deploymentCtrl'
@@ -21,9 +21,13 @@
                     templateUrl: 'asset/templates/log.html',
                     controller: 'logCtrl'
                 }).
-                when('/dashboard', {
+                when('/dashboard/overview', {
                     templateUrl: 'asset/templates/dashboard.html',
                     controller: 'dashboardCtrl'
+                }).
+                when('/dashboard/prices', {
+                    templateUrl: 'asset/templates/prices.html',
+                    controller: 'pricesCtrl'
                 }).
                 when('/config/merchant', {
                     templateUrl: 'asset/templates/merchant.html',
@@ -41,7 +45,6 @@
                     templateUrl: 'asset/templates/marketplace.html',
                     controller: 'marketplaceCtrl'
                 }).
-                // default Route
                 otherwise({
                     redirectTo: '/deployment'
                 });
@@ -62,11 +65,6 @@
     });
 
     frontend.factory('socket', function ($rootScope) {
-
-        //var socket = io.connect("", {
-        //    query: 'id=mgmt-ui'
-        //});
-
         var socket = io.connect("http://192.168.31.91:8001/", {query: 'id=mgmt-ui'});
 
         return {
