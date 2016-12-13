@@ -79,6 +79,34 @@
                 /**
                   * Initializing Graphs
                 */
+                $scope.drawHighCharts = function(){
+                  $(function () {
+                      $scope.myChart = Highcharts.chart('highchart-revenue', {
+                          chart: {
+                              type: 'bar'
+                          },
+                          title: {
+                              text: 'Fruit Consumption'
+                          },
+                          xAxis: {
+                              categories: ['Apples', 'Bananas', 'Oranges']
+                          },
+                          yAxis: {
+                              title: {
+                                  text: 'Fruit eaten'
+                              }
+                          },
+                          series: [{
+                              name: 'Jane',
+                              data: [1, 0, 4]
+                          }, {
+                              name: 'John',
+                              data: [5, 7, 3]
+                          }]
+                      });
+                  });
+                }
+
                 $scope.drawGraphs = function() {
                   const graphNames = ["liveSales", "salesPerMinute", "revenue"];
                   angular.forEach(graphNames, function(value, key) {
@@ -339,7 +367,7 @@
                 $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
                   $scope.drawPriceGraphs();
                 });
-                
+
                 /**
                   * Handling socket events
                 */
@@ -370,26 +398,6 @@
                   $scope.data.revenueGraphData = $scope.data.revenueGraphData.splice(-100); // keep 100 elements
                 });
 
-                socket.on('updateOffer', function (data) {
-                  data = angular.fromJson(data);
-
-                  $scope.data.priceGraphData.push({
-                    merchant_id: data.value.merchant_id,
-                    uid: data.value.uid,
-                    price: data.value.price,
-                    product_id: data.value.product_id,
-                    timestamp: data.value.timestamp,
-                  })
-
-                  $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
-                  if ($scope.counter_priceGraphData >= 3) {
-                    $scope.updatePriceGraph()
-                    $scope.updatePriceGraphPerMerchant();
-                    $scope.counter_priceGraphData = 0
-                  }
-
-                  $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
-                });
 
                 socket.on('kumulativeTurnoverBasedMarketshare', function (data) {
                   data = angular.fromJson(data);
