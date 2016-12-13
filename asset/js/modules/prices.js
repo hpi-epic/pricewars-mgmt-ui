@@ -201,7 +201,8 @@
                                 },
                                 title: {
                                     text: 'Date'
-                                }
+                                },
+                                ordinal: false
                             },
                             yAxis: {
                                 title: {
@@ -214,9 +215,9 @@
                 }
 
                 function updatePriceUpdateHighChart(newDataPoint) {
-                    const lineID = newDataPoint.product_id + '-' + newDataPoint.merchant_id
+                    const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id
                     let line = $scope.charts["priceUpdateHighChart"].get(lineID)
-                    let point = [new Date(newDataPoint.timestamp), newDataPoint.price]
+                    let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price]
 
                     // create a new series/line if it is not present yet
                     if (line === undefined || line === null) {
@@ -230,7 +231,8 @@
                     }
 
                     // add the new point to the line
-                    line.addPoint(point, true, false);// TODO set last to true
+                    let shift = line.data.length > 100;
+                    line.addPoint(point, true, shift);
                 }
 
                 /**
