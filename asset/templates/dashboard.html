@@ -103,12 +103,15 @@
                    </div>
 
                    <div class="btn-group">
-                       <button data-toggle="dropdown" class="btn btn-primary dropdown-toggle" aria-expanded="true">Product UID<span class="caret"></span></button>
+                       <p><strong>Filter for Product UID:</strong></p>
+                       <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="true">{{currentUIDFilter}}<span class="caret"></span></button>
                        <ul class="dropdown-menu">
-                           <li ng-repeat='product_uid in product_ids' ng-click="filterPriceGraphFor(product_uid)"><a href="#">{{product_uid}}</a></li>
+                           <li><a href="javascript:void(0)" ng-click="filterPriceGraphFor('ALL')">ALL</a></li>
+                           <li class="divider"></li>
+                           <li ng-repeat='product_uid in product_ids'><a href="javascript:void(0)" ng-click="filterPriceGraphFor(product_uid)">{{product_uid}}</a></li>
                        </ul>
                    </div>
-                   <br>
+                   <br><br>
 
                    <!--<button class="btn btn-success btn-block" ng-click="fetchSellingData()">Fetch selling data</button>-->
                    <div id="chart-price"></div>
