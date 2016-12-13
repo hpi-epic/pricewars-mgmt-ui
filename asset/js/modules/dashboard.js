@@ -363,11 +363,6 @@
                 $scope.drawGraphs();
                 $scope.drawMarketshareGraph();
 
-                //load real data asap
-                $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-                  $scope.drawPriceGraphs();
-                });
-
                 /**
                   * Handling socket events
                 */
