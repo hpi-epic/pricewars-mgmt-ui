@@ -182,6 +182,59 @@
                   })
                 }
 
+                $scope.drawPriceUpdateHighChart = function(){
+                    $(function () {
+                        $scope.charts["priceUpdateHighChart"] = Highcharts.stockChart('highchart-price', {
+                            title: {
+                                text: 'Price Updates'
+                            },
+                            xAxis: {
+                                type: 'datetime',
+                                dateTimeLabelFormats: {
+                                    second: '%H:%M:%S',
+                                    minute: '%H:%M',
+                                    hour: '%Y-%m-%d<br/>%H:%M',
+                                    day: '%Y<br/>%m-%d',
+                                    week: '%Y<br/>%m-%d',
+                                    month: '%Y-%m',
+                                    year: '%Y'
+                                },
+                                title: {
+                                    text: 'Date'
+                                },
+                                ordinal: false
+                            },
+                            yAxis: {
+                                title: {
+                                    text: 'Price'
+                                }
+                            },
+                            series: []
+                        });
+                    });
+                }
+
+                function updatePriceUpdateHighChart(newDataPoint) {
+                    const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id
+                    let line = $scope.charts["priceUpdateHighChart"].get(lineID)
+                    let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price]
+
+                    // create a new series/line if it is not present yet
+                    if (line === undefined || line === null) {
+                        let newLine = {
+                            name: lineID,
+                            id: lineID,
+                            data: [],
+                            step: true
+                        };
+                        line = $scope.charts["priceUpdateHighChart"].addSeries(newLine);
+                    }
+
+                    // add the new point to the line
+                    let shift = line.data.length > 100;
+                    line.addPoint(point, true, shift);
+                }
+
                 /**
                   * Helper
                 */
@@ -208,30 +261,6 @@
                     }
                     return true;
                 }
-
-                $scope.filterPriceGraphFor = function(product_uid) {
-                    console.log("Filtering for " + product_uid);
-                    $scope.currentUIDFilter = product_uid;
-
-                    // get all columns from the graph and filter for the given product_uid, then only take the IDs
-                    let colsToShow = [];
-                    if (product_uid == ("ALL")) {
-                        colsToShow = $scope.charts["price"].internal.data.targets
-                    } else {
-                        colsToShow = $scope.charts["price"].internal.data.targets.filter(col => col.id.includes(product_uid + '-'))
-                    }
-                    let colsIDsToShow = colsToShow.map(col => col.id)
-
-                    // hide all columns
-                     $scope.charts["price"].hide(null, {
-                        withLegend: true
-                     });
-
-                     // show only filtered columns
-                    $scope.charts["price"].show(colsIDsToShow, {
-                         withLegend: true
-                     });
-                };
 
                 $scope.filterPriceGraphFor = function(product_uid) {
                     console.log("Filtering for " + product_uid);
@@ -267,6 +296,7 @@
 
                 $scope.getMerchants();
                 $scope.drawPriceGraphs();
+                $scope.drawPriceUpdateHighChart();
 
                 //load real data asap
                 $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
@@ -277,15 +307,19 @@
                   * Handling socket events
                 */
                 socket.on('updateOffer', function (data) {
+                    console.log("updateOffer");
                   data = angular.fromJson(data);
 
-                  $scope.data.priceGraphData.push({
-                    merchant_id: data.value.merchant_id,
-                    uid: data.value.uid,
-                    price: data.value.price,
-                    product_id: data.value.product_id,
-                    timestamp: data.value.timestamp,
-                  })
+                    let newDataPoint = {
+                        merchant_id: data.value.merchant_id,
+                        uid: data.value.uid,
+                        price: data.value.price,
+                        product_id: data.value.product_id,
+                        timestamp: data.value.timestamp,
+                    };
+
+                  $scope.data.priceGraphData.push(newDataPoint)
+                    updatePriceUpdateHighChart(newDataPoint)
 
                   $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
                   if ($scope.counter_priceGraphData >= 3) {
