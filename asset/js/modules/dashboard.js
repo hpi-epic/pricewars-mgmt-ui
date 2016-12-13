@@ -208,9 +208,20 @@
 
                 $scope.getMerchants();
 
-                //load real data asap
                 $scope.drawGraphs();
                 $scope.drawPriceGraphs();
+
+                setTimeout(function(){
+                  $scope.drawGraphs();
+                  $scope.drawPriceGraphs();
+                }, 3000);
+
+                //load real data asap
+                //$scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
+                //  $scope.drawPriceGraphs();
+                //});
+
+
 
                 $scope.counter_liveGraphData = 0;
                 $scope.counter_revenueGraphData = 0;
