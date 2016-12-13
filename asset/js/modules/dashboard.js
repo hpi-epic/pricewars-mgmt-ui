@@ -276,7 +276,7 @@
                   let columns_array = []
 
                   const data = $scope.data.priceGraphData
-                  $scope.merchant_ids = Array.from((new Set(data.map(x => x.merchant_id))).values())
+                  $scope.merchant_ids = Array.from((new Set(data.map(x => x.merchant_id))).values()).sort()
                   $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values()).sort()
 
                   $scope.product_ids.forEach(pId => {
@@ -318,8 +318,7 @@
                   console.log("updatePriceGraphPerMerchant")
 
                   const data = $scope.data.priceGraphData
-                  const new_merchants = Array.from((new Set(data.map(x => x.merchant_id))).values())
-                  $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values())
+                  const new_merchants = Array.from((new Set(data.map(x => x.merchant_id))).values()).sort()
 
                   // check if new merchants are in place. if so, draw graphs for them
                   if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
