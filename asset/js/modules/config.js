@@ -344,6 +344,19 @@
 
                $scope.getProductInfo();
 
+               $scope.updateKey = function(){
+                 $http({url: $scope.marketplace_url + "/producer/key",
+                       dataType: "json",
+                       method: "PUT",
+                       data: {},
+                       headers: {
+                           "Content-Type": "application/json"
+                       }
+                     }).success(function (data) {
+                             toastr.success("New key was fetched.");
+                     });
+               }
+
                $scope.findNameOfProduct = function(productUID) {
                    if ($scope.products[productUID])
                      return $scope.products[productUID].name;
