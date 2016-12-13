@@ -110,6 +110,23 @@
                   });
                 }
 
+                $scope.drawMarketshareGraph = function() {
+                  $scope.charts["marketshare"] = c3.generate({
+                      bindto: "#chart-marketshare",
+                      data: {
+                          columns: [],
+                          type: 'bar'
+                      },
+                      bar: {
+                          width: {
+                              ratio: 0.5 // this makes bar width 50% of length between ticks
+                          }
+                          // or
+                          //width: 100 // this makes bar width 100px
+                      }
+                  });
+                }
+
                 $scope.drawPriceGraphs = function() {
                   var graphNames = ["price"];
                   angular.forEach($scope.merchant_ids, function(mId) {
@@ -203,6 +220,7 @@
                 $scope.getMerchants();
                 $scope.drawGraphs();
                 $scope.drawPriceGraphs();
+                $scope.drawMarketshareGraph();
 
                 setTimeout(function(){
                   $scope.drawGraphs();
@@ -217,10 +235,12 @@
                 $scope.counter_liveGraphData = 0;
                 $scope.counter_revenueGraphData = 0;
                 $scope.counter_priceGraphData = 0;
+                $scope.counter_marketshareData = 0;
                 $scope.data.liveGraphData = [];
                 $scope.data.revenueGraphData = [];
                 $scope.data.priceGraphData = [];
                 $scope.data.priceGraphPerMerchantData = [];
+                $scope.data.marketshareData = [];
 
                 socket.on('buyOffer', function (data) {
                   data = angular.fromJson(data);
@@ -327,6 +347,7 @@
                 }
 
                 socket.on('updateOffer', function (data) {
+                //socket.on('false', function (data) {
                   data = angular.fromJson(data);
 
                   $scope.data.priceGraphData.push({
@@ -345,6 +366,46 @@
                   }
 
                   $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
+                });
+
+                $scope.updateMarketshareGraph = function() {
+                  let columns = []
+                  let merchants = []
+                  angular.forEach($scope.data.marketshareData, function(value, key) {
+                    if(!merchants[value["merchant_id"]]) {
+                      merchants[value["merchant_id"]] = [];
+                    }
+                    merchants[value["merchant_id"]].push(value["marketshare"]*100)
+                  });
+
+                  angular.forEach(merchants, function(value, key) {
+                    let tmp= [];
+                    tmp.push(key)
+                    tmp = tmp.concat(value)
+                    columns.push(tmp)
+                  });
+
+                  if($scope.charts["marketshare"]) {
+                    $scope.charts["marketshare"].load({
+                      bindto: "#chart-marketshare",
+                      columns: columns
+                    });
+                  } else {
+                    $scope.drawMarketshareGraph();
+                  }
+                }
+
+                socket.on('marketshare', function (data) {
+                  data = angular.fromJson(data);
+                  $scope.data.marketshareData.push(data.value);
+
+                  $scope.counter_marketshareData = $scope.counter_marketshareData + 1
+                  if ($scope.counter_marketshareData >= 3) {
+                    $scope.updateMarketshareGraph()
+                    $scope.counter_marketshareData = 0
+                  }
+
+                  $scope.data.marketshareData = $scope.data.marketshareData.slice(-100);
                 });
 
                 $scope.filterPriceGraphFor = function(product_uid) {

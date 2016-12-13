@@ -168,7 +168,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Merchant was successfully stopped.");
+                            toastr.success("Merchant was successfully updated.");
                             $scope.getMerchants();
                     });
               };
@@ -182,7 +182,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Merchant was successfully stopped.");
+                            toastr.success("Merchant was successfully deleted.");
                             $scope.getMerchants();
                     });
               };
