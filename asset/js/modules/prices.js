@@ -4,17 +4,20 @@
     pr.controller('pricesCtrl', ['socket', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function (socket, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
+                const maxNumberOfPointsInLine      = 10000;
+                const filterForAllIDs              = "ALL";
+
                 $scope.kafka_restful_service                = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
                 $scope.kafka_restful_service_sales          = $scope.kafka_restful_service + "log/buyOffer";
                 $scope.kafka_restful_service_salesPerMinute = $scope.kafka_restful_service + "log/salesPerMinutes";
                 $scope.marketplace_url                      = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
-                $scope.liveGraphData = [];
-                $scope.merchants     = [];
-                $scope.merchant_ids  = [];
-                $scope.product_ids   = [];
+                $scope.liveGraphData    = [];
+                $scope.merchants        = [];
+                $scope.merchant_ids     = [];
+                $scope.product_uids     = [];
 
-                $scope.currentUIDFilter = "ALL";
+                $scope.currentUIDFilter = filterForAllIDs;
 
                 $scope.data = [];
                 $scope.charts = [];
@@ -120,9 +123,9 @@
 
                   const data = $scope.data.priceGraphData
                   $scope.merchant_ids = Array.from((new Set(data.map(x => x.merchant_id))).values()).sort()
-                  $scope.product_ids  = Array.from((new Set(data.map(x => x.uid))).values()).sort()
+                  $scope.product_uids  = Array.from((new Set(data.map(x => x.uid))).values()).sort()
 
-                  $scope.product_ids.forEach(pId => {
+                  $scope.product_uids.forEach(pId => {
                     $scope.merchant_ids.forEach(mId => {
                       const line_id = pId + '-' + mId
                       const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
@@ -159,7 +162,7 @@
                     let xs_mapping = {}
                     let columns_array = []
 
-                    $scope.product_ids.forEach(pId => {
+                    $scope.product_uids.forEach(pId => {
                       const line_id = '_product_id_' + pId
                       const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
                       const prices = filtered_data.map(x => x.price)
@@ -183,22 +186,12 @@
                 }
 
                 $scope.drawPriceUpdateHighChart = function(){
-                    $(function () {
-                        $scope.charts["priceUpdateHighChart"] = Highcharts.stockChart('highchart-price', {
+                    $scope.charts["priceUpdateHighChart"] = Highcharts.stockChart('highchart-price', {
                             title: {
                                 text: 'Price Updates'
                             },
                             xAxis: {
                                 type: 'datetime',
-                                dateTimeLabelFormats: {
-                                    second: '%H:%M:%S',
-                                    minute: '%H:%M',
-                                    hour: '%Y-%m-%d<br/>%H:%M',
-                                    day: '%Y<br/>%m-%d',
-                                    week: '%Y<br/>%m-%d',
-                                    month: '%Y-%m',
-                                    year: '%Y'
-                                },
                                 title: {
                                     text: 'Date'
                                 },
@@ -207,12 +200,44 @@
                             yAxis: {
                                 title: {
                                     text: 'Price'
-                                }
+                                },
+                                opposite: false
+                            },
+                            rangeSelector: {
+                                buttons: [{
+                                    count: 30,
+                                    type: 'second',
+                                    text: '30S'
+                                }, {
+                                    count: 1,
+                                    type: 'minute',
+                                    text: '1M'
+                                },{
+                                    count: 5,
+                                    type: 'minute',
+                                    text: '5M'
+                                }, {
+                                    count: 30,
+                                    type: 'minute',
+                                    text: '30M'
+                                }, {
+                                    count: 1,
+                                    type: 'hour',
+                                    text: '1H'
+                                },{
+                                    type: 'all',
+                                    text: 'All'
+                                }],
+                                inputEnabled: false,
+                                selected: 0
+                            },
+                            legend: {
+                              enabled: true
                             },
                             series: []
-                        });
                     });
-                }
+                    $scope.charts["priceUpdateHighChart"].setSize(undefined, 600);
+                };
 
                 function updatePriceUpdateHighChart(newDataPoint) {
                     const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id
@@ -225,13 +250,24 @@
                             name: lineID,
                             id: lineID,
                             data: [],
-                            step: true
+                            step: true,
+                            marker: {
+                                enabled: true,
+                                radius: 4,
+                                symbol: 'circle'
+                            },
+                            states: {
+                                hover: {
+                                    lineWidthPlus: 3
+                                }
+                            }
                         };
                         line = $scope.charts["priceUpdateHighChart"].addSeries(newLine);
+                        if (!line.options.id.includes($scope.currentUIDFilter + '-') && $scope.currentUIDFilter != filterForAllIDs) line.hide();
                     }
 
                     // add the new point to the line
-                    let shift = line.data.length > 100;
+                    let shift = line.data.length > maxNumberOfPointsInLine;
                     line.addPoint(point, true, shift);
                 }
 
@@ -272,7 +308,7 @@
                 // get all columns from the graph and filter for the currently chosen product_uid, then only take the IDs of those
                 function getFilteredPriceColumns() {
                     let colsToShow = [];
-                    if ($scope.currentUIDFilter == ("ALL")) {
+                    if ($scope.currentUIDFilter == filterForAllIDs) {
                         colsToShow = $scope.charts["price"].internal.data.targets
                     } else {
                         colsToShow = $scope.charts["price"].internal.data.targets.filter(col => col.id.includes($scope.currentUIDFilter + '-'))
@@ -281,6 +317,20 @@
                 }
 
                 function showOnlyFilteredPriceColumns() {
+
+                    /* ----- HighChart ----- */
+                    $scope.charts["priceUpdateHighChart"].series.forEach(function(serie) {
+                        if ($scope.currentUIDFilter == filterForAllIDs || serie.options.id.includes($scope.currentUIDFilter + '-')) {
+                            serie.setVisible(true, false);
+                        } else {
+                            serie.setVisible(false, false);
+                        }
+                    });
+                    // redraw once at the end to avoid slow re-drawing at each series-visibility-change
+                    $scope.charts["priceUpdateHighChart"].redraw();
+
+
+                    /* -------- C3 -------- */
                     let colsIDsToShow = getFilteredPriceColumns();
 
                     // hide all columns
@@ -303,32 +353,41 @@
                   $scope.drawPriceGraphs();
                 });
 
+                Array.prototype.pushIfNotExist = function(element) {
+                    if (this.indexOf(element) === -1) {
+                        this.push(element);
+                    }
+                    this.sort();
+                };
+
                 /**
                   * Handling socket events
                 */
                 socket.on('updateOffer', function (data) {
-                    console.log("updateOffer");
-                  data = angular.fromJson(data);
+                        console.log("updateOffer");
+                        data = angular.fromJson(data);
 
-                    let newDataPoint = {
-                        merchant_id: data.value.merchant_id,
-                        uid: data.value.uid,
-                        price: data.value.price,
-                        product_id: data.value.product_id,
-                        timestamp: data.value.timestamp,
-                    };
+                        let newDataPoint = {
+                            merchant_id: data.value.merchant_id,
+                            uid: data.value.uid,
+                            price: data.value.price,
+                            product_id: data.value.product_id,
+                            timestamp: data.value.timestamp,
+                        };
 
-                  $scope.data.priceGraphData.push(newDataPoint)
-                    updatePriceUpdateHighChart(newDataPoint)
+                       $scope.product_uids.pushIfNotExist(newDataPoint.uid);
+                       updatePriceUpdateHighChart(newDataPoint)
 
-                  $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
-                  if ($scope.counter_priceGraphData >= 3) {
-                    $scope.updatePriceGraph()
-                    $scope.updatePriceGraphPerMerchant();
-                    $scope.counter_priceGraphData = 0
-                  }
+                    // TODO refactor the part below, we only have that for the C3-single merchant graphs now, make it similar to the above and use highcharts instead
+                     $scope.data.priceGraphData.push(newDataPoint)
+                      $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
+                      if ($scope.counter_priceGraphData >= 3) {
+                        //$scope.updatePriceGraph()
+                        $scope.updatePriceGraphPerMerchant();
+                        $scope.counter_priceGraphData = 0
+                      }
 
-                  $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
+                      $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
                 });
 
             }] //END: controller function
