@@ -321,11 +321,13 @@
                     /* ----- HighChart ----- */
                     $scope.charts["priceUpdateHighChart"].series.forEach(function(serie) {
                         if ($scope.currentUIDFilter == filterForAllIDs || serie.options.id.includes($scope.currentUIDFilter + '-')) {
-                            serie.show();
+                            serie.setVisible(true, false);
                         } else {
-                            serie.hide();
+                            serie.setVisible(false, false);
                         }
                     });
+                    // redraw once at the end to avoid slow re-drawing at each series-visibility-change
+                    $scope.charts["priceUpdateHighChart"].redraw();
 
 
                     /* -------- C3 -------- */
