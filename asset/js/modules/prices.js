@@ -75,118 +75,16 @@
                 }
 
 
-
                 /**
                   * Initializing Graphs
                 */
-                $scope.drawPriceGraphs = function() {
-                  var graphNames = ["price"];
+                $scope.drawPricingHighChart = function(){
+                  $scope.graphNames = ["highchart-price"];
                   angular.forEach($scope.merchant_ids, function(mId) {
-                    graphNames.push("price-"+mId);
+                    $scope.graphNames.push("highchart-price-"+mId);
                   });
-                  angular.forEach(graphNames, function(grapName, key) {
-                    const chartname = '#chart-'+grapName
-                    $scope.charts[""+grapName] = c3.generate({
-                      bindto: chartname,
-                      data: {
-                          xs: {},
-                          columns: [],
-                          type: 'step'
-                      },
-                      point: {
-                          show: false
-                      },
-                      zoom: {
-                          enabled: true
-                      },
-                      axis: {
-                          x: {
-                              type: 'timeseries',
-                                  tick: { fit: true, format: '%H:%M:%S' }
-                          }
-                      },
-                        line: {
-                            step: {
-                                type: 'step-after'
-                            }
-                        }
-                    })
-                  });
-                }
-
-                /**
-                  * Updating content of graphs
-                */
-                $scope.updatePriceGraph = function() {
-                  let xs_mapping = {}
-                  let columns_array = []
-
-                  const data = $scope.data.priceGraphData
-                  $scope.merchant_ids = Array.from((new Set(data.map(x => x.merchant_id))).values()).sort()
-                  $scope.product_uids  = Array.from((new Set(data.map(x => x.uid))).values()).sort()
-
-                  $scope.product_uids.forEach(pId => {
-                    $scope.merchant_ids.forEach(mId => {
-                      const line_id = pId + '-' + mId
-                      const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
-                      const prices = filtered_data.map(x => x.price)
-                      const times = filtered_data.map(x => new Date(x.timestamp))
-
-                      xs_mapping['y'+line_id] = 'x'+line_id
-                      columns_array.push(['y'+line_id].concat(prices))
-                      columns_array.push(['x'+line_id].concat(times))
-                    })
-                  })
-
-                  $scope.charts["price"].load({
-                    bindto: "#chart-price",
-                    xs: xs_mapping,
-                    columns: columns_array
-                  });
-
-                  // make sure to only show currently filtered lines in case new products have been added
-                  showOnlyFilteredPriceColumns();
-                }
-
-                $scope.updatePriceGraphPerMerchant = function() {
-                  const data = $scope.data.priceGraphData
-                  const new_merchants = Array.from((new Set(data.map(x => x.merchant_id))).values()).sort()
-
-                  // check if new merchants are in place. if so, draw graphs for them
-                  if(!$scope.arraysEqual($scope.merchant_ids,new_merchants)){
-                    //$scope.drawPriceGraphs();
-                    $scope.merchant_ids = new_merchants;
-                  }
-
-                  $scope.merchant_ids.forEach(mId => {
-                    let xs_mapping = {}
-                    let columns_array = []
-
-                    $scope.product_uids.forEach(pId => {
-                      const line_id = '_product_id_' + pId
-                      const filtered_data = data.filter(x => x.merchant_id === mId && x.uid === pId)
-                      const prices = filtered_data.map(x => x.price)
-                      const times = filtered_data.map(x => new Date(x.timestamp))
-
-                      xs_mapping['y'+line_id] = 'x'+line_id
-                      columns_array.push(['y'+line_id].concat(prices))
-                      columns_array.push(['x'+line_id].concat(times))
-                    })
-
-                    if($scope.charts["price-"+mId]) {
-                      $scope.charts["price-"+mId].load({
-                        bindto: "#chart-price-"+mId,
-                        xs: xs_mapping,
-                        columns: columns_array
-                      });
-                    } else {
-                      $scope.drawPriceGraphs();
-                    }
-                  })
-                }
-
-                $scope.drawPriceUpdateHighChart = function(){
-                    $scope.charts["priceUpdateHighChart"] = Highcharts.stockChart('highchart-price', {
+                  angular.forEach($scope.graphNames, function(grapName, key) {
+                    $scope.charts[grapName] = Highcharts.stockChart(grapName, {
                             title: {
                                 text: 'Price Updates'
                             },
@@ -235,40 +133,51 @@
                               enabled: true
                             },
                             series: []
+                      });
+                      $scope.charts[grapName].setSize(undefined, 600);
                     });
-                    $scope.charts["priceUpdateHighChart"].setSize(undefined, 600);
                 };
 
-                function updatePriceUpdateHighChart(newDataPoint) {
-                    const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id
-                    let line = $scope.charts["priceUpdateHighChart"].get(lineID)
-                    let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price]
+                /**
+                  * Updating content of graphs
+                */
+                function updatePriceHighChart(newDataPoint) {
+                  const graphs = ["highchart-price","highchart-price-"+newDataPoint.merchant_id]
+                  angular.forEach(graphs, function(grapName, key) {
+                    if($scope.charts[grapName]){
+                      const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id
+                      let line = $scope.charts[grapName].get(lineID)
+                      let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price]
 
-                    // create a new series/line if it is not present yet
-                    if (line === undefined || line === null) {
-                        let newLine = {
-                            name: lineID,
-                            id: lineID,
-                            data: [],
-                            step: true,
-                            marker: {
-                                enabled: true,
-                                radius: 4,
-                                symbol: 'circle'
-                            },
-                            states: {
-                                hover: {
-                                    lineWidthPlus: 3
-                                }
-                            }
-                        };
-                        line = $scope.charts["priceUpdateHighChart"].addSeries(newLine);
-                        if (!line.options.id.includes($scope.currentUIDFilter + '-') && $scope.currentUIDFilter != filterForAllIDs) line.hide();
+                      // create a new series/line if it is not present yet
+                      if (line === undefined || line === null) {
+                          let newLine = {
+                              name: lineID,
+                              id: lineID,
+                              data: [],
+                              step: true,
+                              marker: {
+                                  enabled: true,
+                                  radius: 4,
+                                  symbol: 'circle'
+                              },
+                              states: {
+                                  hover: {
+                                      lineWidthPlus: 3
+                                  }
+                              }
+                          };
+                          line = $scope.charts[grapName].addSeries(newLine);
+                          if (!line.options.id.includes($scope.currentUIDFilter + '-') && $scope.currentUIDFilter != filterForAllIDs) line.hide();
+                      }
+
+                      // add the new point to the line
+                      let shift = line.data.length > maxNumberOfPointsInLine;
+                      line.addPoint(point, true, shift);
+                    } else {
+                      $scope.drawPricingHighChart();
                     }
-
-                    // add the new point to the line
-                    let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                  });
                 }
 
                 /**
@@ -319,7 +228,7 @@
                 function showOnlyFilteredPriceColumns() {
 
                     /* ----- HighChart ----- */
-                    $scope.charts["priceUpdateHighChart"].series.forEach(function(serie) {
+                    $scope.charts["highchart-price"].series.forEach(function(serie) {
                         if ($scope.currentUIDFilter == filterForAllIDs || serie.options.id.includes($scope.currentUIDFilter + '-')) {
                             serie.setVisible(true, false);
                         } else {
@@ -327,7 +236,7 @@
                         }
                     });
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
-                    $scope.charts["priceUpdateHighChart"].redraw();
+                    $scope.charts["highchart-price"].redraw();
 
 
                     /* -------- C3 -------- */
@@ -345,12 +254,11 @@
                 }
 
                 $scope.getMerchants();
-                $scope.drawPriceGraphs();
-                $scope.drawPriceUpdateHighChart();
+                $scope.drawPricingHighChart();
 
                 //load real data asap
                 $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-                  $scope.drawPriceGraphs();
+                  $scope.drawPricingHighChart();
                 });
 
                 Array.prototype.pushIfNotExist = function(element) {
@@ -364,30 +272,24 @@
                   * Handling socket events
                 */
                 socket.on('updateOffer', function (data) {
-                        console.log("updateOffer");
-                        data = angular.fromJson(data);
+                    console.log("updateOffer");
+                    data = angular.fromJson(data);
 
-                        let newDataPoint = {
-                            merchant_id: data.value.merchant_id,
-                            uid: data.value.uid,
-                            price: data.value.price,
-                            product_id: data.value.product_id,
-                            timestamp: data.value.timestamp,
-                        };
+                    let newDataPoint = {
+                        merchant_id: data.value.merchant_id,
+                        uid: data.value.uid,
+                        price: data.value.price,
+                        product_id: data.value.product_id,
+                        timestamp: data.value.timestamp,
+                    };
 
-                       $scope.product_uids.pushIfNotExist(newDataPoint.uid);
-                       updatePriceUpdateHighChart(newDataPoint)
+                   $scope.product_uids.pushIfNotExist(newDataPoint.uid);
+                   updatePriceHighChart(newDataPoint)
 
-                    // TODO refactor the part below, we only have that for the C3-single merchant graphs now, make it similar to the above and use highcharts instead
-                     $scope.data.priceGraphData.push(newDataPoint)
-                      $scope.counter_priceGraphData = $scope.counter_priceGraphData + 1
-                      if ($scope.counter_priceGraphData >= 3) {
-                        //$scope.updatePriceGraph()
-                        $scope.updatePriceGraphPerMerchant();
-                        $scope.counter_priceGraphData = 0
-                      }
-
-                      $scope.data.priceGraphData = $scope.data.priceGraphData.slice(-100);
+                   // check if new merchants are in place. if so, draw graphs for them
+                   if($scope.merchant_ids.indexOf(data.value.merchant_id) == -1){
+                     $scope.merchant_ids.push(data.value.merchant_id);
+                   }
                 });
 
             }] //END: controller function
