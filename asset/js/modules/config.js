@@ -15,15 +15,6 @@
 
               $scope.consumer                     = {};
               $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
-              $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.consumer.tick                = 1;
-              $scope.consumer.amount_of_consumers = 2;
-              $scope.consumer.probability_of_sell = 2;
-              $scope.consumer.behaviors           = [{"name":"cheap","amount":10},
-                                                    {"name":"expensive","amount":20},
-                                                    {"name":"cheap_and_prime","amount":50},
-                                                    {"name":"random","amount":10},
-                                                    {"name":"first","amount":10}];
 
               // Toastr options
               toastr.options = {
@@ -33,6 +24,19 @@
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
                   "timeOut": "2000",
+              };
+
+              $scope.getConsumerSampleSettings = function() {
+                  $http.get($scope.consumer_url + "/setting/sample")
+                      .then(function(response) {
+                              $scope.consumer = response.data;
+                              $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+                              $scope.consumer.behaviors           = [{"name":"cheap","amount":10},
+                                                                    {"name":"expensive","amount":20},
+                                                                    {"name":"cheap_and_prime","amount":50},
+                                                                    {"name":"random","amount":10},
+                                                                    {"name":"first","amount":10}];
+                          });
               };
 
               $scope.executeConsumer = function(){
@@ -60,6 +64,8 @@
                             toastr.warning("Consumer was successfully terminated.");
                     });
               }
+
+              $scope.getConsumerSampleSettings();
 
             }] //END: controller function
           );  // END: dashboardController
