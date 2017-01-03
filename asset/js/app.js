@@ -45,6 +45,10 @@
                     templateUrl: 'asset/templates/marketplace.html',
                     controller: 'marketplaceCtrl'
                 }).
+                when('/config/time', {
+                    templateUrl: 'asset/templates/time.html',
+                    controller: 'timeCtrl'
+                }).
                 otherwise({
                     redirectTo: '/deployment'
                 });
