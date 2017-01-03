@@ -25,6 +25,8 @@
                 $scope.data.priceGraphData = [];
                 $scope.data.priceGraphPerMerchantData = [];
 
+                Highcharts.setOptions({lang: {noData: "No data available (yet)"}});
+
                 /**
                   * UI settings
                 */
