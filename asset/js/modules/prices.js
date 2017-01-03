@@ -25,6 +25,9 @@
                 $scope.data.priceGraphData = [];
                 $scope.data.priceGraphPerMerchantData = [];
 
+                $scope.redrawGraphTimeout   = undefined;
+                $scope.redrawInterval       = 1000;
+
                 Highcharts.setOptions({lang: {noData: "No data available (yet)"}});
 
                 /**
@@ -81,7 +84,7 @@
                   * Initializing Graphs
                 */
                 $scope.drawPricingHighChart = function(){
-                  $scope.graphNames = ["highchart-price"];
+                  $scope.graphNames = ["highchart-price", "highchart-price_and_sales"];
                   angular.forEach($scope.merchant_ids, function(mId) {
                     $scope.graphNames.push("highchart-price-"+mId);
                   });
@@ -144,47 +147,73 @@
                   * Updating content of graphs
                 */
                 function updatePriceHighChart(newDataPoint) {
-                  const graphs = ["highchart-price","highchart-price-"+newDataPoint.merchant_id]
+                  const graphs = ["highchart-price","highchart-price-"+newDataPoint.merchant_id];
                   angular.forEach(graphs, function(grapName, key) {
                     if($scope.charts[grapName]){
-                      const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id
-                      let line = $scope.charts[grapName].get(lineID)
-                      let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price]
+                      const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id;
+                      let line = $scope.charts[grapName].get(lineID);
+                      let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price];
 
-                      // create a new series/line if it is not present yet
-                      if (line === undefined || line === null) {
-                          let newLine = {
-                              name: lineID,
-                              id: lineID,
-                              data: [],
-                              step: true,
-                              marker: {
-                                  enabled: true,
-                                  radius: 4,
-                                  symbol: 'circle'
-                              },
-                              states: {
-                                  hover: {
-                                      lineWidthPlus: 3
-                                  }
-                              }
-                          };
-                          line = $scope.charts[grapName].addSeries(newLine);
-                          if (!line.options.id.includes($scope.currentUIDFilter + '-') && $scope.currentUIDFilter != filterForAllIDs) line.hide();
-                      }
-
-                      // add the new point to the line
-                      let shift = line.data.length > maxNumberOfPointsInLine;
-                      line.addPoint(point, true, shift);
+                        addPointToLine($scope.charts[grapName], point, line, lineID);
                     } else {
                       $scope.drawPricingHighChart();
                     }
                   });
                 }
 
+                function updatePriceAndSalesChartWithPriceUpdate(newDataPoint) {
+                    const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id;
+                    let line = $scope.charts["highchart-price_and_sales"].get(lineID);
+                    let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price];
+
+                    addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
+                }
+
+                function updatePriceAndSalesChartWithSalesUpdate(newDataPoint) {
+                    const lineID = newDataPoint.value.uid + '-' + newDataPoint.value.merchant_id;
+                    let line = $scope.charts["highchart-price_and_sales"].get(lineID);
+                    let point = {
+                        x: new Date(newDataPoint.value.timestamp).getTime(),
+                        y: newDataPoint.value.price,
+                        marker: {fillColor: '#d60000'}
+                    };
+                    // todo depending on whether there are more items in stock or not, use circle or cross as symbol
+
+                    addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
+                }
+
+                function addPointToLine(chart, point, line, lineID) {
+                    // create a new series/line if it is not present yet
+                    if (line === undefined || line === null) {
+                        let newLine = {
+                            name: lineID,
+                            id: lineID,
+                            data: [],
+                            step: true,
+                            marker: {
+                                enabled: true,
+                                radius: 4,
+                                symbol: 'circle'
+                            },
+                            states: {
+                                hover: {
+                                    lineWidthPlus: 3
+                                }
+                            }
+                        };
+                        line = chart.addSeries(newLine);
+                        if (!line.options.id.includes($scope.currentUIDFilter + '-') && $scope.currentUIDFilter != filterForAllIDs) line.hide();
+                    }
+
+                    // add the new point to the line
+                    let shift = line.data.length > maxNumberOfPointsInLine;
+                    line.addPoint(point, true, shift);
+                }
+
                 /**
                   * Helper
                 */
+
                 $scope.merchantStatus = function(merchant){
                   if(merchant["state"] == "init"){
                     return "hpanel hbgblue";
@@ -237,8 +266,16 @@
                             serie.setVisible(false, false);
                         }
                     });
+                    $scope.charts["highchart-price_and_sales"].series.forEach(function(serie) {
+                        if ($scope.currentUIDFilter == filterForAllIDs || serie.options.id.includes($scope.currentUIDFilter + '-')) {
+                            serie.setVisible(true, false);
+                        } else {
+                            serie.setVisible(false, false);
+                        }
+                    });
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
                     $scope.charts["highchart-price"].redraw();
+                    $scope.charts["highchart-price_and_sales"].redraw();
 
 
                     /* -------- C3 -------- */
@@ -273,6 +310,11 @@
                 /**
                   * Handling socket events
                 */
+                socket.on('buyOffer', function (data) {
+                    data = angular.fromJson(data);
+                    updatePriceAndSalesChartWithSalesUpdate(data);
+                });
+
                 socket.on('updateOffer', function (data) {
                     console.log("updateOffer");
                     data = angular.fromJson(data);
@@ -287,6 +329,8 @@
 
                    $scope.product_uids.pushIfNotExist(newDataPoint.uid);
                    updatePriceHighChart(newDataPoint)
+
+                    updatePriceAndSalesChartWithPriceUpdate(newDataPoint);
 
                    // check if new merchants are in place. if so, draw graphs for them
                    if($scope.merchant_ids.indexOf(data.value.merchant_id) == -1){
