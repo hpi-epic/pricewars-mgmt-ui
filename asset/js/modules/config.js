@@ -10,7 +10,108 @@
         }] //END: controller function
     );  // END: ngviewController
 
-    co.controller('consumerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
+    co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+
+              $scope.tick                         = 100.0;
+              $scope.max_req_per_sec              = 10;
+              $scope.consumer                     = {};
+              $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
+              $scope.merchants                    = {};
+              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+
+              // Toastr options
+              toastr.options = {
+                  "debug": false,
+                  "newestOnTop": false,
+                  "positionClass": "toast-top-center",
+                  "closeButton": true,
+                  "toastClass": "animated fadeInDown",
+                  "timeOut": "2000",
+              };
+
+              $scope.getConsumerSettings = function() {
+                  $http.get($scope.consumer_url + "/setting/sample")
+                      .then(function(response) {
+                            $scope.consumer = response.data;
+                  });
+              };
+
+              $scope.getMerchantSettings = function(url){
+                $http.get(url + "/settings")
+                    .then(function(response) {
+                        $scope.merchants[url]  = response.data;
+                        $scope.tick            = response.data.tick;
+                        $scope.max_req_per_sec = response.data.max_req_per_sec;
+                    });
+              }
+
+              $scope.getSettings = function(){
+                $http.get($scope.marketplace_url + "/merchants")
+                    .then(function(response) {
+                        angular.forEach(response.data, function(value, key) {
+                            $scope.getMerchantSettings(value["api_endpoint_url"]);
+                        });
+                        $scope.getConsumerSettings();
+                    });
+              }
+
+              $scope.updateConsumerSettings = function(){
+                $scope.consumer.tick = $scope.tick;
+                $scope.consumer.max_req_per_sec = $scope.max_req_per_sec;
+                $http({url: $scope.consumer_url + "/setting",
+                      dataType: "json",
+                      method: "DELETE",
+                      data: {},
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.success("Consumer was successfully deleted.");
+                });
+                $http({url: $scope.consumer_url + "/setting",
+                      dataType: "json",
+                      method: "POST",
+                      data: $scope.consumer,
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                          toastr.success("Consumer was successfully updated.");
+                });
+              }
+
+              $scope.updateMerchantSettings = function(url, settings){
+                settings.tick = $scope.tick;
+                settings.max_req_per_sec = $scope.max_req_per_sec;
+                $http({url: url + "/settings",
+                      dataType: "json",
+                      method: "PUT",
+                      data: settings,
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                          toastr.success("Merchant was successfully updated.");
+                });
+              }
+
+              $scope.updateTimeConfig = function(){
+                $scope.updateConsumerSettings();
+                console.log($scope.merchants);
+                angular.forEach($scope.merchants, function(value, key) {
+                   console.log(key);
+                    $scope.updateMerchantSettings(key, value);
+                });
+              }
+
+              $scope.getSettings();
+
+            }] //END: controller function
+          );  // END: dashboardController
+
+
+          co.controller('consumerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
               $scope.consumer                     = {};
