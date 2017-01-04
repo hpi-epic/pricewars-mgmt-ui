@@ -200,7 +200,7 @@
                     const lineName = "PID: " + newDataPoint.value.uid + " - M: " + newDataPoint.value.merchant_id;
                     let line = $scope.charts["highchart-price_and_sales"].get(lineID);
                     let point;
-                    if (newDataPoint.value.inStock > 0) {
+                    if (newDataPoint.value.left_in_stock > 0) {
                         point = {
                             x: new Date(newDataPoint.value.timestamp).getTime(),
                             y: newDataPoint.value.price,
