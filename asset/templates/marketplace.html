@@ -48,35 +48,35 @@
                 <br>
 
                 <div class="table-responsive">
-                    <table cellpadding="1" cellspacing="1" class="table">
+                    <table id="offer_table_2" class="footable table table-bordered table-hover default footable-loaded">
                         <thead>
                         <tr>
-                            <th>Offer ID</th>
-                            <th>Product Name</th>
-                            <th>UID</th>
-                            <th>Product ID</th>
-                            <th>Merchant ID</th>
-                            <th>Price</th>
-                            <th>Quality</th>
-                            <th>Amount</th>
-                            <th>Shipping Time Standard</th>
-                            <th>Shipping Time Prime</th>
-                            <th>Prime</th>
+                            <th class="footable-visible footable-first-column footable-sortable footable-sorted-asc">Offer ID</th>
+                            <th class="footable-visible footable-sortable">Product Name</th>
+                            <th class="footable-visible footable-sortable">UID</th>
+                            <th class="footable-visible footable-sortable">Product ID</th>
+                            <th class="footable-visible footable-sortable">Merchant ID</th>
+                            <th class="footable-visible footable-sortable">Price</th>
+                            <th class="footable-visible footable-sortable">Quality</th>
+                            <th class="footable-visible footable-sortable">Amount</th>
+                            <th class="footable-visible footable-sortable">Shipping Time Standard</th>
+                            <th class="footable-visible footable-sortable">Shipping Time Prime</th>
+                            <th class="footable-visible footable-sortable footable-last-column">Prime</th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr ng-repeat='offer in offers track by $index'>
-                            <td>{{offer["offer_id"]}}</td>
-                            <td>{{findNameOfProduct(offer["uid"])}}</td>
-                            <td>{{offer["uid"]}}</td>
-                            <td>{{offer["product_id"]}}</td>
-                            <td>{{offer["merchant_id"]}}</td>
-                            <td>{{offer["price"]}}</td>
-                            <td>{{offer["quality"]}}</td>
-                            <td>{{offer["amount"]}}</td>
-                            <td>{{offer["shipping_time"]["standard"]}}</td>
-                            <td>{{offer["shipping_time"]["prime"]}}</td>
-                            <td>{{offer["prime"]}}</td>
+                        <tr style="display: table-row;" ng-repeat='offer in offers track by $index'>
+                            <td class="footable-visible footable-first-column">{{offer["offer_id"]}}</td>
+                            <td class="footable-visible">{{findNameOfProduct(offer["uid"])}}</td>
+                            <td class="footable-visible">{{offer["uid"]}}</td>
+                            <td class="footable-visible">{{offer["product_id"]}}</td>
+                            <td class="footable-visible">{{offer["merchant_id"]}}</td>
+                            <td class="footable-visible">{{offer["price"]}}</td>
+                            <td class="footable-visible">{{offer["quality"]}}</td>
+                            <td class="footable-visible">{{offer["amount"]}}</td>
+                            <td class="footable-visible">{{offer["shipping_time"]["standard"]}}</td>
+                            <td class="footable-visible">{{offer["shipping_time"]["prime"]}}</td>
+                            <td class="footable-visible footable-last-column">{{offer["prime"]}}</td>
                         </tr>
                         </tbody>
                     </table>
