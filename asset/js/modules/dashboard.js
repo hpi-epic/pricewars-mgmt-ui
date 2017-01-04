@@ -6,9 +6,6 @@
 
                 const maxNumberOfPointsInLine  = 10000;
 
-                $scope.kafka_restful_service                = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
-                $scope.kafka_restful_service_sales          = $scope.kafka_restful_service + "log/buyOffer";
-                $scope.kafka_restful_service_salesPerMinute = $scope.kafka_restful_service + "log/salesPerMinutes";
                 $scope.marketplace_url                      = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
                 $scope.liveGraphData = [];
