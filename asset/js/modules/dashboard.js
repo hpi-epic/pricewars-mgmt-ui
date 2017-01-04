@@ -221,55 +221,83 @@
                   * Updating chart content
                 */
                 function updateLiveSalesGraph(newDataPoint) {
-                    let point = [new Date(newDataPoint.value.timestamp).getTime(), newDataPoint.value.price]
-                    let line = $scope.charts["liveSales"].get("liveSales");
-                    let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                    let data = newDataPoint
+                    if (!(newDataPoint instanceof Array)) {
+                      data = [newDataPoint]
+                    } else {
+                      data = data.map(e => { return angular.fromJson(e) })
+                    }
+                    data.forEach(dp => {
+                      let point = [new Date(dp.value.timestamp).getTime(), dp.value.price]
+                      let line = $scope.charts["liveSales"].get("liveSales")
+                      let shift = line.data.length > maxNumberOfPointsInLine
+
+                      line.addPoint(point, false, shift)
+                    })
+                    $scope.charts["liveSales"].redraw()
                 }
 
                 function updateRevenueGraph(newDataPoint) {
-                    // todo only display new point if merchant is currently running
-                    const lineID = newDataPoint.value.merchant_id;
-                    let line = $scope.charts["revenue"].get(lineID);
-                    let date = new Date(newDataPoint.value.timestamp);
-                    date.setMilliseconds(0);
-                    let point = [date.getTime(), newDataPoint.value.revenue];
-
-                    // create a new series/line if it is not present yet
-                    if (line === undefined || line === null) {
-                        let newLine = {
-                            name: lineID,
-                            id: lineID,
-                            data: []
-                        };
-                        line = $scope.charts["revenue"].addSeries(newLine);
+                    let data = newDataPoint
+                    if (!(newDataPoint instanceof Array)) {
+                      data = [newDataPoint]
+                    } else {
+                      data = data.map(e => { return angular.fromJson(e) })
                     }
+                    data.forEach(dp => {
+                      // todo only display new point if merchant is currently running
+                      const lineID = dp.value.merchant_id;
+                      let line = $scope.charts["revenue"].get(lineID);
+                      let date = new Date(dp.value.timestamp);
+                      date.setMilliseconds(0);
+                      let point = [date.getTime(), dp.value.revenue];
 
-                    // add the new point to the line
-                    let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                      // create a new series/line if it is not present yet
+                      if (line === undefined || line === null) {
+                          let newLine = {
+                              name: lineID,
+                              id: lineID,
+                              data: []
+                          };
+                          line = $scope.charts["revenue"].addSeries(newLine, false);
+                      }
+
+                      // add the new point to the line
+                      let shift = line.data.length > maxNumberOfPointsInLine;
+                      line.addPoint(point, false, shift);
+                    })
+                    $scope.charts["revenue"].redraw()
                 }
 
                 function updateMarketshareGraph(newDataPoint) {
-                    const lineID = newDataPoint.value.merchant_id;
-                    let line = $scope.charts["revenue"].get(lineID);
-                    let date = new Date(newDataPoint.value.timestamp);
-                    date.setMilliseconds(0);
-                    let point = [date.getTime(), newDataPoint.value.marketshare * 100];
-
-                    // create a new series/line if it is not present yet
-                    if (line === undefined || line === null) {
-                        let newLine = {
-                            name: lineID,
-                            id: lineID,
-                            data: []
-                        };
-                        line = $scope.charts["revenue"].addSeries(newLine);
+                    let data = newDataPoint
+                    if (!(newDataPoint instanceof Array)) {
+                      data = [newDataPoint]
+                    } else {
+                      data = data.map(e => { return angular.fromJson(e) })
                     }
+                    data.forEach(dp => {
+                      const lineID = dp.value.merchant_id;
+                      let line = $scope.charts["marketshare"].get(lineID);
+                      let date = new Date(dp.value.timestamp);
+                      date.setMilliseconds(0);
+                      let point = [date.getTime(), dp.value.marketshare * 100];
 
-                    // add the new point to the line
-                    let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                      // create a new series/line if it is not present yet
+                      if (line === undefined || line === null) {
+                          let newLine = {
+                              name: lineID,
+                              id: lineID,
+                              data: []
+                          };
+                          line = $scope.charts["marketshare"].addSeries(newLine, false);
+                      }
+
+                      // add the new point to the line
+                      let shift = line.data.length > maxNumberOfPointsInLine;
+                      line.addPoint(point, false, shift);
+                    })
+                    $scope.charts["marketshare"].redraw()
                 }
 
                 /*$scope.updateSalesPerMinuteGraph = function(){
