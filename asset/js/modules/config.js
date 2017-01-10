@@ -30,6 +30,15 @@
                   "timeOut": "2000",
               };
 
+              $scope.getMarketplaceSettings = function(){
+                $http.get($scope.marketplace_url + "/config")
+                    .then(function(response) {
+                        $scope.marketplace     = response.data;
+                        $scope.tick            = parseFloat(response.data.tick);
+                        $scope.max_req_per_sec = parseInt(response.data.max_req_per_sec);
+                    });
+              }
+
               $scope.getConsumerSettings = function() {
                   $http.get($scope.consumer_url + "/setting/sample")
                       .then(function(response) {
@@ -41,8 +50,6 @@
                 $http.get(url + "/settings")
                     .then(function(response) {
                         $scope.merchants[url]  = response.data;
-                        $scope.tick            = response.data.tick;
-                        $scope.max_req_per_sec = response.data.max_req_per_sec;
                     });
               }
 
@@ -53,11 +60,12 @@
                             $scope.getMerchantSettings(value["api_endpoint_url"]);
                         });
                         $scope.getConsumerSettings();
+                        $scope.getMarketplaceSettings();
                     });
               }
 
               $scope.updateConsumerSettings = function(){
-                $scope.consumer.tick = $scope.tick;
+                $scope.consumer.tick            = $scope.tick;
                 $scope.consumer.max_req_per_sec = $scope.max_req_per_sec;
                 $http({url: $scope.consumer_url + "/setting",
                       dataType: "json",
@@ -96,17 +104,28 @@
                 });
               }
 
-              $scope.updateTimeConfig = function(){
-                $scope.updateConsumerSettings();
-                console.log($scope.merchants);
-                angular.forEach($scope.merchants, function(value, key) {
-                   console.log(key);
-                    $scope.updateMerchantSettings(key, value);
+              $scope.updateMarketplaceConfig = function(){
+                $http({url: $scope.marketplace_url + "/config",
+                      dataType: "json",
+                      method: "PUT",
+                      data: {"tick": $scope.tick,
+                             "max_req_per_sec": $scope.max_req_per_sec},
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                          toastr.success("Merchant was successfully updated.");
                 });
               }
 
+              $scope.updateTimeConfig = function(){
+                $scope.updateConsumerSettings();
+                $scope.updateMarketplaceConfig();
+                angular.forEach($scope.merchants, function(value, key) {
+                    $scope.updateMerchantSettings(key, value);
+                });
+              }
               $scope.getSettings();
-
             }] //END: controller function
           );  // END: dashboardController
 
