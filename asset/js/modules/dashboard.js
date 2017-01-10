@@ -52,21 +52,21 @@
                 /**
                   * REST calls
                 */
-                $scope.getMerchantDetails = function(url){
+                $scope.getMerchantDetails = function(url) {
                   $http.get(url + "/settings")
                       .then(function(response) {
                           $scope.merchants.push(response.data);
                       });
-                }
+                };
 
-                $scope.getMerchants = function(){
+                $scope.getMerchants = function() {
                   $http.get($scope.marketplace_url + "/merchants")
                       .then(function(response) {
                           angular.forEach(response.data, function(value, key) {
                               $scope.getMerchantDetails(value["api_endpoint_url"]);
                           });
                       });
-                }
+                };
 
                 /**
                   * Initializing Graphs
@@ -118,7 +118,7 @@
                                     text: 'All'
                                 }],
                                 inputEnabled: false,
-                                selected: 0
+                                selected: 5
                             },
                             legend: {
                                 enabled: true
@@ -137,7 +137,8 @@
                     angular.forEach(graphNames, function(value, key) {
                         $scope.charts[value] = Highcharts.chart('chart-' + value, {
                             chart: {
-                                type: 'column'
+                                type: 'column',
+                                zoomType: 'x'
                             },
                             title: {
                                 text: value
@@ -146,7 +147,8 @@
                                 type: 'datetime',
                                 title: {
                                     text: 'Date'
-                                }
+                                },
+                                showEmpty: false
                             },
                             yAxis: {
                                 title: {
@@ -160,10 +162,20 @@
                             },
                             tooltip: {
                                 headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
-                                pointFormat: '<b>Merchant {series.name}:</b> {point.y}'
+                                pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}'
+                            },
+                            scrollbar: {
+                                enabled: true
                             },
                             series: []
                         });
+
+                        // set default zoom
+                        var d = new Date();
+                        $scope.charts[value].xAxis[0].setExtremes(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() - 10), Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() + 10));
+
+                        // set height
+                        $scope.charts[value].setSize(undefined, 500);
                     });
                 };
 
@@ -172,7 +184,8 @@
                     angular.forEach(graphNames, function(value, key) {
                         $scope.charts[value] = Highcharts.chart('chart-' + value, {
                             chart: {
-                                type: 'column'
+                                type: 'column',
+                                zoomType: 'x'
                             },
                             title: {
                                 text: value
@@ -181,21 +194,22 @@
                                 type: 'datetime',
                                 title: {
                                     text: 'Date'
-                                },
-                                labels: {
-                                    format: 'Merchant {value}'
                                 }
                             },
                             yAxis: {
                                 title: {
                                     text: value
                                 },
+                                labels: {
+                                    format: '{value}%'
+                                },
+                                ceiling: 100,
                                 stackLabels: {
-                                    enabled: true,
+                                    enabled: false,
                                     style: {
                                         fontWeight: 'bold',
                                         color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray',
-                                        format: '{value}%'
+                                        format: '{value:.2f}%'
                                     }
                                 }
                             },
@@ -206,32 +220,76 @@
                             },
                             plotOptions: {
                                 column: {
-                                    stacking: 'normal'
+                                    stacking: 'percent'
                                 }
+                            },
+                            tooltip: {
+                                pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}%'
+                            },
+                            scrollbar: {
+                                enabled: true
                             },
                             series: []
                         });
+
+                        // set default zoom
+                        var d = new Date();
+                        $scope.charts[value].xAxis[0].setExtremes(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() - 10), Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() + 10));
+
+                        // set height
+                        $scope.charts[value].setSize(undefined, 500);
                     });
                 };
 
                 /**
                   * Updating chart content
                 */
-                function updateLiveSalesGraph(newDataPoint) {
-                    let point = [new Date(newDataPoint.value.timestamp).getTime(), newDataPoint.value.price]
-                    let line = $scope.charts["liveSales"].get("liveSales");
-                    let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                function updateLiveSalesGraph(newData) {
+                    newData.forEach(function(dp) {
+                      let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
+                      let line = $scope.charts["liveSales"].get("liveSales");
+                      let shift = line.data.length > maxNumberOfPointsInLine;
+
+                      line.addPoint(point, false, shift);
+                    });
+                    $scope.charts["liveSales"].redraw()
                 }
 
-                function updateRevenueGraph(newDataPoint) {
-                    // todo only display new point if merchant is currently running
-                    const lineID = newDataPoint.value.merchant_id;
-                    let line = $scope.charts["revenue"].get(lineID);
-                    let date = new Date(newDataPoint.value.timestamp);
-                    date.setMilliseconds(0);
-                    let point = [date.getTime(), newDataPoint.value.revenue];
+                function updateRevenueGraph(newData) {
+                    parseBulkData(newData).forEach(function(dp) {
+                        let date = new Date(dp.value.timestamp);
+                        date.setMilliseconds(0);
 
+                        // Only add the point if the merchant is currently registered (unless it's old data, then display it anyway)
+                        if (date < new Date() || isRegisteredMerchant(dp.value.merchant_id)) {
+                            const lineID = dp.value.merchant_id;
+                            let line = $scope.charts["revenue"].get(lineID);
+                            let point = [date.getTime(), dp.value.revenue];
+
+                            addPointToLine($scope.charts["revenue"], point, line, lineID);
+                        }
+                    });
+                    $scope.charts["revenue"].redraw()
+                }
+
+                function updateMarketshareGraph(newData) {
+                    parseBulkData(newData).forEach(function(dp) {
+                        let date = new Date(dp.value.timestamp);
+                        date.setMilliseconds(0);
+
+                        // Only add the point if the merchant is currently registered (unless it's old data, then display it anyway)
+                        if (date < new Date() || isRegisteredMerchant(dp.value.merchant_id)) {
+                            const lineID = dp.value.merchant_id;
+                            let line = $scope.charts["marketshare"].get(lineID);
+                            let point = [date.getTime(), dp.value.marketshare * 100];
+
+                            addPointToLine($scope.charts["marketshare"], point, line, lineID);
+                        }
+                    });
+                    $scope.charts["marketshare"].redraw()
+                }
+
+                function addPointToLine(chart, point, line, lineID) {
                     // create a new series/line if it is not present yet
                     if (line === undefined || line === null) {
                         let newLine = {
@@ -239,34 +297,22 @@
                             id: lineID,
                             data: []
                         };
-                        line = $scope.charts["revenue"].addSeries(newLine);
+                        line = chart.addSeries(newLine, false);
                     }
 
                     // add the new point to the line
                     let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                    line.addPoint(point, false, shift);
                 }
 
-                function updateMarketshareGraph(newDataPoint) {
-                    const lineID = newDataPoint.value.merchant_id;
-                    let line = $scope.charts["revenue"].get(lineID);
-                    let date = new Date(newDataPoint.value.timestamp);
-                    date.setMilliseconds(0);
-                    let point = [date.getTime(), newDataPoint.value.marketshare * 100];
-
-                    // create a new series/line if it is not present yet
-                    if (line === undefined || line === null) {
-                        let newLine = {
-                            name: lineID,
-                            id: lineID,
-                            data: []
-                        };
-                        line = $scope.charts["revenue"].addSeries(newLine);
+                function parseBulkData(newData) {
+                    var data = newData;
+                    if (!(newData instanceof Array)) {
+                        data = [newData]
+                    } else {
+                        data = newData.map(e => { return angular.fromJson(e) })
                     }
-
-                    // add the new point to the line
-                    let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                    return data;
                 }
 
                 /*$scope.updateSalesPerMinuteGraph = function(){
@@ -306,6 +352,16 @@
                     }
                     return true;
                 };
+
+                // Returns true if the given merchant_id belongs to a currently registered merchant
+                function isRegisteredMerchant(merchant_id) {
+                     for (let i = 0; i < $scope.merchants.length; i++) {
+                       if ($scope.merchants[i].merchant_id === merchant_id) {
+                           return true;
+                       }
+                     }
+                     return false;
+                }
 
                 $scope.getMerchants();
                 $scope.drawStockGraphs();

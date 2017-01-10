@@ -61,32 +61,44 @@
                     <i class="pe-7s-monitor fa-4x"></i>
                 </div>
                 <div class="m-t-xl">
+                    <div class="alert alert-success" ng-show="merchant.merchant_token">
+                        <b>Token:</b> {{merchant.merchant_token}} <br>
+                        <b>ID:</b> {{merchant.merchant_id}}
+                    </div>
+
                     <span class="font-bold no-margins">
                         Merchant API
                     </span>
                     <br>
-                    <input class="form-control" ng-model="merchant.merchant_url" type="text"><br>
+                    <input class="form-control" ng-model="merchant.api_endpoint_url" type="text"><br>
 
                     <span class="font-bold no-margins">
                         Name
                     </span>
                     <br>
-                    <input class="form-control" ng-model="merchant.name" type="text"><br>
+                    <input class="form-control" ng-model="merchant.merchant_name" type="text"><br>
 
-                    <span class="font-bold no-margins">
+                    <!-- <span class="font-bold no-margins">
                         Marketplace URL
                     </span>
                     <br>
-                    <input class="form-control" ng-model="merchant.marketplace_url" type="text"><br>
+                    <input class="form-control" ng-model="merchant.marketplace_url" type="text"><br> -->
 
                     <span class="font-bold no-margins">
                         Description
                     </span>
                     <br>
-                    <input class="form-control" ng-model="merchant.description" type="text"><br>
+                    <input class="form-control" ng-model="merchant.algorithm_name" type="text"><br>
 
                     <br>
                     <button type="button" class="btn w-xs btn-success" ng-click="registerMerchant()">Register</button>
+                    <br>
+
+                    <div class="hr-line-dashed"></div>
+                
+                    <span class="font-bold no-margins"> Merchant Token </span><br>
+                    <input class="form-control" ng-model="merchant.merchant_token_input" type="text"><br>
+                    <button type="button" class="btn w-xs btn-danger" ng-click="unregisterMerchant()">Revoke Token</button>
 
                 </div>
             </div>
