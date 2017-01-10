@@ -19,10 +19,10 @@
               $scope.consumer.description         = "Cooler Consumer doing Work";
 
               $scope.merchant                     = {};
-              $scope.merchant.merchant_url        = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de";
+              $scope.merchant.api_endpoint_url    = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de";
               $scope.merchant.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.merchant.name                = "Merchant der Erste";
-              $scope.merchant.description         = "Cooler Merchant doing Work";
+              $scope.merchant.merchant_name       = "Merchant der Erste";
+              $scope.merchant.algorithm_name      = "Cooler Merchant doing Work";
               $scope.merchant.nextState           = "init";
 
               // Toastr options
@@ -44,12 +44,12 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Consumer was successfully registered.");
+                      toastr.success("Consumer was successfully registered.");
                     });
               }
 
               $scope.registerMerchant = function(){
-                $http({url: $scope.merchant.merchant_url + "/settings/execution",
+                $http({url: $scope.merchant.marketplace_url + "/merchants",
                       dataType: "json",
                       method: "POST",
                       data: $scope.merchant,
@@ -57,7 +57,21 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Merchant was successfully registered.");
+                      $scope.merchant.merchant_token = data.merchant_token;
+                      $scope.merchant.merchant_id = data.merchant_id;
+                      toastr.success("Merchant was successfully registered.");
+                    });
+              }
+
+              $scope.unregisterMerchant = function(){
+                $http({url: $scope.merchant.marketplace_url + "/merchants/token/" + $scope.merchant.merchant_token_input,
+                      method: "DELETE",
+                      headers: {
+                      }
+                    }).success(function (data) {
+                      $scope.merchant.merchant_token = null;
+                      $scope.merchant.merchant_token_input = null;
+                      toastr.success("Merchant was successfully deleted and the token revoked!");
                     });
               }
 
