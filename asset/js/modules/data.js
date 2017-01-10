@@ -4,7 +4,7 @@
     da.controller('exportCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
-              $scope.kafka_reverse_proxy_url      = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
+              $scope.kafka_reverse_proxy_url      = "http://192.168.31.91:8001";
               $scope.topics                       = [];
 
               // Toastr options
@@ -18,7 +18,7 @@
               };
 
               $scope.getTopics = function(){
-                $http.get(url + "/settings")
+                $http.get($scope.kafka_reverse_proxy_url + "/topics")
                     .then(function(response) {
                         $scope.topics  = response.data;
                     });
