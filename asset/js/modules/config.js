@@ -75,7 +75,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            toastr.success("Consumer was successfully deleted.");
+                            toastr.warning("Consumer was successfully stopped.");
                 });
                 $http({url: $scope.consumer_url + "/setting",
                       dataType: "json",
@@ -85,7 +85,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                          toastr.success("Consumer was successfully updated.");
+                          toastr.success("Consumer was successfully started.");
                 });
               }
 
@@ -100,7 +100,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                          toastr.success("Merchant was successfully updated.");
+                          toastr.success("Merchant settings were successfully updated.");
                 });
               }
 
@@ -114,7 +114,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                          toastr.success("Merchant was successfully updated.");
+                          toastr.success("Marketplace config was successfully altered.");
                 });
               }
 
