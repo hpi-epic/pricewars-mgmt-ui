@@ -4,10 +4,10 @@
         'ngRoute',
         'chart.js',
         'deployment',
-        'log',
         'config',
         'dashboard',
-        'prices'
+        'prices',
+        'data'
         ]);
 
     frontend.config(['$routeProvider',
@@ -16,10 +16,6 @@
                 when('/deployment', {
                     templateUrl: 'asset/templates/deployment.html',
                     controller: 'deploymentCtrl'
-                }).
-                when('/log', {
-                    templateUrl: 'asset/templates/log.html',
-                    controller: 'logCtrl'
                 }).
                 when('/dashboard/overview', {
                     templateUrl: 'asset/templates/dashboard.html',
@@ -48,6 +44,10 @@
                 when('/config/time', {
                     templateUrl: 'asset/templates/time.html',
                     controller: 'timeCtrl'
+                }).
+                when('/data/export', {
+                    templateUrl: 'asset/templates/export.html',
+                    controller: 'exportCtrl'
                 }).
                 otherwise({
                     redirectTo: '/deployment'

@@ -1,0 +1,71 @@
+<div class="normalheader transition animated fadeIn">
+    <div class="hpanel tour-1">
+        <div class="panel-body">
+            <a class="small-header-action" href="">
+                <div class="clip-header">
+                    <i class="fa fa-arrow-up"></i>
+                </div>
+            </a>
+            <h2 class="font-light m-b-xs">
+                Data Export
+            </h2>
+        </div>
+    </div>
+</div> <!-- END: normalheader -->
+
+<div class="content animate-panel">
+
+<div class="row">
+    <div style="" class="col-lg-6">
+        <div class="hpanel stats">
+          <div class="table-responsive">
+                <table class="table table-condensed" cellspacing="1" cellpadding="1">
+                    <thead>
+                    <tr>
+                        <th>Topic Name</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                      <tr ng-repeat="topic in topics">
+                          <td>{{topic}}</td>
+                          <td><button type="button" ng-click="getExport(topic)" class="btn btn-outline btn-success">Get CSV</button></td>
+                      </tr>
+                    </tbody>
+                </table>
+              </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade hmodal-success " id="loadingModal"
+     tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="color-line"></div>
+            <div class="modal-header">
+              <div ng-if="!export_url">
+                <h4 class="modal-title">Please be patient..</h4>
+              </div>
+              <div ng-if="export_url">
+                <h4 class="modal-title">Please follow the link..</h4>
+              </div>
+            </div>
+            <div class="modal-body">
+                <p>
+                  <center>
+                    <div ng-if="!export_url">
+                      <img ng-src="/asset/images/loading.gif" class="text-center">
+                    </div>
+                    <div ng-if="export_url">
+                      <a href="{{export_url}}">{{export_url}}</a>
+                    </div>
+                  </center>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
