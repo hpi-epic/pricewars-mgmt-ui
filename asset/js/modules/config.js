@@ -124,7 +124,7 @@
                   "positionClass": "toast-top-center",
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
-                  "timeOut": "2000",
+                  "timeOut": "2000"
               };
 
               $scope.getConsumerSampleSettings = function() {
@@ -396,14 +396,15 @@
             }] //END: controller function
     );  // END: dashboardController
 
-    co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout) {
 
               $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
               $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
               $scope.offers                       = {};
               $scope.products                     = {};
               $scope.updateInterval               = 1000;
+              $scope.offerPullTimeout             = 0;
 
               // Toastr options
               toastr.options = {
@@ -420,22 +421,21 @@
                     .then(function(response) {
                         $scope.offers = response.data;
 
-                        // sort the offers by offer_id
+                        // sort the offers by product_uid
                         $scope.offers.sort(function(a, b){
-                            if(a.offer_id < b.offer_id) return -1;
-                            if(a.offer_id > b.offer_id) return 1;
+                            if(a.uid < b.uid) return -1;
+                            if(a.uid > b.uid) return 1;
                             return 0;
                         });
 
-                        if ($scope.offerPullTimeout) clearTimeout($scope.offerPullTimeout);
-                        $scope.offerPullTimeout = setTimeout( $scope.getOffers, $scope.updateInterval);
+                        $scope.offerPullTimeout = $timeout($scope.getOffers, $scope.updateInterval);
                     });
               };
 
               $scope.getOffers();
 
-              $scope.$on('$destroy', function(){
-                 if ($scope.offerPullTimeout) clearTimeout($scope.offerPullTimeout);
+              $scope.$on('$locationChangeStart', function() {
+                  $timeout.cancel($scope.offerPullTimeout);
               });
 
               $scope.getProductInfo = function(){
