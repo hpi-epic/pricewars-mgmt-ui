@@ -166,64 +166,77 @@
                 /**
                   * Updating content of graphs
                 */
-                function updatePriceHighChart(newDataPoint) {
-                  const graphs = ["highchart-price","highchart-price-"+newDataPoint.merchant_id];
-                  angular.forEach(graphs, function(grapName, key) {
-                    if($scope.charts[grapName]){
-                      const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id;
-                        let lineName = "PID: " + newDataPoint.uid + " - M: " + newDataPoint.merchant_id;
-                        if (grapName.indexOf("highchart-price-") > -1) {
-                            lineName = "PID: " + newDataPoint.uid;
+                function updatePriceHighChart(newData) {
+                    parseBulkData(newData).forEach(function(dp) {
+                      const graphs = ["highchart-price","highchart-price-" + dp.value.merchant_id];
+                      angular.forEach(graphs, function(grapName, key) {
+                        if($scope.charts[grapName]){
+                          const lineID = dp.value.uid + '-' + dp.value.merchant_id;
+                            let lineName = "PID: " + dp.value.uid + " - M: " + dp.value.merchant_id;
+                            if (grapName.indexOf("highchart-price-") > -1) {
+                                lineName = "PID: " + dp.value.uid;
+                            }
+
+                          let line = $scope.charts[grapName].get(lineID);
+                          let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
+
+                          addPointToLine($scope.charts[grapName], point, line, lineID, lineName);
+                        } else {
+                          $scope.drawPricingHighChart();
                         }
+                      });
 
-                      let line = $scope.charts[grapName].get(lineID);
-                      let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price];
-
-                        addPointToLine($scope.charts[grapName], point, line, lineID, lineName);
-                    } else {
-                      $scope.drawPricingHighChart();
-                    }
-                  });
+                        // check if new merchants are in place. if so, draw graphs for them
+                        if($scope.merchant_ids.indexOf(data.value.merchant_id) == -1){
+                            $scope.merchant_ids.push(data.value.merchant_id);
+                        }
+                    });
                 }
 
-                function updatePriceAndSalesChartWithPriceUpdate(newDataPoint) {
-                    const lineID = newDataPoint.uid + '-' + newDataPoint.merchant_id;
-                    const lineName = "PID: " + newDataPoint.uid + " - M: " + newDataPoint.merchant_id;
-                    let line = $scope.charts["highchart-price_and_sales"].get(lineID);
-                    let point = [new Date(newDataPoint.timestamp).getTime(), newDataPoint.price];
+                function updatePriceAndSalesChartWithPriceUpdate(newData) {
+                    parseBulkData(newData).forEach(function(dp) {
+                        $scope.product_uids.pushIfNotExist(dp.value.uid);
 
-                    addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID, lineName);
+                        const lineID = dp.value.uid + '-' + dp.value.merchant_id;
+                        const lineName = "PID: " + dp.value.uid + " - M: " + dp.value.merchant_id;
+                        let line = $scope.charts["highchart-price_and_sales"].get(lineID);
+                        let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
+
+                        addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID, lineName);
+                    });
                 }
 
-                function updatePriceAndSalesChartWithSalesUpdate(newDataPoint) {
-                    const lineID = newDataPoint.value.uid + '-' + newDataPoint.value.merchant_id;
-                    const lineName = "PID: " + newDataPoint.value.uid + " - M: " + newDataPoint.value.merchant_id;
-                    let line = $scope.charts["highchart-price_and_sales"].get(lineID);
-                    let point;
-                    if (newDataPoint.value.left_in_stock > 0) {
-                        point = {
-                            x: new Date(newDataPoint.value.timestamp).getTime(),
-                            y: newDataPoint.value.price,
-                            marker: {fillColor: '#d60000', radius: 5}
-                        };
-                        addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
-                    } else {
-                        point = {
-                            x: new Date(newDataPoint.value.timestamp).getTime(),
-                            y: newDataPoint.value.price,
-                            marker: {fillColor: '#d60000', symbol: 'cross', lineColor: '#d60000', lineWidth: 5}
-                        };
-                        addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
+                function updatePriceAndSalesChartWithSalesUpdate(newData) {
+                    parseBulkData(newData).forEach(function(dp) {
+                        $scope.product_uids.pushIfNotExist(dp.value.uid);
 
-                        // add a null-point right after the actual point to make sure it wont be connected to the next point
-                        let nullPoint = {
-                            x: new Date(newDataPoint.value.timestamp).getTime() + 1,
-                            y: null
-                        };
-                        addPointToLine($scope.charts["highchart-price_and_sales"], nullPoint, line, lineID, lineName);
-                    }
+                        const lineID = dp.value.uid + '-' + dp.value.merchant_id;
+                        const lineName = "PID: " + dp.value.uid + " - M: " + dp.value.merchant_id.substring(0, 8);
+                        let line = $scope.charts["highchart-price_and_sales"].get(lineID);
+                        let point;
+                        if (dp.value.left_in_stock > 0) {
+                            point = {
+                                x: new Date(dp.value.timestamp).getTime(),
+                                y: dp.value.price,
+                                marker: {fillColor: '#d60000', radius: 5}
+                            };
+                            addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
+                        } else {
+                            point = {
+                                x: new Date(dp.value.timestamp).getTime(),
+                                y: dp.value.price,
+                                marker: {fillColor: '#d60000', symbol: 'cross', lineColor: '#d60000', lineWidth: 5}
+                            };
+                            addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
 
-
+                            // add a null-point right after the actual point to make sure it wont be connected to the next point
+                            let nullPoint = {
+                                x: new Date(dp.value.timestamp).getTime() + 1,
+                                y: null
+                            };
+                            addPointToLine($scope.charts["highchart-price_and_sales"], nullPoint, line, lineID, lineName);
+                        }
+                    });
                 }
 
                 function addPointToLine(chart, point, line, lineID, lineName) {
@@ -356,12 +369,21 @@
                     this.sort();
                 };
 
+                function parseBulkData(newData) {
+                    var data = newData;
+                    if (!(newData instanceof Array)) {
+                        data = [newData]
+                    } else {
+                        data = newData.map(e => { return angular.fromJson(e) })
+                    }
+                    return data;
+                }
+
                 /**
                   * Handling socket events
                 */
                 socket.on('buyOffer', function (data) {
                     data = angular.fromJson(data);
-                    $scope.product_uids.pushIfNotExist(data.value.uid);
                     updatePriceAndSalesChartWithSalesUpdate(data);
                 });
 
@@ -369,23 +391,8 @@
                     console.log("updateOffer");
                     data = angular.fromJson(data);
 
-                    let newDataPoint = {
-                        merchant_id: data.value.merchant_id,
-                        uid: data.value.uid,
-                        price: data.value.price,
-                        product_id: data.value.product_id,
-                        timestamp: data.value.timestamp
-                    };
-
-                   $scope.product_uids.pushIfNotExist(newDataPoint.uid);
-                   updatePriceHighChart(newDataPoint);
-
-                    updatePriceAndSalesChartWithPriceUpdate(newDataPoint);
-
-                   // check if new merchants are in place. if so, draw graphs for them
-                   if($scope.merchant_ids.indexOf(data.value.merchant_id) == -1){
-                     $scope.merchant_ids.push(data.value.merchant_id);
-                   }
+                   updatePriceHighChart(data);
+                   updatePriceAndSalesChartWithPriceUpdate(data);
                 });
 
             }] //END: controller function
