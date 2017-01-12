@@ -248,7 +248,7 @@
              * Updating chart content
              */
             function updateLiveSalesGraph(newData) {
-                newData.forEach(function(dp) {
+                parseBulkData(newData).forEach(function(dp) {
                     let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
                     let line = $scope.charts["liveSales"].get("liveSales");
                     let shift = line.data.length > maxNumberOfPointsInLine;

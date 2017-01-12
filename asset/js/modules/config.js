@@ -425,6 +425,8 @@
               $scope.updateInterval               = 1000;
               $scope.offerPullTimeout             = 0;
 
+                let timeoutCancelled = false;
+
               // Toastr options
               toastr.options = {
                   "debug": false,
@@ -447,13 +449,14 @@
                             return 0;
                         });
 
-                        $scope.offerPullTimeout = $timeout($scope.getOffers, $scope.updateInterval);
+                        if (!timeoutCancelled) $scope.offerPullTimeout = $timeout($scope.getOffers, $scope.updateInterval);
                     });
               };
 
               $scope.getOffers();
 
               $scope.$on('$locationChangeStart', function() {
+                  timeoutCancelled = true;
                   $timeout.cancel($scope.offerPullTimeout);
               });
 
