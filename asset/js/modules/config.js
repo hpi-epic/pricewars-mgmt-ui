@@ -40,7 +40,7 @@
               }
 
               $scope.getConsumerSettings = function() {
-                  $http.get($scope.consumer_url + "/setting/sample")
+                  $http.get($scope.consumer_url + "/setting")
                       .then(function(response) {
                             $scope.consumer = response.data;
                   });
