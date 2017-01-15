@@ -25,16 +25,10 @@
               }
 
               $scope.getExport = function(topic){
-                $http({url: $scope.kafka_reverse_proxy_url + "/data/export/" + topic,
-                      dataType: "json",
-                      method: "POST",
-                      data: {},
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                          $scope.export_url = response.data.link;
-                });
+                $http.get($scope.kafka_reverse_proxy_url + "/export/data/" + topic)
+                    .then(function(response) {
+                        $scope.export_url  = response.data.url;
+                    });
               }
 
               $scope.getTopics();
