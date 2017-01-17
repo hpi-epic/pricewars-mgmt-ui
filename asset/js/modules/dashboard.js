@@ -6,10 +6,7 @@
 
             const maxNumberOfPointsInLine  = 10000;
 
-            $scope.kafka_restful_service                = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
-            $scope.kafka_restful_service_sales          = $scope.kafka_restful_service + "log/buyOffer";
-            $scope.kafka_restful_service_salesPerMinute = $scope.kafka_restful_service + "log/salesPerMinutes";
-            $scope.marketplace_url                      = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+            $scope.marketplace_url         = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
             $scope.liveGraphData = [];
             $scope.merchants     = [];
@@ -281,6 +278,7 @@
                     date.setMilliseconds(0);
 
                     // Only add the point if the merchant is currently registered (unless it's old data, then display it anyway)
+                    //var merchant_name = $scope.findMerchantNameById(dp.value.merchant_id);
                     if (date < new Date() || isRegisteredMerchant(dp.value.merchant_id)) {
                         const lineID = dp.value.merchant_id;
                         let line = $scope.charts["marketshare"].get(lineID);
@@ -334,6 +332,10 @@
                     return "hpanel hbgred";
                 }
             };
+
+            $scope.findMerchantNameById = function(id){
+              return $filter('filter')($scope.merchants, {merchant_id: id})[0].merchant_name;
+            }
 
             $scope.arraysEqual = function(arr1, arr2) {
                 if (arr1.length !== arr2.length)
