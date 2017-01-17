@@ -195,6 +195,7 @@
 
               $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
               $scope.merchantConfig               = {};
+              $scope.merchants                    = {};
 
               // Toastr options
               toastr.options = {
@@ -313,6 +314,10 @@
                     });
               };
 
+              $scope.findMerchantNameById = function(id){
+                  return $scope.merchants[id].merchant_name;
+              };
+
               $scope.getMerchants();
 
             }] //END: controller function
@@ -422,6 +427,7 @@
               $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
               $scope.offers                       = {};
               $scope.products                     = {};
+              $scope.merchants                    = {};
               $scope.updateInterval               = 1000;
               $scope.offerPullTimeout             = 0;
 
@@ -491,6 +497,32 @@
                      return $scope.products[productUID].name;
                    return "No longer available";
                };
+
+               $scope.getMerchants = function(){
+                   $http.get($scope.marketplace_url + "/merchants")
+                       .then(function(response) {
+                           for (var key in response.data) {
+                               if (response.data.hasOwnProperty(key)) {
+                                   var merchant = response.data[key];
+                                   var merchantID = -1;
+                                   for (var merch_key in merchant) {
+                                       if (merch_key == "merchant_id") {
+                                           merchantID = merchant[merch_key];
+                                           delete(merchant[merch_key]);
+                                       }
+                                   }
+                                   $scope.merchants[merchantID] = merchant;
+                               }
+                           }
+                       });
+               };
+
+               $scope.getMerchants();
+
+               $scope.findMerchantNameById = function(id){
+                   return $scope.merchants[id].merchant_name;
+               };
+
             }] //END: controller function
     );  // END: dashboardController
 })(); //END: global function
