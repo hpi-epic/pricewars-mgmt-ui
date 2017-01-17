@@ -7,10 +7,7 @@
                 const maxNumberOfPointsInLine      = 10000;
                 const filterForAllIDs              = "ALL";
 
-                $scope.kafka_restful_service                = "http://vm-mpws2016hp1-05.eaalab.hpi.uni-potsdam.de/";
-                $scope.kafka_restful_service_sales          = $scope.kafka_restful_service + "log/buyOffer";
-                $scope.kafka_restful_service_salesPerMinute = $scope.kafka_restful_service + "log/salesPerMinutes";
-                $scope.marketplace_url                      = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+                $scope.marketplace_url             = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
                 $scope.liveGraphData    = [];
                 $scope.merchants        = [];
@@ -244,9 +241,12 @@
                     if (line === undefined || line === null) {
                         let dashStyle = 'Solid';
                         if (chart.series.length >= Highcharts.theme.colors.length) dashStyle = 'LongDash';
-
+                        //var merchant_name = $scope.findMerchantNameById(lineID);
+                        //console.log(lineID);
+                        //console.log(merchant_name);
                         let newLine = {
                             name: (lineName) ? lineName : lineID,
+                            //name: merchant_name,
                             id: lineID,
                             data: [],
                             step: true,
@@ -275,6 +275,9 @@
                 /**
                   * Helper
                 */
+                $scope.findMerchantNameById = function(id){
+                  return $filter('filter')($scope.merchants, {merchant_id: id})[0].merchant_name;
+                }
 
                 $scope.merchantStatus = function(merchant){
                   if(merchant["state"] == "init"){
