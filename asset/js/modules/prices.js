@@ -10,7 +10,7 @@
                 $scope.marketplace_url             = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
                 $scope.liveGraphData    = [];
-                $scope.merchants        = [];
+                $scope.merchants        = {};
                 $scope.merchant_ids     = [];
                 $scope.product_uids     = [];
 
@@ -78,20 +78,39 @@
                 /**
                   * REST calls
                 */
-                $scope.getMerchantDetails = function(url){
-                  $http.get(url + "/settings")
-                      .then(function(response) {
-                          $scope.merchants.push(response.data);
-                      });
+                $scope.getMerchants = function(){
+                    $http.get($scope.marketplace_url + "/merchants")
+                        .then(function(response) {
+                            for (var key in response.data) {
+                                if (response.data.hasOwnProperty(key)) {
+                                    var merchant = response.data[key];
+                                    var merchantID = -1;
+                                    for (var merch_key in merchant) {
+                                        if (merch_key == "merchant_id") {
+                                            merchantID = merchant[merch_key];
+                                            delete(merchant[merch_key]);
+                                        }
+                                    }
+                                    $scope.merchants[merchantID] = merchant;
+                                }
+                            }
+                            getMerchantDetails();
+                        });
                 };
 
-                $scope.getMerchants = function(){
-                  $http.get($scope.marketplace_url + "/merchants")
-                      .then(function(response) {
-                          angular.forEach(response.data, function(value, key) {
-                              $scope.getMerchantDetails(value["api_endpoint_url"]);
-                          });
-                      });
+                function getMerchantDetails() {
+                    for (var merchantID in $scope.merchants) {
+                        (function(merchant_id) {
+                            $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
+                                .then(function(response) {
+                                    Object.keys(response.data).sort().forEach(function(key) {
+                                        if (key != "merchant_id" && key != "merchant_url") {
+                                            $scope.merchants[merchant_id][key] = response.data[key];
+                                        }
+                                    });
+                                });
+                        })(merchantID);
+                    }
                 };
 
                 /**
@@ -102,8 +121,8 @@
                   angular.forEach($scope.merchant_ids, function(mId) {
                     $scope.graphNames.push("highchart-price-"+mId);
                   });
-                  angular.forEach($scope.graphNames, function(grapName, key) {
-                    $scope.charts[grapName] = Highcharts.stockChart(grapName, {
+                  angular.forEach($scope.graphNames, function(graphName, key) {
+                    $scope.charts[graphName] = Highcharts.stockChart(graphName, {
                             title: {
                                 text: 'Price Updates'
                             },
@@ -146,7 +165,7 @@
                                     text: 'All'
                                 }],
                                 inputEnabled: false,
-                                selected: 0
+                                selected: 5
                             },
                             tooltip: {
                                 pointFormat: '<b>{series.name}:</b> {point.y}€'
@@ -156,7 +175,7 @@
                             },
                             series: []
                       });
-                      $scope.charts[grapName].setSize(undefined, 600);
+                      $scope.charts[graphName].setSize(undefined, 600);
                     });
                 };
 
@@ -166,63 +185,67 @@
                 function updatePriceHighChart(newData) {
                     parseBulkData(newData).forEach(function(dp) {
                       const graphs = ["highchart-price","highchart-price-" + dp.value.merchant_id];
-                      angular.forEach(graphs, function(grapName, key) {
-                        if($scope.charts[grapName]){
-                          const lineID = dp.value.uid + '-' + dp.value.merchant_id;
-                            let lineName = "PID: " + dp.value.uid + " - M: " + dp.value.merchant_id;
-                            if (grapName.indexOf("highchart-price-") > -1) {
+                      angular.forEach(graphs, function(graphName, key) {
+                        if($scope.charts[graphName]){
+                            const lineID = createLineID(dp);
+                            const lineName = createLineName(dp);
+                            if (graphName.indexOf("highchart-price-") > -1) {
                                 lineName = "PID: " + dp.value.uid;
                             }
 
-                          let line = $scope.charts[grapName].get(lineID);
+                          let line = $scope.charts[graphName].get(lineID);
                           let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
 
-                          addPointToLine($scope.charts[grapName], point, line, lineID, lineName);
+                          addPointToLine($scope.charts[graphName], point, line, lineID, lineName);
                         } else {
                           $scope.drawPricingHighChart();
                         }
                       });
+
+                        $scope.charts[graphName].redraw();
 
                         // check if new merchants are in place. if so, draw graphs for them
                         if($scope.merchant_ids.indexOf(data.value.merchant_id) == -1){
                             $scope.merchant_ids.push(data.value.merchant_id);
                         }
                     });
+
                 }
 
                 function updatePriceAndSalesChartWithPriceUpdate(newData) {
                     parseBulkData(newData).forEach(function(dp) {
                         $scope.product_uids.pushIfNotExist(dp.value.uid);
 
-                        const lineID = dp.value.uid + '-' + dp.value.merchant_id;
-                        const lineName = "PID: " + dp.value.uid + " - M: " + dp.value.merchant_id;
+                        const lineID = createLineID(dp);
+                        const lineName = createLineName(dp);
                         let line = $scope.charts["highchart-price_and_sales"].get(lineID);
                         let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
 
                         addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID, lineName);
                     });
+                    $scope.charts["highchart-price_and_sales"].redraw();
                 }
 
                 function updatePriceAndSalesChartWithSalesUpdate(newData) {
                     parseBulkData(newData).forEach(function(dp) {
                         $scope.product_uids.pushIfNotExist(dp.value.uid);
 
-                        const lineID = dp.value.uid + '-' + dp.value.merchant_id;
-                        const lineName = "PID: " + dp.value.uid + " - M: " + dp.value.merchant_id.substring(0, 8);
+                        const lineID = createLineID(dp);
+                        const lineName = createLineName(dp);
                         let line = $scope.charts["highchart-price_and_sales"].get(lineID);
                         let point;
                         if (dp.value.left_in_stock > 0) {
                             point = {
                                 x: new Date(dp.value.timestamp).getTime(),
                                 y: dp.value.price,
-                                marker: {fillColor: '#d60000', radius: 5}
+                                marker: {fillColor: '#d60000', radius: 4}
                             };
                             addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
                         } else {
                             point = {
                                 x: new Date(dp.value.timestamp).getTime(),
                                 y: dp.value.price,
-                                marker: {fillColor: '#d60000', symbol: 'cross', lineColor: '#d60000', lineWidth: 5}
+                                marker: {fillColor: '#d60000', symbol: 'cross', lineColor: '#d60000', lineWidth: 3}
                             };
                             addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID);
 
@@ -234,6 +257,7 @@
                             addPointToLine($scope.charts["highchart-price_and_sales"], nullPoint, line, lineID, lineName);
                         }
                     });
+                    $scope.charts["highchart-price_and_sales"].redraw();
                 }
 
                 function addPointToLine(chart, point, line, lineID, lineName) {
@@ -241,12 +265,8 @@
                     if (line === undefined || line === null) {
                         let dashStyle = 'Solid';
                         if (chart.series.length >= Highcharts.theme.colors.length) dashStyle = 'LongDash';
-                        //var merchant_name = $scope.findMerchantNameById(lineID);
-                        //console.log(lineID);
-                        //console.log(merchant_name);
                         let newLine = {
                             name: (lineName) ? lineName : lineID,
-                            //name: merchant_name,
                             id: lineID,
                             data: [],
                             step: true,
@@ -269,14 +289,26 @@
 
                     // add the new point to the line
                     let shift = line.data.length > maxNumberOfPointsInLine;
-                    line.addPoint(point, true, shift);
+                    line.addPoint(point, false, shift);
                 }
 
                 /**
                   * Helper
                 */
-                $scope.findMerchantNameById = function(id){
-                  return $filter('filter')($scope.merchants, {merchant_id: id})[0].merchant_name;
+                function createLineID(data) {
+                    return lineID = data.value.uid + '-' + data.value.merchant_id;
+                }
+
+                function createLineName(data) {
+                    return "PID: " + data.value.uid + " - M: " + findMerchantNameById(data.value.merchant_id);
+                }
+
+                function findMerchantNameById(id){
+                    return ($scope.merchants[id] && $scope.merchants[id].merchant_name) ? $scope.merchants[id].merchant_name : id.substring(0, 8);
+                }
+
+                function selectAllDataRange(chartname) {
+                    $scope.charts[chartname].rangeSelector.clickButton(5,{type: 'all'},true);
                 }
 
                 $scope.merchantStatus = function(merchant){
@@ -291,7 +323,7 @@
                   } else {
                     return "hpanel hbgred";
                   }
-                }
+                };
 
                 $scope.arraysEqual = function(arr1, arr2) {
                     if (arr1.length !== arr2.length)
@@ -310,20 +342,7 @@
                     showOnlyFilteredPriceColumns();
                 };
 
-                // get all columns from the graph and filter for the currently chosen product_uid, then only take the IDs of those
-                function getFilteredPriceColumns() {
-                    let colsToShow = [];
-                    if ($scope.currentUIDFilter == filterForAllIDs) {
-                        colsToShow = $scope.charts["price"].internal.data.targets
-                    } else {
-                        colsToShow = $scope.charts["price"].internal.data.targets.filter(col => col.id.includes($scope.currentUIDFilter + '-'))
-                    }
-                    return colsToShow.map(col => col.id)
-                }
-
                 function showOnlyFilteredPriceColumns() {
-
-                    /* ----- HighChart ----- */
                     $scope.charts["highchart-price"].series.forEach(function(serie) {
                         if ($scope.currentUIDFilter == filterForAllIDs || serie.options.id.includes($scope.currentUIDFilter + '-')) {
                             serie.setVisible(true, false);
@@ -342,19 +361,8 @@
                     $scope.charts["highchart-price"].redraw();
                     $scope.charts["highchart-price_and_sales"].redraw();
 
-
-                    /* -------- C3 -------- */
-                    let colsIDsToShow = getFilteredPriceColumns();
-
-                    // hide all columns
-                    $scope.charts["price"].hide(null, {
-                        withLegend: true
-                    });
-
-                    // show only filtered columns
-                    $scope.charts["price"].show(colsIDsToShow, {
-                        withLegend: true
-                    });
+                    selectAllDataRange("highchart-price");
+                    selectAllDataRange("highchart-price_and_sales");
                 }
 
                 $scope.getMerchants();

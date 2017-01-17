@@ -16,13 +16,13 @@
 <div class="content animate-panel">
 
 	<div class="row">
-	   <div style="" class="col-md-3" ng-repeat="merchant in merchants">
-	         <div ng-class="merchantStatus(merchant)">
+	   <div style="" class="col-md-3" ng-repeat="(merchant_id, merchant_details) in merchants">
+	         <div ng-class="merchantStatus(merchant_details)">
 	             <div class="panel-body">
 	                 <div class="text-center">
-	                     <h3>Merchant {{merchant["merchant_id"]}}</h3>
+	                     <h3>Merchant {{merchant_id}}</h3>
 	                     <p class="text-big font-light">
-	                         <small>{{merchant["state"]}}</small>
+	                         <small>{{merchant_details["state"]}}</small>
 	                     </p>
 	                 </div>
 	             </div>
