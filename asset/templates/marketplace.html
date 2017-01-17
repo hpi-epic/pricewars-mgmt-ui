@@ -55,7 +55,7 @@
                             <th class="footable-visible footable-sortable">Product Name</th>
                             <th class="footable-visible footable-sortable">UID</th>
                             <th class="footable-visible footable-sortable">Product ID</th>
-                            <th class="footable-visible footable-sortable">Merchant ID</th>
+                            <th class="footable-visible footable-sortable">Merchant</th>
                             <th class="footable-visible footable-sortable">Price</th>
                             <th class="footable-visible footable-sortable">Quality</th>
                             <th class="footable-visible footable-sortable">Amount</th>
@@ -70,7 +70,7 @@
                             <td class="footable-visible">{{findNameOfProduct(offer["uid"])}}</td>
                             <td class="footable-visible">{{offer["uid"]}}</td>
                             <td class="footable-visible">{{offer["product_id"]}}</td>
-                            <td class="footable-visible">{{offer["merchant_id"]}}</td>
+                            <td class="footable-visible">{{findMerchantNameById(offer["merchant_id"])}}</td>
                             <td class="footable-visible">{{offer["price"]}}</td>
                             <td class="footable-visible">{{offer["quality"]}}</td>
                             <td class="footable-visible">{{offer["amount"]}}</td>
