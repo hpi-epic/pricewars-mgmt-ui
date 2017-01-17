@@ -28,7 +28,7 @@
                 $('#loadingModal').modal('show');
                 $http.get($scope.kafka_reverse_proxy_url + "/export/data/" + topic)
                     .then(function(response) {
-                        $scope.export_url  = response.data.url;
+                        $scope.export_url  = $scope.kafka_reverse_proxy_url + "/"+ response.data.url;
                     });
               }
 
