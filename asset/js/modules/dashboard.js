@@ -9,7 +9,7 @@
             $scope.marketplace_url         = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
             $scope.liveGraphData = [];
-            $scope.merchants     = [];
+            $scope.merchants     = {};
             $scope.merchant_ids  = [];
             $scope.product_ids   = [];
 
@@ -52,20 +52,39 @@
             /**
              * REST calls
              */
-            $scope.getMerchants = function() {
+            $scope.getMerchants = function(){
                 $http.get($scope.marketplace_url + "/merchants")
                     .then(function(response) {
-                        angular.forEach(response.data, function(value, key) {
-                            $scope.getMerchantDetails(value["api_endpoint_url"]);
-                        });
+                        for (var key in response.data) {
+                            if (response.data.hasOwnProperty(key)) {
+                                var merchant = response.data[key];
+                                var merchantID = -1;
+                                for (var merch_key in merchant) {
+                                    if (merch_key == "merchant_id") {
+                                        merchantID = merchant[merch_key];
+                                        delete(merchant[merch_key]);
+                                    }
+                                }
+                                $scope.merchants[merchantID] = merchant;
+                            }
+                        }
+                        getMerchantDetails();
                     });
             };
 
-            $scope.getMerchantDetails = function(url) {
-                $http.get(url + "/settings")
-                    .then(function(response) {
-                        $scope.merchants.push(response.data);
-                    });
+            function getMerchantDetails() {
+                for (var merchantID in $scope.merchants) {
+                    (function(merchant_id) {
+                        $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
+                            .then(function(response) {
+                                Object.keys(response.data).sort().forEach(function(key) {
+                                    if (key != "merchant_id" && key != "merchant_url") {
+                                        $scope.merchants[merchant_id][key] = response.data[key];
+                                    }
+                                });
+                            });
+                    })(merchantID);
+                }
             };
 
             /**
@@ -334,8 +353,8 @@
             };
 
             $scope.findMerchantNameById = function(id){
-              return $filter('filter')($scope.merchants, {merchant_id: id})[0].merchant_name;
-            }
+                return $scope.merchants[id].merchant_name;
+            };
 
             $scope.arraysEqual = function(arr1, arr2) {
                 if (arr1.length !== arr2.length)
@@ -349,12 +368,7 @@
 
             // Returns true if the given merchant_id belongs to a currently registered merchant
             function isRegisteredMerchant(merchant_id) {
-                for (let i = 0; i < $scope.merchants.length; i++) {
-                    if ($scope.merchants[i].merchant_id === merchant_id) {
-                        return true;
-                    }
-                }
-                return false;
+                return ($scope.merchants[merchant_id] != undefined);
             }
 
             $scope.getMerchants();
@@ -375,10 +389,78 @@
                 updateRevenueGraph(data);
             });
 
-            socket.on('kumulativeTurnoverBasedMarketshare', function (data) {
+            socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
                 data = angular.fromJson(data);
                 updateMarketshareGraph(data);
             });
+
+            /* ------------ TESTING ------------*/
+            /*var merchant_ids = [1, 2, 3, 4, 5];
+
+            function drawHistoricTestData() {
+                let yesterday = new Date();
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                let today = new Date();
+                let result = [];
+
+                // generate data for the past 24 hours
+                for (let i = 0; i < 24; i++) {
+                    let timestamp = new Date(yesterday.getTime());
+                    timestamp.setHours(timestamp.getHours() + i);
+                    result = getTestPoints(timestamp);
+
+                    updateRevenueGraph(result);
+                    updateMarketshareGraph(result);
+                }
+            }
+
+            function getTestPoints(timestamp) {
+                let result = [];
+
+                let marketshares = [];
+                let marketshareSum = 0;
+                merchant_ids.forEach(function() {
+                    let randomShare = Math.random();
+                    marketshares.push(randomShare);
+                    marketshareSum += randomShare;
+                });
+                marketshares = marketshares.map(marketshare => (marketshare/marketshareSum));
+
+                for(let j = 0; j < merchant_ids.length; j++) {
+                    let randomDataPoint = {
+                        value: {
+                            timestamp: timestamp.getTime(),
+                            merchant_id: merchant_ids[j],
+                            revenue: randomIntFromInterval(0, 500),
+                            marketshare: marketshares[j]
+                        }
+                    };
+                    result.push(randomDataPoint);
+                }
+                return result;
+            }
+
+            var currentHourCount = 0;
+
+            function drawSingleTestPoint() {
+                var timestamp = new Date();
+                timestamp.setHours(timestamp.getHours() + currentHourCount);
+
+                var newPoints = getTestPoints(timestamp);
+                updateRevenueGraph(newPoints);
+                updateMarketshareGraph(newPoints);
+
+                currentHourCount++;
+            }
+
+            function randomIntFromInterval(min,max)
+            {
+                return Math.floor(Math.random()*(max-min+1)+min);
+            }
+
+            drawHistoricTestData();
+            setInterval(drawSingleTestPoint, 1000);*/
 
         }] //END: controller function
     );  // END: dashboardController
