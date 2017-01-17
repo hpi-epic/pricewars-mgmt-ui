@@ -313,7 +313,7 @@
                 // create a new series/line if it is not present yet
                 if (line === undefined || line === null) {
                     let newLine = {
-                        name: lineID,
+                        name: $scope.findMerchantNameById(lineID),
                         id: lineID,
                         data: []
                     };
@@ -353,7 +353,11 @@
             };
 
             $scope.findMerchantNameById = function(id){
-                return $scope.merchants[id].merchant_name;
+                if ($scope.merchants[id]) {
+                    return $scope.merchants[id].merchant_name;
+                } else {
+                    return id;
+                }
             };
 
             $scope.arraysEqual = function(arr1, arr2) {
