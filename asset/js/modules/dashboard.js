@@ -279,14 +279,11 @@
                     let date = new Date(dp.value.timestamp);
                     date.setMilliseconds(0);
 
-                    // Only add the point if the merchant is currently registered (unless it's old data, then display it anyway)
-                    if (date < new Date() || isRegisteredMerchant(dp.value.merchant_id)) {
-                        const lineID = dp.value.merchant_id;
-                        let line = $scope.charts["revenue"].get(lineID);
-                        let point = [date.getTime(), dp.value.revenue];
+                    const lineID = dp.value.merchant_id;
+                    let line = $scope.charts["revenue"].get(lineID);
+                    let point = [date.getTime(), dp.value.revenue];
 
-                        addPointToLine($scope.charts["revenue"], point, line, lineID);
-                    }
+                    addPointToLine($scope.charts["revenue"], point, line, lineID);
                 });
                 $scope.charts["revenue"].redraw()
             }
@@ -295,16 +292,12 @@
                 parseBulkData(newData).forEach(function(dp) {
                     let date = new Date(dp.value.timestamp);
                     date.setMilliseconds(0);
+                    
+                    const lineID = dp.value.merchant_id;
+                    let line = $scope.charts["marketshare"].get(lineID);
+                    let point = [date.getTime(), dp.value.marketshare * 100];
 
-                    // Only add the point if the merchant is currently registered (unless it's old data, then display it anyway)
-                    //var merchant_name = $scope.findMerchantNameById(dp.value.merchant_id);
-                    if (date < new Date() || isRegisteredMerchant(dp.value.merchant_id)) {
-                        const lineID = dp.value.merchant_id;
-                        let line = $scope.charts["marketshare"].get(lineID);
-                        let point = [date.getTime(), dp.value.marketshare * 100];
-
-                        addPointToLine($scope.charts["marketshare"], point, line, lineID);
-                    }
+                    addPointToLine($scope.charts["marketshare"], point, line, lineID);
                 });
                 $scope.charts["marketshare"].redraw()
             }
@@ -323,6 +316,14 @@
                 // add the new point to the line
                 let shift = line.data.length > maxNumberOfPointsInLine;
                 line.addPoint(point, false, shift);
+
+                // only show the line if it belongs to a currently active merchant
+                if (isRegisteredMerchant(lineID)) {
+                    line.setVisible(true, false);
+                } else {
+                    line.setVisible(false, false);
+                }
+
             }
 
             function parseBulkData(newData) {
@@ -397,74 +398,6 @@
                 data = angular.fromJson(data);
                 updateMarketshareGraph(data);
             });
-
-            /* ------------ TESTING ------------*/
-            /*var merchant_ids = [1, 2, 3, 4, 5];
-
-            function drawHistoricTestData() {
-                let yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-
-                let today = new Date();
-                let result = [];
-
-                // generate data for the past 24 hours
-                for (let i = 0; i < 24; i++) {
-                    let timestamp = new Date(yesterday.getTime());
-                    timestamp.setHours(timestamp.getHours() + i);
-                    result = getTestPoints(timestamp);
-
-                    updateRevenueGraph(result);
-                    updateMarketshareGraph(result);
-                }
-            }
-
-            function getTestPoints(timestamp) {
-                let result = [];
-
-                let marketshares = [];
-                let marketshareSum = 0;
-                merchant_ids.forEach(function() {
-                    let randomShare = Math.random();
-                    marketshares.push(randomShare);
-                    marketshareSum += randomShare;
-                });
-                marketshares = marketshares.map(marketshare => (marketshare/marketshareSum));
-
-                for(let j = 0; j < merchant_ids.length; j++) {
-                    let randomDataPoint = {
-                        value: {
-                            timestamp: timestamp.getTime(),
-                            merchant_id: merchant_ids[j],
-                            revenue: randomIntFromInterval(0, 500),
-                            marketshare: marketshares[j]
-                        }
-                    };
-                    result.push(randomDataPoint);
-                }
-                return result;
-            }
-
-            var currentHourCount = 0;
-
-            function drawSingleTestPoint() {
-                var timestamp = new Date();
-                timestamp.setHours(timestamp.getHours() + currentHourCount);
-
-                var newPoints = getTestPoints(timestamp);
-                updateRevenueGraph(newPoints);
-                updateMarketshareGraph(newPoints);
-
-                currentHourCount++;
-            }
-
-            function randomIntFromInterval(min,max)
-            {
-                return Math.floor(Math.random()*(max-min+1)+min);
-            }
-
-            drawHistoricTestData();
-            setInterval(drawSingleTestPoint, 1000);*/
 
         }] //END: controller function
     );  // END: dashboardController
