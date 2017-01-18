@@ -1,8 +1,8 @@
 (function () {
     var da = angular.module('dashboard', ['ngCookies']);
 
-    da.controller('dashboardCtrl', ['socket', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-        function (socket, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
+        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
             const maxNumberOfPointsInLine  = 10000;
 
@@ -384,6 +384,8 @@
             /**
              * Handling socket events
              */
+            var socket = io.connect("http://192.168.31.91:8001/", {query: 'id=mgmt-ui'});
+
             socket.on('buyOffer', function (data) {
                 data = angular.fromJson(data);
                 updateLiveSalesGraph(data);
@@ -397,6 +399,10 @@
             socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
                 data = angular.fromJson(data);
                 updateMarketshareGraph(data);
+            });
+
+            $scope.$on('$locationChangeStart', function() {
+                socket.disconnect();
             });
 
         }] //END: controller function

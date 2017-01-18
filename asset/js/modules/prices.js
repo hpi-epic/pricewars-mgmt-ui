@@ -1,8 +1,8 @@
 (function () {
     var pr = angular.module('prices', ['ngCookies']);
 
-    pr.controller('pricesCtrl', ['socket', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function (socket, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
+            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
 
                 const maxNumberOfPointsInLine      = 10000;
                 const filterForAllIDs              = "ALL";
@@ -400,6 +400,8 @@
                 /**
                   * Handling socket events
                 */
+                var socket = io.connect("http://192.168.31.91:8001/", {query: 'id=mgmt-ui'});
+
                 socket.on('buyOffer', function (data) {
                     data = angular.fromJson(data);
                     updatePriceAndSalesChartWithSalesUpdate(data);
@@ -411,6 +413,10 @@
 
                    updatePriceHighChart(data);
                    updatePriceAndSalesChartWithPriceUpdate(data);
+                });
+
+                $scope.$on('$locationChangeStart', function() {
+                    socket.disconnect();
                 });
 
             }] //END: controller function
