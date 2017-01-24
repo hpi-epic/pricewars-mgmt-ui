@@ -1,16 +1,15 @@
 (function () {
     var da = angular.module('dashboard', ['ngCookies']);
 
-    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants',
+        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants) {
 
             const maxNumberOfPointsInLine  = 10000;
 
             $scope.marketplace_url         = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
             $scope.liveGraphData = [];
-            $scope.merchants     = {};
-            $scope.merchant_ids  = [];
+            $scope.merchants     = merchants.get();
             $scope.product_ids   = [];
 
             $scope.currentUIDFilter = "ALL";
@@ -48,44 +47,6 @@
                     hpanel.find('[id^=map-]').resize();
                 }, 50);
             });
-
-            /**
-             * REST calls
-             */
-            $scope.getMerchants = function(){
-                $http.get($scope.marketplace_url + "/merchants")
-                    .then(function(response) {
-                        for (var key in response.data) {
-                            if (response.data.hasOwnProperty(key)) {
-                                var merchant = response.data[key];
-                                var merchantID = -1;
-                                for (var merch_key in merchant) {
-                                    if (merch_key == "merchant_id") {
-                                        merchantID = merchant[merch_key];
-                                        delete(merchant[merch_key]);
-                                    }
-                                }
-                                $scope.merchants[merchantID] = merchant;
-                            }
-                        }
-                        getMerchantDetails();
-                    });
-            };
-
-            function getMerchantDetails() {
-                for (var merchantID in $scope.merchants) {
-                    (function(merchant_id) {
-                        $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
-                            .then(function(response) {
-                                Object.keys(response.data).sort().forEach(function(key) {
-                                    if (key != "merchant_id" && key != "merchant_url") {
-                                        $scope.merchants[merchant_id][key] = response.data[key];
-                                    }
-                                });
-                            });
-                    })(merchantID);
-                }
-            };
 
             /**
              * Initializing Graphs
@@ -306,7 +267,7 @@
                 // create a new series/line if it is not present yet
                 if (line === undefined || line === null) {
                     let newLine = {
-                        name: $scope.findMerchantNameById(lineID),
+                        name: merchants.getMerchantName(lineID),
                         id: lineID,
                         data: []
                     };
@@ -318,7 +279,7 @@
                 line.addPoint(point, false, shift);
 
                 // only show the line if it belongs to a currently active merchant
-                if (isRegisteredMerchant(lineID)) {
+                if (merchants.isRegisteredMerchant(lineID)) {
                     line.setVisible(true, false);
                 } else {
                     line.setVisible(false, false);
@@ -353,14 +314,6 @@
                 }
             };
 
-            $scope.findMerchantNameById = function(id){
-                if ($scope.merchants[id]) {
-                    return $scope.merchants[id].merchant_name;
-                } else {
-                    return id;
-                }
-            };
-
             $scope.arraysEqual = function(arr1, arr2) {
                 if (arr1.length !== arr2.length)
                     return false;
@@ -371,12 +324,6 @@
                 return true;
             };
 
-            // Returns true if the given merchant_id belongs to a currently registered merchant
-            function isRegisteredMerchant(merchant_id) {
-                return ($scope.merchants[merchant_id] != undefined);
-            }
-
-            $scope.getMerchants();
             $scope.drawStockGraphs();
             $scope.drawBarGraphs();
             $scope.drawStackedBarGraphs();
