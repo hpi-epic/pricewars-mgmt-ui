@@ -10,15 +10,15 @@
         }] //END: controller function
     );  // END: ngviewController
 
-    co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
               $scope.tick                         = 100.0;
               $scope.max_req_per_sec              = 10;
               $scope.consumer                     = {};
-              $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
-              $scope.merchants                    = {};
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+              $scope.consumer_url                 = endpoints.consumer_url;
+              $scope.marketplace_url              = endpoints.marketplace_url;
+              $scope.merchants                    = merchants.get();
 
               // Toastr options
               toastr.options = {
@@ -27,7 +27,7 @@
                   "positionClass": "toast-top-center",
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
-                  "timeOut": "2000",
+                  "timeOut": "2000"
               };
 
               $scope.getMarketplaceSettings = function(){
@@ -37,7 +37,7 @@
                         $scope.tick            = parseFloat(response.data.tick);
                         $scope.max_req_per_sec = parseInt(response.data.max_req_per_sec);
                     });
-              }
+              };
 
               $scope.getConsumerSettings = function() {
                   $http.get($scope.consumer_url + "/setting")
@@ -46,23 +46,20 @@
                   });
               };
 
-              $scope.getMerchantSettings = function(url){
+              /*$scope.getMerchantSettings = function(url){
                 $http.get(url + "/settings")
                     .then(function(response) {
                         $scope.merchants[url]  = response.data;
                     });
-              }
+              };*/
 
               $scope.getSettings = function(){
                 $http.get($scope.marketplace_url + "/merchants")
                     .then(function(response) {
-                        angular.forEach(response.data, function(value, key) {
-                            $scope.getMerchantSettings(value["api_endpoint_url"]);
-                        });
                         $scope.getConsumerSettings();
                         $scope.getMarketplaceSettings();
                     });
-              }
+              };
 
               $scope.updateConsumerSettings = function(){
                 $scope.consumer.tick            = $scope.tick;
@@ -87,9 +84,10 @@
                     }).success(function (data) {
                           toastr.success("Consumer was successfully started.");
                 });
-              }
+              };
 
-              $scope.updateMerchantSettings = function(url, settings){
+              $scope.updateMerchantSettings = function(id, settings){
+                let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.tick = $scope.tick;
                 settings.max_req_per_sec = $scope.max_req_per_sec;
                 $http({url: url + "/settings",
@@ -102,7 +100,7 @@
                     }).success(function (data) {
                           toastr.success("Merchant settings were successfully updated.");
                 });
-              }
+              };
 
               $scope.updateMarketplaceConfig = function(){
                 $http({url: $scope.marketplace_url + "/config",
@@ -116,7 +114,7 @@
                     }).success(function (data) {
                           toastr.success("Marketplace config was successfully altered.");
                 });
-              }
+              };
 
               $scope.updateTimeConfig = function(){
                 $scope.updateConsumerSettings();
@@ -130,11 +128,11 @@
           );  // END: dashboardController
 
 
-          co.controller('consumerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+          co.controller('consumerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
               $scope.consumer                     = {};
-              $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
+              $scope.consumer_url                 = endpoints.consumer_url;
 
               // Toastr options
               toastr.options = {
@@ -185,12 +183,11 @@
             }] //END: controller function
           );  // END: dashboardController
 
-          co.controller('merchantCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+          co.controller('merchantCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.merchantConfig               = {};
-              $scope.merchants                    = {};
+              $scope.marketplace_url              = endpoints.marketplace_url;
+              $scope.merchants                    = merchants.get();
 
               // Toastr options
               toastr.options = {
@@ -199,44 +196,11 @@
                   "positionClass": "toast-top-center",
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
-                  "timeOut": "2000",
+                  "timeOut": "2000"
               };
 
-              $scope.merchants = {};
-
-              $scope.getMerchants = function(){
-                $http.get($scope.marketplace_url + "/merchants")
-                    .then(function(response) {
-                        for (var key in response.data) {
-                            if (response.data.hasOwnProperty(key)) {
-                                var merchant = response.data[key];
-                                var merchantID = -1;
-                                for (var merch_key in merchant) {
-                                    if (merch_key == "merchant_id") {
-                                        merchantID = merchant[merch_key];
-                                        delete(merchant[merch_key]);
-                                    }
-                                }
-                                $scope.merchants[merchantID] = merchant;
-                            }
-                        }
-                        getMerchantDetails();
-                    });
-              };
-
-              function getMerchantDetails() {
-                for (var merchantID in $scope.merchants) {
-                    (function(merchant_id) {
-                        $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
-                            .then(function(response) {
-                                    Object.keys(response.data).sort().forEach(function(key) {
-                                        if (key != "merchant_id" && key != "merchant_url") {
-                                            $scope.merchants[merchant_id][key] = response.data[key];
-                                        }
-                                    });
-                                });
-                    })(merchantID);
-                }
+              $scope.findMerchantNameById = function(merchant_id) {
+                  return merchants.getMerchantName(merchant_id);
               };
 
               $scope.startMerchant = function(merchant_id){
@@ -249,7 +213,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Merchant was successfully started.");
-                            $scope.getMerchants();
+                            merchants.updateMerchants();
                     });
               };
 
@@ -263,7 +227,7 @@
                       }
                     }).success(function (data) {
                             toastr.warning("Merchant was successfully terminated.");
-                            $scope.getMerchants();
+                            merchants.updateMerchants();
                     });
               };
 
@@ -277,7 +241,7 @@
                       }
                     }).success(function (data) {
                             toastr.warning("Merchant was successfully stopped.");
-                            $scope.getMerchants();
+                            merchants.updateMerchants();
                     });
               };
 
@@ -291,7 +255,7 @@
                       }
                     }).success(function (data) {
                             toastr.success("Merchant was successfully updated.");
-                            $scope.getMerchants();
+                            merchants.updateMerchants();
                     });
               };
 
@@ -305,24 +269,18 @@
                       }
                     }).success(function (data) {
                             toastr.success("Merchant was successfully deleted.");
-                            $scope.getMerchants();
+                            merchants.updateMerchants();
                     });
               };
-
-              $scope.findMerchantNameById = function(id){
-                  return $scope.merchants[id].merchant_name;
-              };
-
-              $scope.getMerchants();
 
             }] //END: controller function
     );  // END: dashboardController
 
-    co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
+              $scope.marketplace_url              = endpoints.marketplace_url;
+              $scope.producer_url                 = endpoints.producer_url;
               $scope.producer                     = {};
               $scope.new_product                  = {"uid":0,"product_id":0,"name":"Name","quality":0,"price":0};
 
@@ -415,14 +373,14 @@
             }] //END: controller function
     );  // END: dashboardController
 
-    co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout) {
+    co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints) {
 
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
+              $scope.marketplace_url              = endpoints.marketplace_url;
+              $scope.producer_url                 = endpoints.producer_url;
               $scope.offers                       = {};
               $scope.products                     = {};
-              $scope.merchants                    = {};
+              $scope.merchants                    = merchants.get();
               $scope.updateInterval               = 1000;
               $scope.offerPullTimeout             = 0;
 
@@ -485,7 +443,7 @@
                      }).success(function (data) {
                              toastr.success("New key was fetched.");
                      });
-               }
+               };
 
                $scope.findNameOfProduct = function(productUID) {
                    if ($scope.products[productUID])
@@ -493,30 +451,9 @@
                    return "No longer available";
                };
 
-               $scope.getMerchants = function(){
-                   $http.get($scope.marketplace_url + "/merchants")
-                       .then(function(response) {
-                           for (var key in response.data) {
-                               if (response.data.hasOwnProperty(key)) {
-                                   var merchant = response.data[key];
-                                   var merchantID = -1;
-                                   for (var merch_key in merchant) {
-                                       if (merch_key == "merchant_id") {
-                                           merchantID = merchant[merch_key];
-                                           delete(merchant[merch_key]);
-                                       }
-                                   }
-                                   $scope.merchants[merchantID] = merchant;
-                               }
-                           }
-                       });
-               };
-
-               $scope.getMerchants();
-
-               $scope.findMerchantNameById = function(id){
-                   return $scope.merchants[id].merchant_name;
-               };
+                $scope.findMerchantNameById = function(id){
+                    return merchants.getMerchantName(id);
+                };
 
             }] //END: controller function
     );  // END: dashboardController
