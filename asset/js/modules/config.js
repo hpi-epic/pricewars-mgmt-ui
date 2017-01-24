@@ -199,6 +199,10 @@
                   "timeOut": "2000"
               };
 
+              $scope.findMerchantNameById = function(merchant_id) {
+                  return merchants.getMerchantName(merchant_id);
+              };
+
               $scope.startMerchant = function(merchant_id){
                 $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
                       dataType: "json",
