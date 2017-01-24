@@ -16,7 +16,7 @@
 <div class="content animate-panel">
 
 <div class="row">
-    <div style="" class="col-lg-6" ng-repeat="(merchant_id, merchant_details) in merchants">
+    <div style="" class="col-lg-6" ng-repeat="(merchant_id, merchant_details) in merchants track by $index">
         <div class="hpanel stats">
             <div class="panel-body h-140">
                 <div class="stats-title pull-left">
@@ -25,21 +25,29 @@
                 <div class="stats-icon pull-right">
                     <i class="pe-7s-monitor fa-4x"></i>
                 </div>
-                <div class="m-t-xl">
-                    <div ng-repeat="(key, value) in merchant_details">
-                      <span class="font-bold no-margins">
-                          {{key}}
-                      </span>
-                      <br>
-                      <input ng-disabled="key == 'api_endpoint_url' || key == 'state'" class="form-control" ng-model="merchants[merchant_id][key]" type="text"><br>
 
-                      <br>
-                    </div>
-                    <button type="button" class="btn w-xs btn-info" ng-click="updateMerchantSettings(merchant_id)">Update</button>
-                    <button type="button" class="btn w-xs btn-success" ng-click="startMerchant(merchant_id)">Start</button>
-                    <!-- <button type="button" class="btn w-xs btn-warning" ng-click="terminateMerchant(merchant_id)">Terminate</button> -->
-                    <button type="button" class="btn w-xs btn-warning" ng-click="stopMerchant(merchant_id)">Stop</button>
-                    <!-- <button type="button" class="btn w-xs btn-danger" ng-click="deleteMerchant(merchant_id)">Delete</button> -->
+                <div ng-class="m-t-xl">
+                  <br><br>
+                  <button class="btn btn-xs btn-info" type="button" data-toggle="collapse" data-target="#collapse-{{$index}}" aria-expanded="true" aria-controls="collapseExample">
+                    Details
+                    </button>
+
+                  <div class="collapse"  id="collapse-{{$index}}" aria-expanded="false" >
+                      <div ng-repeat="(key, value) in merchant_details">
+                        <span class="font-bold no-margins">
+                            {{key}}
+                        </span>
+                        <br>
+                        <input ng-disabled="key == 'api_endpoint_url' || key == 'state'" class="form-control" ng-model="merchants[merchant_id][key]" type="text"><br>
+
+                        <br>
+                      </div>
+                      <button type="button" class="btn w-xs btn-info" ng-click="updateMerchantSettings(merchant_id)">Update</button>
+                      <button type="button" class="btn w-xs btn-success" ng-click="startMerchant(merchant_id)">Start</button>
+                      <!-- <button type="button" class="btn w-xs btn-warning" ng-click="terminateMerchant(merchant_id)">Terminate</button> -->
+                      <button type="button" class="btn w-xs btn-warning" ng-click="stopMerchant(merchant_id)">Stop</button>
+                      <!-- <button type="button" class="btn w-xs btn-danger" ng-click="deleteMerchant(merchant_id)">Delete</button> -->
+                  </div>
                 </div>
             </div>
         </div>
