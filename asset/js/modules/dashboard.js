@@ -11,6 +11,8 @@
             $scope.liveGraphData = [];
             $scope.merchants     = {};
             $scope.merchant_ids  = [];
+            $scope.consumers     = {};
+            $scope.consumers_ids = [];
             $scope.product_ids   = [];
 
             $scope.currentUIDFilter = "ALL";
@@ -52,7 +54,47 @@
             /**
              * REST calls
              */
-            $scope.getMerchants = function(){
+             $scope.getConsumers = function(){
+                 $http.get($scope.marketplace_url + "/consumers")
+                     .then(function(response) {
+                         for (var key in response.data) {
+                             if (response.data.hasOwnProperty(key)) {
+                                 var consumer = response.data[key];
+                                 var consumerID = -1;
+                                 for (var consumer_key in consumer) {
+                                     if (consumer_key == "consumer_id") {
+                                         consumerID = consumer[consumer_key];
+                                         delete(consumer[consumer_key]);
+                                     }
+                                 }
+                                 $scope.consumers[consumerID] = consumer;
+                             }
+                         }
+                         getConsumerDetails();
+                     });
+             };
+
+             function getConsumerDetails() {
+                 for (var consumerID in $scope.consumers) {
+                     (function(consumerID) {
+                         $http.get($scope.consumers[consumerID]["api_endpoint_url"])
+                             .then(function(response) {
+                                 if(response.code == 200){
+                                   console.log(response.code);
+                                   Object.keys(response.data).sort().forEach(function(key) {
+                                       if (key != "merchant_id" && key != "merchant_url") {
+                                           $scope.consumers[consumer_id][key] = response.data[key];
+                                       }
+                                   });
+                                 } else {
+                                   delete $scope.consumers[consumer_id];
+                                 }
+                             });
+                     })(consumerID);
+                 }
+             };
+
+             $scope.getMerchants = function(){
                 $http.get($scope.marketplace_url + "/merchants")
                     .then(function(response) {
                         for (var key in response.data) {
@@ -292,7 +334,7 @@
                 parseBulkData(newData).forEach(function(dp) {
                     let date = new Date(dp.value.timestamp);
                     date.setMilliseconds(0);
-                    
+
                     const lineID = dp.value.merchant_id;
                     let line = $scope.charts["marketshare"].get(lineID);
                     let point = [date.getTime(), dp.value.marketshare * 100];
@@ -377,6 +419,7 @@
             }
 
             $scope.getMerchants();
+            $scope.getConsumers();
             $scope.drawStockGraphs();
             $scope.drawBarGraphs();
             $scope.drawStackedBarGraphs();
