@@ -419,7 +419,7 @@
             }
 
             $scope.getMerchants();
-            $scope.getConsumers();
+            // $scope.getConsumers();
             $scope.drawStockGraphs();
             $scope.drawBarGraphs();
             $scope.drawStackedBarGraphs();
