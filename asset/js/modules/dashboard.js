@@ -1,16 +1,15 @@
 (function () {
     var da = angular.module('dashboard', ['ngCookies']);
 
-    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
             const maxNumberOfPointsInLine  = 10000;
 
-            $scope.marketplace_url         = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+            $scope.marketplace_url         = endpoints.marketplace_url;
 
             $scope.liveGraphData = [];
-            $scope.merchants     = {};
-            $scope.merchant_ids  = [];
+            $scope.merchants     = merchants.get();
             $scope.consumers     = {};
             $scope.consumers_ids = [];
             $scope.product_ids   = [];
@@ -348,7 +347,7 @@
                 // create a new series/line if it is not present yet
                 if (line === undefined || line === null) {
                     let newLine = {
-                        name: $scope.findMerchantNameById(lineID),
+                        name: merchants.getMerchantName(lineID),
                         id: lineID,
                         data: []
                     };
@@ -360,7 +359,7 @@
                 line.addPoint(point, false, shift);
 
                 // only show the line if it belongs to a currently active merchant
-                if (isRegisteredMerchant(lineID)) {
+                if (merchants.isRegisteredMerchant(lineID)) {
                     line.setVisible(true, false);
                 } else {
                     line.setVisible(false, false);
@@ -395,14 +394,6 @@
                 }
             };
 
-            $scope.findMerchantNameById = function(id){
-                if ($scope.merchants[id]) {
-                    return $scope.merchants[id].merchant_name;
-                } else {
-                    return id;
-                }
-            };
-
             $scope.arraysEqual = function(arr1, arr2) {
                 if (arr1.length !== arr2.length)
                     return false;
@@ -413,12 +404,6 @@
                 return true;
             };
 
-            // Returns true if the given merchant_id belongs to a currently registered merchant
-            function isRegisteredMerchant(merchant_id) {
-                return ($scope.merchants[merchant_id] != undefined);
-            }
-
-            $scope.getMerchants();
             $scope.getConsumers();
             $scope.drawStockGraphs();
             $scope.drawBarGraphs();
