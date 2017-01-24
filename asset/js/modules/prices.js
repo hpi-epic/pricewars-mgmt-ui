@@ -1,8 +1,8 @@
 (function () {
     var pr = angular.module('prices', ['ngCookies']);
 
-    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants',
+            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants) {
 
                 const maxNumberOfPointsInLine      = 10000;
                 const filterForAllIDs              = "ALL";
@@ -10,7 +10,6 @@
                 $scope.marketplace_url             = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
 
                 $scope.liveGraphData    = [];
-                $scope.merchants        = {};
                 $scope.merchant_ids     = [];
                 $scope.product_uids     = [];
 
@@ -74,44 +73,6 @@
                         hpanel.find('[id^=map-]').resize();
                     }, 50);
                 });
-
-                /**
-                  * REST calls
-                */
-                $scope.getMerchants = function(){
-                    $http.get($scope.marketplace_url + "/merchants")
-                        .then(function(response) {
-                            for (var key in response.data) {
-                                if (response.data.hasOwnProperty(key)) {
-                                    var merchant = response.data[key];
-                                    var merchantID = -1;
-                                    for (var merch_key in merchant) {
-                                        if (merch_key == "merchant_id") {
-                                            merchantID = merchant[merch_key];
-                                            delete(merchant[merch_key]);
-                                        }
-                                    }
-                                    $scope.merchants[merchantID] = merchant;
-                                }
-                            }
-                            getMerchantDetails();
-                        });
-                };
-
-                function getMerchantDetails() {
-                    for (var merchantID in $scope.merchants) {
-                        (function(merchant_id) {
-                            $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
-                                .then(function(response) {
-                                    Object.keys(response.data).sort().forEach(function(key) {
-                                        if (key != "merchant_id" && key != "merchant_url") {
-                                            $scope.merchants[merchant_id][key] = response.data[key];
-                                        }
-                                    });
-                                });
-                        })(merchantID);
-                    }
-                };
 
                 /**
                   * Initializing Graphs
@@ -206,6 +167,7 @@
                         // check if new merchants are in place. if so, draw graphs for them
                         if($scope.merchant_ids.indexOf(data.value.merchant_id) == -1){
                             $scope.merchant_ids.push(data.value.merchant_id);
+                            merchants.updateMerchants();
                         }
                     });
 
@@ -213,7 +175,7 @@
 
                 function updatePriceAndSalesChartWithPriceUpdate(newData) {
                     parseBulkData(newData).forEach(function(dp) {
-                        if (isRegisteredMerchant(dp.value.merchant_id)) {
+                        if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             $scope.product_uids.pushIfNotExist(dp.value.uid);
 
                             const lineID = createLineName(dp);
@@ -228,7 +190,7 @@
 
                 function updatePriceAndSalesChartWithSalesUpdate(newData) {
                     parseBulkData(newData).forEach(function(dp, index) {
-                        if (isRegisteredMerchant(dp.value.merchant_id)) {
+                        if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             $scope.product_uids.pushIfNotExist(dp.value.uid);
 
                             const lineID = createLineName(dp);
@@ -294,7 +256,7 @@
                     line.addPoint(point, false, shift);
 
                     // only show the line if it belongs to a currently active merchant
-                    if (isRegisteredMerchant(merchant_id)) {
+                    if (merchants.isRegisteredMerchant(merchant_id)) {
                         line.setVisible(true, false);
                     } else {
                         line.setVisible(false, false);
@@ -307,34 +269,12 @@
                   * Helper
                 */
                 function createLineName(data) {
-                    return "PID: " + data.value.uid + " - M: " + findMerchantNameById(data.value.merchant_id);
-                }
-
-                function findMerchantNameById(id){
-                    return ($scope.merchants[id] && $scope.merchants[id].merchant_name) ? $scope.merchants[id].merchant_name : id.substring(0, 8);
+                    return "PID: " + data.value.uid + " - M: " + merchants.getMerchantName(data.value.merchant_id);
                 }
 
                 function selectAllDataRange(chartname) {
                     $scope.charts[chartname].rangeSelector.clickButton(5,{type: 'all'},true);
                 }
-
-                function isRegisteredMerchant(merchant_id) {
-                    return ($scope.merchants[merchant_id] != undefined);
-                }
-
-                $scope.merchantStatus = function(merchant){
-                  if(merchant["state"] == "init"){
-                    return "hpanel hbgblue";
-                  } else if (merchant["state"] == "running") {
-                    return "hpanel hbggreen";
-                  } else if (merchant["state"] == "exiting") {
-                    return "hpanel hbgyellow";
-                  } else if (merchant["state"] == "stopping") {
-                    return "hpanel hbgred";
-                  } else {
-                    return "hpanel hbgred";
-                  }
-                };
 
                 $scope.arraysEqual = function(arr1, arr2) {
                     if (arr1.length !== arr2.length)
@@ -372,7 +312,6 @@
 
                 }
 
-                $scope.getMerchants();
                 $scope.drawPricingHighChart();
 
                 //load real data asap
