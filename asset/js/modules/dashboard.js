@@ -93,7 +93,7 @@
                  }
              };
 
-             $scope.getConsumers();
+             //$scope.getConsumers();
 
             /**
              * Initializing Graphs
