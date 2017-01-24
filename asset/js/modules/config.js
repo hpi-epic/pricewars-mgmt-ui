@@ -13,8 +13,9 @@
     co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              $scope.tick                         = 100.0;
-              $scope.max_req_per_sec              = 10;
+              $scope.consumer_per_minute          = 30.0;
+              $scope.max_updates_per_sale         = 20.0;
+              $scope.max_req_per_sec              = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60);
               $scope.consumer                     = {};
               $scope.consumer_url                 = endpoints.consumer_url;
               $scope.marketplace_url              = endpoints.marketplace_url;
@@ -89,7 +90,7 @@
               $scope.updateMerchantSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.tick = $scope.tick;
-                settings.max_req_per_sec = $scope.max_req_per_sec;
+                settings.max_req_per_sec = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60);
                 $http({url: url + "/settings",
                       dataType: "json",
                       method: "PUT",
@@ -106,8 +107,8 @@
                 $http({url: $scope.marketplace_url + "/config",
                       dataType: "json",
                       method: "PUT",
-                      data: {"tick": $scope.tick,
-                             "max_req_per_sec": $scope.max_req_per_sec},
+                      data: {"consumer_per_minute": $scope.consumer_per_minute,
+                             "max_updates_per_sale": $scope.max_updates_per_sale},
                       headers: {
                           "Content-Type": "application/json"
                       }
