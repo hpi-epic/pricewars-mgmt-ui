@@ -188,4 +188,186 @@
             }
         };
     }]);
+
+    frontend.factory('charts', ['endpoints', 'socket', 'merchants', function (endpoints, socket, merchants) {
+
+        var charts = {
+            liveSales: {
+                title:      "Live Sales",
+                html_id:    "chart-liveSales",
+                data:       [],
+                getOptions: function() {return getStockchartXDateYPriceOptions("Live Sales", "liveSales", "Price");}
+            },
+            revenue: {
+                title:      "Revenue per Minute",
+                html_id:    "chart-revenue",
+                data:       [],
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions("Revenue per Minute", "revenue", "Revenue");}
+            },
+            marketshare: {
+                title:      "Marketshare per Minute",
+                html_id:    "chart-marketshare",
+                data:       [],
+                getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions("Marketshare per Minute", "Marketshare in %");}
+            },
+
+            // functions that require an actual chart bound to an html-element
+            setDefaultZoom: function(chart, minuteRange) {
+                let d = new Date();
+                chart.xAxis[0].update(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() - minuteRange), Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() + minuteRange));
+            },
+
+            setSize: function(chart, width, height) {
+                chart.setSize(width, height);
+            }
+        };
+
+        function getStockchartXDateYPriceOptions(title, id, y_axis_title) {
+            return {
+                title: {
+                    text: title
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: {
+                        text: 'Date'
+                    },
+                    ordinal: false
+                },
+                yAxis: {
+                    title: {
+                        text: y_axis_title
+                    },
+                    opposite: false
+                },
+                rangeSelector: {
+                    buttons: [{
+                        count: 30,
+                        type: 'second',
+                        text: '30S'
+                    }, {
+                        count: 1,
+                        type: 'minute',
+                        text: '1M'
+                    }, {
+                        count: 5,
+                        type: 'minute',
+                        text: '5M'
+                    }, {
+                        count: 30,
+                        type: 'minute',
+                        text: '30M'
+                    }, {
+                        count: 1,
+                        type: 'hour',
+                        text: '1H'
+                    }, {
+                        type: 'all',
+                        text: 'All'
+                    }],
+                    inputEnabled: false,
+                    selected: 5
+                },
+                legend: {
+                    enabled: true
+                },
+                series: [{
+                    name: id,
+                    id: id,
+                    data: []
+                }]
+            };
+        }
+
+        function getColumnChartXDateYPriceGroupMerchantOptions(title, y_axis_title) {
+            return {
+                chart: {
+                    type: 'column',
+                    zoomType: 'x'
+                },
+                title: {
+                    text: title
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: {
+                        text: 'Date'
+                    },
+                    showEmpty: false
+                },
+                yAxis: {
+                    title: {
+                        text: y_axis_title
+                    }
+                },
+                legend: {
+                    //reversed: true,
+                    enabled: true,
+                    labelFormat: 'Merchant {name}'
+                },
+                tooltip: {
+                    headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
+                    pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}'
+                },
+                scrollbar: {
+                    enabled: true
+                },
+                series: []
+            };
+        }
+
+        function getStackedChartXDateYPercentGroupMerchantOptions(title, y_axis_title) {
+            return {
+                chart: {
+                    type: 'column',
+                    zoomType: 'x'
+                },
+                title: {
+                    text: title
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: {
+                        text: 'Date'
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: y_axis_title
+                    },
+                    labels: {
+                        format: '{value}%'
+                    },
+                    ceiling: 100,
+                    stackLabels: {
+                        enabled: false,
+                        style: {
+                            fontWeight: 'bold',
+                            color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray',
+                            format: '{value:.2f}%'
+                        }
+                    }
+                },
+                legend: {
+                    //reversed: true,
+                    enabled: true,
+                    labelFormat: 'Merchant {name}'
+                },
+                plotOptions: {
+                    column: {
+                        stacking: 'percent'
+                    }
+                },
+                tooltip: {
+                    pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}%'
+                },
+                scrollbar: {
+                    enabled: true
+                },
+                series: []
+            };
+        }
+
+        return charts;
+    }]);
 })();

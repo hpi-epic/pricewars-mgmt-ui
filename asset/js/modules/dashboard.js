@@ -1,8 +1,8 @@
 (function () {
     var da = angular.module('dashboard', ['ngCookies']);
 
-    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
-        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
+    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints', 'charts',
+        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints, charts) {
 
             const maxNumberOfPointsInLine  = 10000;
 
@@ -93,213 +93,27 @@
                  }
              };
 
-             $scope.getMerchants = function(){
-                $http.get($scope.marketplace_url + "/merchants")
-                    .then(function(response) {
-                        for (var key in response.data) {
-                            if (response.data.hasOwnProperty(key)) {
-                                var merchant = response.data[key];
-                                var merchantID = -1;
-                                for (var merch_key in merchant) {
-                                    if (merch_key == "merchant_id") {
-                                        merchantID = merchant[merch_key];
-                                        delete(merchant[merch_key]);
-                                    }
-                                }
-                                $scope.merchants[merchantID] = merchant;
-                            }
-                        }
-                        getMerchantDetails();
-                    });
-            };
-
-            function getMerchantDetails() {
-                for (var merchantID in $scope.merchants) {
-                    (function(merchant_id) {
-                        $http.get($scope.merchants[merchant_id]["api_endpoint_url"] + "/settings")
-                            .then(function(response) {
-                                Object.keys(response.data).sort().forEach(function(key) {
-                                    if (key != "merchant_id" && key != "merchant_url") {
-                                        $scope.merchants[merchant_id][key] = response.data[key];
-                                    }
-                                });
-                            });
-                    })(merchantID);
-                }
-            };
+             $scope.getConsumers();
 
             /**
              * Initializing Graphs
              */
+            function drawDashboardGraphs() {
+                /* --- Livesales --- */
+                $scope.charts["liveSales"] = Highcharts.stockChart(charts.liveSales.html_id, charts.liveSales.getOptions());
 
-            $scope.drawStockGraphs = function() {
-                const graphNames = ["liveSales"];
-                angular.forEach(graphNames, function (value, key) {
-                    $scope.charts[value] = Highcharts.stockChart('chart-' + value, {
-                        title: {
-                            text: value
-                        },
-                        xAxis: {
-                            type: 'datetime',
-                            title: {
-                                text: 'Date'
-                            },
-                            ordinal: false
-                        },
-                        yAxis: {
-                            title: {
-                                text: value
-                            },
-                            opposite: false
-                        },
-                        rangeSelector: {
-                            buttons: [{
-                                count: 30,
-                                type: 'second',
-                                text: '30S'
-                            }, {
-                                count: 1,
-                                type: 'minute',
-                                text: '1M'
-                            }, {
-                                count: 5,
-                                type: 'minute',
-                                text: '5M'
-                            }, {
-                                count: 30,
-                                type: 'minute',
-                                text: '30M'
-                            }, {
-                                count: 1,
-                                type: 'hour',
-                                text: '1H'
-                            }, {
-                                type: 'all',
-                                text: 'All'
-                            }],
-                            inputEnabled: false,
-                            selected: 5
-                        },
-                        legend: {
-                            enabled: true
-                        },
-                        series: [{
-                            name: value,
-                            id: value,
-                            data: []
-                        }]
-                    });
-                });
-            };
+                /* --- Revenue --- */
+                $scope.charts["revenue"] = Highcharts.chart(charts.revenue.html_id, charts.revenue.getOptions());
+                charts.setDefaultZoom($scope.charts["revenue"], 10);
+                charts.setSize($scope.charts["revenue"], undefined, 500);
 
-            $scope.drawBarGraphs = function() {
-                const graphNames = ["revenue"];
-                angular.forEach(graphNames, function(value, key) {
-                    $scope.charts[value] = Highcharts.chart('chart-' + value, {
-                        chart: {
-                            type: 'column',
-                            zoomType: 'x'
-                        },
-                        title: {
-                            text: value
-                        },
-                        xAxis: {
-                            type: 'datetime',
-                            title: {
-                                text: 'Date'
-                            },
-                            showEmpty: false
-                        },
-                        yAxis: {
-                            title: {
-                                text: value
-                            }
-                        },
-                        legend: {
-                            //reversed: true,
-                            enabled: true,
-                            labelFormat: 'Merchant {name}'
-                        },
-                        tooltip: {
-                            headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
-                            pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}'
-                        },
-                        scrollbar: {
-                            enabled: true
-                        },
-                        series: []
-                    });
+                /* --- Marketshare --- */
+                $scope.charts["marketshare"] = Highcharts.chart(charts.marketshare.html_id, charts.marketshare.getOptions());
+                charts.setDefaultZoom($scope.charts["marketshare"], 10);
+                charts.setSize($scope.charts["marketshare"], undefined, 500);
+            }
 
-                    // set default zoom
-                    var d = new Date();
-                    $scope.charts[value].xAxis[0].update(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() - 10), Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() + 10));
-
-                    // set height
-                    $scope.charts[value].setSize(undefined, 500);
-                });
-            };
-
-            $scope.drawStackedBarGraphs = function() {
-                const graphNames = ["marketshare"];
-                angular.forEach(graphNames, function(value, key) {
-                    $scope.charts[value] = Highcharts.chart('chart-' + value, {
-                        chart: {
-                            type: 'column',
-                            zoomType: 'x'
-                        },
-                        title: {
-                            text: value
-                        },
-                        xAxis: {
-                            type: 'datetime',
-                            title: {
-                                text: 'Date'
-                            }
-                        },
-                        yAxis: {
-                            title: {
-                                text: value
-                            },
-                            labels: {
-                                format: '{value}%'
-                            },
-                            ceiling: 100,
-                            stackLabels: {
-                                enabled: false,
-                                style: {
-                                    fontWeight: 'bold',
-                                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray',
-                                    format: '{value:.2f}%'
-                                }
-                            }
-                        },
-                        legend: {
-                            //reversed: true,
-                            enabled: true,
-                            labelFormat: 'Merchant {name}'
-                        },
-                        plotOptions: {
-                            column: {
-                                stacking: 'percent'
-                            }
-                        },
-                        tooltip: {
-                            pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}%'
-                        },
-                        scrollbar: {
-                            enabled: true
-                        },
-                        series: []
-                    });
-
-                    // set default zoom
-                    var d = new Date();
-                    $scope.charts[value].xAxis[0].update(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() - 10), Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes() + 10));
-
-                    // set height
-                    $scope.charts[value].setSize(undefined, 500);
-                });
-            };
+            drawDashboardGraphs();
 
             /**
              * Updating chart content
@@ -394,6 +208,10 @@
                 }
             };
 
+            $scope.findMerchantNameById = function(merchant_id) {
+                return merchants.getMerchantName(merchant_id);
+            };
+
             $scope.arraysEqual = function(arr1, arr2) {
                 if (arr1.length !== arr2.length)
                     return false;
@@ -403,11 +221,6 @@
                 }
                 return true;
             };
-
-            $scope.getConsumers();
-            $scope.drawStockGraphs();
-            $scope.drawBarGraphs();
-            $scope.drawStackedBarGraphs();
 
             /**
              * Handling socket events
