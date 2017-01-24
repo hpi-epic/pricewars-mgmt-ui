@@ -151,11 +151,6 @@
                       .then(function(response) {
                               $scope.consumer = response.data;
                               $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-                              $scope.consumer.behaviors           = [{"name":"cheap","amount":10},
-                                                                    {"name":"expensive","amount":20},
-                                                                    {"name":"cheap_and_prime","amount":50},
-                                                                    {"name":"random","amount":10},
-                                                                    {"name":"first","amount":10}];
                           });
               };
 
