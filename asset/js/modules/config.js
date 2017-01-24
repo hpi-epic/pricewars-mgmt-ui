@@ -10,14 +10,14 @@
         }] //END: controller function
     );  // END: ngviewController
 
-    co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants) {
+    co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
               $scope.tick                         = 100.0;
               $scope.max_req_per_sec              = 10;
               $scope.consumer                     = {};
-              $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+              $scope.consumer_url                 = endpoints.consumer_url;
+              $scope.marketplace_url              = endpoints.marketplace_url;
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -128,11 +128,11 @@
           );  // END: dashboardController
 
 
-          co.controller('consumerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+          co.controller('consumerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
               $scope.consumer                     = {};
-              $scope.consumer_url                 = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
+              $scope.consumer_url                 = endpoints.consumer_url;
 
               // Toastr options
               toastr.options = {
@@ -183,11 +183,10 @@
             }] //END: controller function
           );  // END: dashboardController
 
-          co.controller('merchantCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants) {
+          co.controller('merchantCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.merchantConfig               = {};
+              $scope.marketplace_url              = endpoints.marketplace_url;
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -197,7 +196,7 @@
                   "positionClass": "toast-top-center",
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
-                  "timeOut": "2000",
+                  "timeOut": "2000"
               };
 
               $scope.startMerchant = function(merchant_id){
@@ -273,11 +272,11 @@
             }] //END: controller function
     );  // END: dashboardController
 
-    co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
+              $scope.marketplace_url              = endpoints.marketplace_url;
+              $scope.producer_url                 = endpoints.producer_url;
               $scope.producer                     = {};
               $scope.new_product                  = {"uid":0,"product_id":0,"name":"Name","quality":0,"price":0};
 
@@ -370,11 +369,11 @@
             }] //END: controller function
     );  // END: dashboardController
 
-    co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants) {
+    co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints) {
 
-              $scope.marketplace_url              = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-              $scope.producer_url                 = "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de";
+              $scope.marketplace_url              = endpoints.marketplace_url;
+              $scope.producer_url                 = endpoints.producer_url;
               $scope.offers                       = {};
               $scope.products                     = {};
               $scope.merchants                    = merchants.get();

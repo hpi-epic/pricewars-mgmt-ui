@@ -68,8 +68,17 @@
         }
     });
 
-    frontend.factory('socket', function ($rootScope) {
-        var socket = io.connect("http://192.168.31.91:8001/", {query: 'id=mgmt-ui'});
+    frontend.factory('endpoints', function () {
+        return {
+            marketplace_url : "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace",
+            producer_url    : "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de",
+            consumer_url    : "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de",
+            kafka_proxy     : "http://192.168.31.91:8001/"
+        };
+    });
+
+    frontend.factory('socket', ['endpoints', function (endpoints) {
+        var socket = io.connect(endpoints.kafka_proxy, {query: 'id=mgmt-ui'});
 
         return {
             on: function (eventName, callback) {
@@ -91,27 +100,11 @@
                 })
             }
         };
-    });
-
-    frontend.factory('data', ['$rootScope', function ($rootScope) {
-        var data = {
-            urls : {
-                marketplace_url : "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace",
-                producer_url    : "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de",
-                consumer_url    : "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de"
-            },
-            merchants : {},
-            products  : {},
-            consumer  : {}
-        };
-
-        return data;
     }]);
 
     // The merchant service. Stores all merchants currently registered
     // at the marketplace and if requested, updates them periodically (not by default).
-    frontend.factory('merchants', ['$http', '$rootScope', function ($http, $rootScope) {
-        var marketplace_url = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+    frontend.factory('merchants', ['$http', 'endpoints', function ($http, endpoints) {
 
         var timeoutObj  = undefined;
         var timeout     = -1;
@@ -119,7 +112,7 @@
         var merchants   = {};
 
         function getMerchants() {
-            $http.get(marketplace_url + "/merchants")
+            $http.get(endpoints.marketplace_url + "/merchants")
                 .then(function(response) {
                     for (var key in response.data) {
                         if (response.data.hasOwnProperty(key)) {

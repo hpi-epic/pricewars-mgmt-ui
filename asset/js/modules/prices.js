@@ -1,13 +1,13 @@
 (function () {
     var pr = angular.module('prices', ['ngCookies']);
 
-    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants',
-            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants) {
+    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
                 const maxNumberOfPointsInLine      = 10000;
                 const filterForAllIDs              = "ALL";
 
-                $scope.marketplace_url             = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+                $scope.marketplace_url             = endpoints.marketplace_url;
 
                 $scope.liveGraphData    = [];
                 $scope.merchant_ids     = [];
@@ -15,14 +15,7 @@
 
                 $scope.currentUIDFilter = filterForAllIDs;
 
-                $scope.data = [];
                 $scope.charts = [];
-                $scope.counter_priceGraphData = 0;
-                $scope.data.priceGraphData = [];
-                $scope.data.priceGraphPerMerchantData = [];
-
-                $scope.redrawGraphTimeout   = undefined;
-                $scope.redrawInterval       = 1000;
 
                 /**
                  * Highcharts Settings
