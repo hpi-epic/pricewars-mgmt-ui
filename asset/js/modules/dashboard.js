@@ -1,12 +1,12 @@
 (function () {
     var da = angular.module('dashboard', ['ngCookies']);
 
-    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants',
-        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants) {
+    da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+        function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
             const maxNumberOfPointsInLine  = 10000;
 
-            $scope.marketplace_url         = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+            $scope.marketplace_url         = endpoints.marketplace_url;
 
             $scope.liveGraphData = [];
             $scope.merchants     = merchants.get();
