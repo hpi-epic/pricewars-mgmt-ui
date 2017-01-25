@@ -1,8 +1,8 @@
 (function () {
     var pr = angular.module('prices', ['ngCookies']);
 
-    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
-            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
+    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints', 'charts',
+            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints, charts) {
 
                 const maxNumberOfPointsInLine      = 10000;
                 const filterForAllIDs              = "ALL";
@@ -70,68 +70,24 @@
                 /**
                   * Initializing Graphs
                 */
-                $scope.drawPricingHighChart = function(){
-                  $scope.graphNames = ["highchart-price", "highchart-price_and_sales"];
-                  angular.forEach($scope.merchant_ids, function(mId) {
-                    $scope.graphNames.push("highchart-price-"+mId);
-                  });
-                  angular.forEach($scope.graphNames, function(graphName, key) {
-                    $scope.charts[graphName] = Highcharts.stockChart(graphName, {
-                            title: {
-                                text: 'Price Updates'
-                            },
-                            xAxis: {
-                                type: 'datetime',
-                                title: {
-                                    text: 'Date'
-                                },
-                                ordinal: false
-                            },
-                            yAxis: {
-                                title: {
-                                    text: 'Price'
-                                },
-                                opposite: false
-                            },
-                            rangeSelector: {
-                                buttons: [{
-                                    count: 30,
-                                    type: 'second',
-                                    text: '30S'
-                                }, {
-                                    count: 1,
-                                    type: 'minute',
-                                    text: '1M'
-                                },{
-                                    count: 5,
-                                    type: 'minute',
-                                    text: '5M'
-                                }, {
-                                    count: 30,
-                                    type: 'minute',
-                                    text: '30M'
-                                }, {
-                                    count: 1,
-                                    type: 'hour',
-                                    text: '1H'
-                                },{
-                                    type: 'all',
-                                    text: 'All'
-                                }],
-                                inputEnabled: false,
-                                selected: 5
-                            },
-                            tooltip: {
-                                pointFormat: '<b>{series.name}:</b> {point.y}€'
-                            },
-                            legend: {
-                              enabled: true
-                            },
-                            series: []
-                      });
-                      $scope.charts[graphName].setSize(undefined, 600);
+                function drawPriceGraphs() {
+                    /* --- Price Updates and Item Sales --- */
+                    $scope.charts["highchart-price_and_sales"] = Highcharts.stockChart(charts.priceUpdatesAndSales.html_id, charts.priceUpdatesAndSales.getOptions());
+                    charts.setSize($scope.charts["highchart-price_and_sales"], undefined, 600);
+
+                    /* --- Price Updates (without Sales) --- */
+                    $scope.charts["highchart-price"] = Highcharts.chart(charts.priceUpdates.html_id, charts.priceUpdates.getOptions());
+                    charts.setSize($scope.charts["highchart-price"], undefined, 600);
+
+                    /* --- Price Updates per Merchant --- */
+                    angular.forEach($scope.merchant_ids, function(mId) {
+                        let chart_title = charts.priceUpdatesPerMerchant.title(merchants.getMerchantName(mId));
+                        $scope["highchart-price-"+mId] = Highcharts.chart(charts.priceUpdatesPerMerchant.html_id(), charts.priceUpdates.getOptions());;
+                        charts.setSize($scope.charts["highchart-price-"+mId], undefined, 600);
                     });
-                };
+                }
+
+                drawPriceGraphs();
 
                 /**
                   * Updating content of graphs
@@ -266,7 +222,9 @@
                 }
 
                 function selectAllDataRange(chartname) {
-                    $scope.charts[chartname].rangeSelector.clickButton(5,{type: 'all'},true);
+                    if ($scope.charts[chartname].rangeSelector) {
+                        $scope.charts[chartname].rangeSelector.clickButton(5,{type: 'all'},true);
+                    }
                 }
 
                 $scope.arraysEqual = function(arr1, arr2) {
@@ -304,8 +262,6 @@
                     });
 
                 }
-
-                $scope.drawPricingHighChart();
 
                 //load real data asap
                 $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
