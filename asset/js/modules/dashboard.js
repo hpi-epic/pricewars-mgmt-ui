@@ -4,19 +4,13 @@
     da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints', 'charts',
         function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints, charts) {
 
-            $scope.marketplace_url         = endpoints.marketplace_url;
+            $scope.marketplace_url  = endpoints.marketplace_url;
 
-            $scope.liveGraphData = [];
-            $scope.merchants     = merchants.get();
-            $scope.consumers     = {};
-            $scope.consumers_ids = [];
-            $scope.product_ids   = [];
-
-            $scope.currentUIDFilter = "ALL";
+            $scope.merchants        = merchants.get();
+            $scope.consumers        = {};
+            $scope.consumers_ids    = [];
 
             $scope.charts = [];
-
-            Highcharts.setOptions({lang: {noData: "No data available (yet)"}});
 
             /**
              * UI Settings
