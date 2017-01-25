@@ -191,24 +191,63 @@
 
     frontend.factory('charts', ['endpoints', 'socket', 'merchants', function (endpoints, socket, merchants) {
 
+        const maxNumberOfPointsInLine  = 10000;
+
         var charts = {
             liveSales: {
                 title:      "Live Sales",
                 html_id:    "chart-liveSales",
                 data:       [],
-                getOptions: function() {return getStockchartXDateYPriceOptions(charts.liveSales.title, "liveSales", "Price", true);}
+                getOptions: function() {return getStockchartXDateYPriceOptions(charts.liveSales.title, "liveSales", "Price", true);},
+                updateGraphWithData: function(chart, data) {
+                    parseBulkData(data).forEach(function(dp) {
+                        const point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
+                        const lineID = "liveSales";
+
+                        addPointToLine(chart, point, lineID);
+                    });
+                    chart.redraw();
+                }
             },
             revenue: {
                 title:      "Revenue per Minute",
                 html_id:    "chart-revenue",
                 data:       [],
-                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenue.title, "Revenue");}
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenue.title, "Revenue");},
+                updateGraphWithData: function(chart, data) {
+                    parseBulkData(data).forEach(function(dp) {
+                        let date = new Date(dp.value.timestamp);
+                        date.setMilliseconds(0);
+
+                        const lineID = dp.value.merchant_id;
+                        const point = [date.getTime(), dp.value.revenue];
+
+                        addPointToLine(chart, point, lineID);
+
+                        hideLineIfMerchantNotRegistered(chart, lineID);
+                    });
+                    chart.redraw();
+                }
             },
             marketshare: {
                 title:      "Marketshare per Minute",
                 html_id:    "chart-marketshare",
                 data:       [],
-                getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Marketshare in %");}
+                getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Marketshare in %");},
+                updateGraphWithData: function(chart, data) {
+                    parseBulkData(data).forEach(function(dp) {
+                        let date = new Date(dp.value.timestamp);
+                        date.setMilliseconds(0);
+
+                        const lineID = dp.value.merchant_id;
+                        const point = [date.getTime(), dp.value.marketshare * 100];
+
+                        addPointToLine(chart, point, lineID);
+
+                        hideLineIfMerchantNotRegistered(chart, lineID);
+                    });
+                    chart.redraw();
+                }
             },
             priceUpdatesAndSales: {
                 title:      "Price Updates and Item Sales",
@@ -239,6 +278,46 @@
                 chart.setSize(width, height);
             }
         };
+
+        function addPointToLine(chart, point, lineID) {
+            let line = chart.get(lineID);
+
+            // create a new series/line if it is not present yet
+            if (line === undefined || line === null) {
+                let newLine = {
+                    name: merchants.getMerchantName(lineID),
+                    id: lineID,
+                    data: []
+                };
+                line = chart.addSeries(newLine, false);
+            }
+
+            // add the new point to the line
+            let shift = line.data.length > maxNumberOfPointsInLine;
+            line.addPoint(point, false, shift);
+        }
+
+        function hideLineIfMerchantNotRegistered(chart, lineID) {
+            let line = chart.get(lineID);
+
+            // only show the line if it belongs to a currently active merchant
+            if (merchants.isRegisteredMerchant(lineID)) {
+                line.setVisible(true, false);
+            } else {
+                line.setVisible(false, false);
+            }
+        }
+
+        function parseBulkData(newData) {
+            var data = newData;
+            if (!(newData instanceof Array)) {
+                data = [newData]
+            } else {
+                data = newData.map(e => {return angular.fromJson(e)}
+            )
+            }
+            return data;
+        }
 
         function getStockchartXDateYPriceOptions(title, id, y_axis_title, add_empty_series) {
             var result = {
