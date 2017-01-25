@@ -153,8 +153,8 @@
                   "timeOut": "2000"
               };
 
-              $scope.getConsumerSampleSettings = function() {
-                  $http.get($scope.consumer_url + "/setting/sample")
+              $scope.getConsumerSettings = function() {
+                  $http.get($scope.consumer_url + "/setting/")
                       .then(function(response) {
                               $scope.consumer = response.data;
                               $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
@@ -187,7 +187,7 @@
                     });
               }
 
-              $scope.getConsumerSampleSettings();
+              $scope.getConsumerSettings();
 
             }] //END: controller function
           );  // END: dashboardController
