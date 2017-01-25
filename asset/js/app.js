@@ -220,7 +220,7 @@
                 title:      "Price Updates",
                 html_id:    "highchart-price",
                 data:   [],
-                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price", "Price", false);}
+                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdates.title, "price", "Price", false);}
             },
             priceUpdatesPerMerchant: {
                 title:      function(merchant_name) {return "Price Updates of Merchant " + merchant_name;},
