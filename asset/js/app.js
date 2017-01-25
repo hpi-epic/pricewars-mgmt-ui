@@ -196,19 +196,37 @@
                 title:      "Live Sales",
                 html_id:    "chart-liveSales",
                 data:       [],
-                getOptions: function() {return getStockchartXDateYPriceOptions("Live Sales", "liveSales", "Price");}
+                getOptions: function() {return getStockchartXDateYPriceOptions(charts.liveSales.title, "liveSales", "Price", true);}
             },
             revenue: {
                 title:      "Revenue per Minute",
                 html_id:    "chart-revenue",
                 data:       [],
-                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions("Revenue per Minute", "revenue", "Revenue");}
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenue.title, "Revenue");}
             },
             marketshare: {
                 title:      "Marketshare per Minute",
                 html_id:    "chart-marketshare",
                 data:       [],
-                getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions("Marketshare per Minute", "Marketshare in %");}
+                getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Marketshare in %");}
+            },
+            priceUpdatesAndSales: {
+                title:      "Price Updates and Item Sales",
+                html_id:    "highchart-price_and_sales",
+                data:       [],
+                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false);}
+            },
+            priceUpdates: {
+                title:      "Price Updates",
+                html_id:    "highchart-price",
+                data:   [],
+                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price", "Price", false);}
+            },
+            priceUpdatesPerMerchant: {
+                title:      function(merchant_name) {return "Price Updates of Merchant " + merchant_name;},
+                html_id:    function(merchant_id) {return "highchart-price-" + merchant_id;},
+                data:       [],
+                getOptions: function(title) {return getStockchartXDateYPriceOptions(title, "price_per_merchant", "Price", false);}
             },
 
             // functions that require an actual chart bound to an html-element
@@ -222,8 +240,8 @@
             }
         };
 
-        function getStockchartXDateYPriceOptions(title, id, y_axis_title) {
-            return {
+        function getStockchartXDateYPriceOptions(title, id, y_axis_title, add_empty_series) {
+            var result = {
                 title: {
                     text: title
                 },
@@ -271,12 +289,21 @@
                 legend: {
                     enabled: true
                 },
-                series: [{
+                tooltip: {
+                    pointFormat: '<b>{series.name}:</b> {point.y}€'
+                },
+                series: []
+            };
+
+            if (add_empty_series) {
+                result.series.push({
                     name: id,
                     id: id,
                     data: []
-                }]
-            };
+                });
+            }
+
+            return result;
         }
 
         function getColumnChartXDateYPriceGroupMerchantOptions(title, y_axis_title) {
