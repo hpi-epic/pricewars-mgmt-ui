@@ -44,6 +44,7 @@
                         $scope.marketplace     = response.data;
                         $scope.consumer_per_minute  = response.data.consumer_per_minute;
                         $scope.max_updates_per_sale = response.data.max_updates_per_sale;
+                        $scope.updateMaxReqPerSec();
                     });
               };
 
