@@ -15,7 +15,14 @@
 
               $scope.consumer_per_minute          = 30.0;
               $scope.max_updates_per_sale         = 20.0;
-              $scope.max_req_per_sec              = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60);
+              $scope.max_req_per_sec              = 0;
+              $scope.updateMaxReqPerSec           = () => {
+                $scope.max_req_per_sec = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60)
+                if (!$scope.max_req_per_sec) {
+                  $scope.max_req_per_sec = 0
+                }
+              }
+
               $scope.consumer                     = {};
               $scope.consumer_url                 = endpoints.consumer_url;
               $scope.marketplace_url              = endpoints.marketplace_url;
@@ -35,7 +42,8 @@
                 $http.get($scope.marketplace_url + "/config")
                     .then(function(response) {
                         $scope.marketplace     = response.data;
-                        $scope.max_req_per_sec = parseInt(response.data.max_req_per_sec);
+                        $scope.consumer_per_minute  = response.consumer_per_minute;
+                        $scope.max_updates_per_sale = response.max_updates_per_sale;
                     });
               };
 
@@ -88,7 +96,7 @@
 
               $scope.updateMerchantSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
-                settings.max_req_per_sec = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60);
+                settings.max_req_per_sec = $scope.max_req_per_sec;
                 $http({url: url + "/settings",
                       dataType: "json",
                       method: "PUT",
@@ -106,6 +114,7 @@
                       dataType: "json",
                       method: "PUT",
                       data: {"consumer_per_minute": $scope.consumer_per_minute,
+                             "max_req_per_sec": $scope.max_req_per_sec,
                              "max_updates_per_sale": $scope.max_updates_per_sale},
                       headers: {
                           "Content-Type": "application/json"
