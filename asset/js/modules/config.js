@@ -35,7 +35,6 @@
                 $http.get($scope.marketplace_url + "/config")
                     .then(function(response) {
                         $scope.marketplace     = response.data;
-                        $scope.tick            = parseFloat(response.data.tick);
                         $scope.max_req_per_sec = parseInt(response.data.max_req_per_sec);
                     });
               };
@@ -63,8 +62,8 @@
               };
 
               $scope.updateConsumerSettings = function(){
-                $scope.consumer.tick            = $scope.tick;
-                $scope.consumer.max_req_per_sec = $scope.max_req_per_sec;
+                $scope.consumer.consumer_per_minute    = $scope.consumer_per_minute;
+                $scope.consumer.max_req_per_sec        = $scope.max_req_per_sec;
                 $http({url: $scope.consumer_url + "/setting",
                       dataType: "json",
                       method: "DELETE",
@@ -89,7 +88,6 @@
 
               $scope.updateMerchantSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
-                settings.tick = $scope.tick;
                 settings.max_req_per_sec = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60);
                 $http({url: url + "/settings",
                       dataType: "json",
