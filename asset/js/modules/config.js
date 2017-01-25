@@ -13,14 +13,14 @@
     co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              $scope.consumer_per_minute          = 30.0;
+              // $scope.consumer_per_minute          = 30.0;
               $scope.max_updates_per_sale         = 20.0;
               $scope.max_req_per_sec              = 0;
               $scope.updateMaxReqPerSec           = () => {
-                $scope.max_req_per_sec = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60)
-                if (!$scope.max_req_per_sec) {
-                  $scope.max_req_per_sec = 0
-                }
+                // $scope.max_req_per_sec = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60)
+                // if (!$scope.max_req_per_sec) {
+                //   $scope.max_req_per_sec = 0
+                // }
               }
 
               $scope.consumer                     = {};
@@ -42,9 +42,10 @@
                 $http.get($scope.marketplace_url + "/config")
                     .then(function(response) {
                         $scope.marketplace     = response.data;
-                        $scope.consumer_per_minute  = response.data.consumer_per_minute;
+                        // $scope.consumer_per_minute  = response.data.consumer_per_minute;
                         $scope.max_updates_per_sale = response.data.max_updates_per_sale;
-                        $scope.updateMaxReqPerSec();
+                        $scope.max_req_per_sec = response.data.max_req_per_sec;
+                        // $scope.updateMaxReqPerSec();
                     });
               };
 
@@ -114,9 +115,11 @@
                 $http({url: $scope.marketplace_url + "/config",
                       dataType: "json",
                       method: "PUT",
-                      data: {"consumer_per_minute": $scope.consumer_per_minute,
-                             "max_req_per_sec": $scope.max_req_per_sec,
-                             "max_updates_per_sale": $scope.max_updates_per_sale},
+                      data: {
+                        // "consumer_per_minute": $scope.consumer_per_minute,
+                        "max_req_per_sec": $scope.max_req_per_sec,
+                        "max_updates_per_sale": $scope.max_updates_per_sale
+                      },
                       headers: {
                           "Content-Type": "application/json"
                       }
