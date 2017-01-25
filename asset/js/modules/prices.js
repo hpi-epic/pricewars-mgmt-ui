@@ -1,11 +1,15 @@
 (function () {
     var pr = angular.module('prices', ['ngCookies']);
 
-    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints', 'charts',
-            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints, charts) {
+    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints', 'charts',
+            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints, charts) {
 
                 const maxNumberOfPointsInLine      = 10000;
                 const filterForAllIDs              = "ALL";
+
+                $scope.updateInterval             = 2000;
+                var redrawGraphTimeout            = undefined;
+                var timeoutCancelled              = false;
 
                 $scope.marketplace_url             = endpoints.marketplace_url;
 
@@ -86,8 +90,19 @@
                         charts.setSize($scope.charts["highchart-price-"+mId], undefined, 600);
                     });
                 }
-
                 drawPriceGraphs();
+
+                function redrawGraphs() {
+                    for (var key in $scope.charts) {
+                        if ($scope.charts.hasOwnProperty(key)) {
+                           $scope.charts[key].redraw();
+                            console.log("Redrawing " + key);
+                        }
+                    }
+                    if ($scope.offerPullTimeout) $timeout.cancel($scope.offerPullTimeout);
+                    if (!timeoutCancelled) $scope.offerPullTimeout = $timeout(redrawGraphs, $scope.updateInterval);
+                }
+                redrawGraphs();
 
                 /**
                   * Updating content of graphs
@@ -111,7 +126,7 @@
                         }
                       });
 
-                        $scope.charts[graphName].redraw();
+                        //$scope.charts[graphName].redraw();
 
                         // check if new merchants are in place. if so, draw graphs for them
                         if($scope.merchant_ids.indexOf(data.value.merchant_id) == -1){
@@ -123,8 +138,7 @@
                 }
 
                 function updatePriceAndSalesChartWithPriceUpdate(newData) {
-                    parseBulkData(newData).forEach(function(dp) {
-                        if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
+                    parseBulkData(newData).forEach(function(dp, index) {if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             $scope.product_uids.pushIfNotExist(dp.value.uid);
 
                             const lineID = createLineName(dp);
@@ -134,7 +148,7 @@
                             addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID, dp.value.merchant_id);
                         }
                     });
-                    $scope.charts["highchart-price_and_sales"].redraw();
+                    //$scope.charts["highchart-price_and_sales"].redraw();
                 }
 
                 function updatePriceAndSalesChartWithSalesUpdate(newData) {
@@ -157,7 +171,12 @@
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
                                     y: dp.value.price,
-                                    marker: {fillColor: '#d60000', symbol: 'cross', lineColor: '#d60000', lineWidth: 3}
+                                    marker: {
+                                        fillColor: '#d60000',
+                                        symbol: 'cross',
+                                        lineColor: '#d60000',
+                                        lineWidth: 3
+                                    }
                                 };
                                 line = addPointToLine($scope.charts["highchart-price_and_sales"], point, line, lineID, dp.value.merchant_id);
 
@@ -197,19 +216,21 @@
                             }
                         };
                         line = chart.addSeries(newLine);
-                        if (!line.options.id.includes('PID: ' + $scope.currentUIDFilter) && $scope.currentUIDFilter != filterForAllIDs) line.hide();
+
                     }
+
+                    if (!line.options.id.includes('PID: ' + $scope.currentUIDFilter) && $scope.currentUIDFilter != filterForAllIDs) line.hide();
 
                     // add the new point to the line
                     let shift = line.data.length > maxNumberOfPointsInLine;
                     line.addPoint(point, false, shift);
 
                     // only show the line if it belongs to a currently active merchant
-                    if (merchants.isRegisteredMerchant(merchant_id)) {
+                    /*if (merchants.isRegisteredMerchant(merchant_id) && ) {
                         line.setVisible(true, false);
                     } else {
                         line.setVisible(false, false);
-                    }
+                    }*/
 
                     return line;
                 }
@@ -265,7 +286,7 @@
 
                 //load real data asap
                 $scope.$on('ngRepeatFinished', function(ngRepeatFinishedEvent) {
-                  $scope.drawPricingHighChart();
+                  //$scope.drawPricingHighChart();
                 });
 
                 Array.prototype.pushIfNotExist = function(element) {
@@ -296,15 +317,15 @@
                 });
 
                 socket.on('updateOffer', function (data) {
-                    console.log("updateOffer");
                     data = angular.fromJson(data);
-
-                   updatePriceHighChart(data);
-                   updatePriceAndSalesChartWithPriceUpdate(data);
+                    updatePriceAndSalesChartWithPriceUpdate(data);
                 });
 
                 $scope.$on('$locationChangeStart', function() {
                     socket.disconnect();
+
+                    timeoutCancelled = true;
+                    $timeout.cancel(redrawGraphTimeout);
                 });
 
             }] //END: controller function
