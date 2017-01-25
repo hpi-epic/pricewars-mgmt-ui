@@ -4,21 +4,13 @@
     da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints', 'charts',
         function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints, charts) {
 
-            const maxNumberOfPointsInLine  = 10000;
+            $scope.marketplace_url  = endpoints.marketplace_url;
 
-            $scope.marketplace_url         = endpoints.marketplace_url;
-
-            $scope.liveGraphData = [];
-            $scope.merchants     = merchants.get();
-            $scope.consumers     = {};
-            $scope.consumers_ids = [];
-            $scope.product_ids   = [];
-
-            $scope.currentUIDFilter = "ALL";
+            $scope.merchants        = merchants.get();
+            $scope.consumers        = {};
+            $scope.consumers_ids    = [];
 
             $scope.charts = [];
-
-            Highcharts.setOptions({lang: {noData: "No data available (yet)"}});
 
             /**
              * UI Settings
@@ -116,82 +108,6 @@
             drawDashboardGraphs();
 
             /**
-             * Updating chart content
-             */
-            function updateLiveSalesGraph(newData) {
-                parseBulkData(newData).forEach(function(dp) {
-                    let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
-                    let line = $scope.charts["liveSales"].get("liveSales");
-                    let shift = line.data.length > maxNumberOfPointsInLine;
-
-                    line.addPoint(point, false, shift);
-                });
-                $scope.charts["liveSales"].redraw()
-            }
-
-            function updateRevenueGraph(newData) {
-                parseBulkData(newData).forEach(function(dp) {
-                    let date = new Date(dp.value.timestamp);
-                    date.setMilliseconds(0);
-
-                    const lineID = dp.value.merchant_id;
-                    let line = $scope.charts["revenue"].get(lineID);
-                    let point = [date.getTime(), dp.value.revenue];
-
-                    addPointToLine($scope.charts["revenue"], point, line, lineID);
-                });
-                $scope.charts["revenue"].redraw()
-            }
-
-            function updateMarketshareGraph(newData) {
-                parseBulkData(newData).forEach(function(dp) {
-                    let date = new Date(dp.value.timestamp);
-                    date.setMilliseconds(0);
-
-                    const lineID = dp.value.merchant_id;
-                    let line = $scope.charts["marketshare"].get(lineID);
-                    let point = [date.getTime(), dp.value.marketshare * 100];
-
-                    addPointToLine($scope.charts["marketshare"], point, line, lineID);
-                });
-                $scope.charts["marketshare"].redraw()
-            }
-
-            function addPointToLine(chart, point, line, lineID) {
-                // create a new series/line if it is not present yet
-                if (line === undefined || line === null) {
-                    let newLine = {
-                        name: merchants.getMerchantName(lineID),
-                        id: lineID,
-                        data: []
-                    };
-                    line = chart.addSeries(newLine, false);
-                }
-
-                // add the new point to the line
-                let shift = line.data.length > maxNumberOfPointsInLine;
-                line.addPoint(point, false, shift);
-
-                // only show the line if it belongs to a currently active merchant
-                if (merchants.isRegisteredMerchant(lineID)) {
-                    line.setVisible(true, false);
-                } else {
-                    line.setVisible(false, false);
-                }
-
-            }
-
-            function parseBulkData(newData) {
-                var data = newData;
-                if (!(newData instanceof Array)) {
-                    data = [newData]
-                } else {
-                    data = newData.map(e => { return angular.fromJson(e) })
-                }
-                return data;
-            }
-
-            /**
              * Helper
              */
             $scope.merchantStatus = function(merchant){
@@ -229,17 +145,17 @@
 
             socket.on('buyOffer', function (data) {
                 data = angular.fromJson(data);
-                updateLiveSalesGraph(data);
+                charts.liveSales.updateGraphWithData($scope.charts["liveSales"], data);
             });
 
             socket.on('revenue', function (data) {
                 data = angular.fromJson(data);
-                updateRevenueGraph(data);
+                charts.revenue.updateGraphWithData($scope.charts["revenue"], data);
             });
 
             socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
                 data = angular.fromJson(data);
-                updateMarketshareGraph(data);
+                charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
             });
 
             $scope.$on('$locationChangeStart', function() {
