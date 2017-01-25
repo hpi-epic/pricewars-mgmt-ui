@@ -75,6 +75,19 @@
                     });
               }
 
+              $scope.updateMerchant = function(){
+                $http({url: $scope.merchant.marketplace_url + "/merchants/token/" + $scope.merchant.merchant_token_input,
+                      method: "PUT",
+                      data: $scope.merchant,
+                      headers: {
+                        "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                      $scope.merchant.merchant_token = null;
+                      $scope.merchant.merchant_token_input = null;
+                      toastr.success("Merchant was successfully updated!");
+                    });
+              }
 
             }] //END: controller function
     );  // END: dashboardController
