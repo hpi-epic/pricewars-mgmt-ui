@@ -10,7 +10,7 @@
         }] //END: controller function
     );  // END: ngviewController
 
-    co.controller('timeCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
+    co.controller('globalCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
               // $scope.consumer_per_minute          = 30.0;
@@ -128,7 +128,7 @@
                 });
               };
 
-              $scope.updateTimeConfig = function(){
+              $scope.updateGlobalConfig = function(){
                 $scope.updateConsumerSettings();
                 $scope.updateMarketplaceConfig();
                 angular.forEach($scope.merchants, function(value, key) {
