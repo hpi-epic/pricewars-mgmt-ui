@@ -136,7 +136,7 @@
                 }
             };
 
-            $scope.ConsumerStatus = function(consumer){
+            $scope.consumerStatus = function(consumer){
                 if(consumer["state"] == "running"){
                     return "hpanel hbggreen";
                 } else {
