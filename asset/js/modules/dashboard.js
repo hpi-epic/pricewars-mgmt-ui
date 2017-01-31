@@ -118,7 +118,7 @@
                 } else if (merchant["state"] == "exiting") {
                     return "hpanel hbgyellow";
                 } else if (merchant["state"] == "stopping") {
-                    return "hpanel hbgred";
+                    return "hpanel hbgorange";
                 } else {
                     return "hpanel hbgred";
                 }
