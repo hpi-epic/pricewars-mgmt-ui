@@ -16,13 +16,7 @@
               // $scope.consumer_per_minute          = 30.0;
               $scope.max_updates_per_sale         = 20.0;
               $scope.max_req_per_sec              = 0;
-              $scope.updateMaxReqPerSec           = () => {
-                // $scope.max_req_per_sec = $scope.max_updates_per_sale * ($scope.consumer_per_minute / 60)
-                // if (!$scope.max_req_per_sec) {
-                //   $scope.max_req_per_sec = 0
-                // }
-              }
-
+              $scope.initialProducts              = 0;
               $scope.consumer                     = {};
               $scope.consumer_url                 = endpoints.consumer_url;
               $scope.marketplace_url              = endpoints.marketplace_url;
@@ -45,7 +39,6 @@
                         // $scope.consumer_per_minute  = response.data.consumer_per_minute;
                         $scope.max_updates_per_sale = response.data.max_updates_per_sale;
                         $scope.max_req_per_sec = response.data.max_req_per_sec;
-                        // $scope.updateMaxReqPerSec();
                     });
               };
 
@@ -62,6 +55,12 @@
                         $scope.merchants[url]  = response.data;
                     });
               };*/
+
+              $scope.updateinitialProductsConfig = function(){
+                angular.forEach($scope.merchants, function(value, key) {
+                    $scope.updateMerchantInitialProductSettings(key, value);
+                });
+              }
 
               $scope.getSettings = function(){
                 $http.get($scope.marketplace_url + "/merchants")
@@ -99,6 +98,21 @@
               $scope.updateMerchantSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.max_req_per_sec = $scope.max_req_per_sec;
+                $http({url: url + "/settings",
+                      dataType: "json",
+                      method: "PUT",
+                      data: settings,
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                          toastr.success("Merchant settings were successfully updated.");
+                });
+              };
+
+              $scope.updateMerchantInitialProductSettings = function(id, settings){
+                let url = $scope.merchants.get(id).api_endpoint_url;
+                settings.initialProducts = $scope.initialProducts;
                 $http({url: url + "/settings",
                       dataType: "json",
                       method: "PUT",
