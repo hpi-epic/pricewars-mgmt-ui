@@ -65,29 +65,24 @@
                      });
              };
 
-             function getConsumerDetails() {
-                 for (var consumerID in $scope.consumers) {
-                     (function(consumerID) {
-                         $http.get($scope.consumers[consumerID]["api_endpoint_url"] + "/setting")
-                             .then(function(response) {
-                                 if(response.code == 200){
-                                   console.log(response.code);
-                                   Object.keys(response.data).sort().forEach(function(key) {
-                                       if (key != "merchant_id" && key != "merchant_url") {
-                                           $scope.consumers[consumer_id][key] = response.data[key];
-                                       }
-                                   });
-                                 } else {
-                                   delete $scope.consumers[consumer_id];
-                                 }
-                             });
-                          $http.get($scope.consumers[consumerID]["api_endpoint_url"]+ "/status")
-                             .then(function(response) {
-                               $scope.consumers[consumer_id]["status"] = response.data.status;
+            function getConsumerDetails() {
+                for (var consumerID in $scope.consumers) {
+                    (function(consumerID) {
+                        $http.get($scope.consumers[consumerID]["api_endpoint_url"])
+                            .then(function(response) {
+                                Object.keys(response.data).sort().forEach(function(key) {
+                                    if (key != "consumer_id") {
+                                        $scope.consumers[consumerID][key] = response.data[key];
+                                    }
+                                });
                             });
-                     })(consumerID);
-                 }
-             };
+                        $http.get($scope.consumers[consumerID]["api_endpoint_url"]+ "/status")
+                            .then(function(response) {
+                                $scope.consumers[consumerID]["status"] = response.data.status;
+                            });
+                    })(consumerID);
+                }
+            }
 
              $scope.getConsumers();
 
@@ -102,6 +97,19 @@
                 $scope.charts["revenue"] = Highcharts.chart(charts.revenue.html_id, charts.revenue.getOptions());
                 charts.setDefaultZoom($scope.charts["revenue"], 10);
                 charts.setSize($scope.charts["revenue"], undefined, 500);
+
+                $scope.charts["revenue-per-minute"] = Highcharts.chart(charts.revenuePerMinute.html_id, charts.revenuePerMinute.getOptions());
+                charts.setDefaultZoom($scope.charts["revenue-per-minute"], 10);
+                charts.setSize($scope.charts["revenue"], undefined, 500);
+
+                $scope.charts["revenue-per-hour"] = Highcharts.chart(charts.revenuePerHour.html_id, charts.revenuePerHour.getOptions());
+                charts.setDefaultZoom($scope.charts["revenue-per-hour"], 10);
+                charts.setSize($scope.charts["revenue-per-hour"], undefined, 500);
+
+                /* --- Revenue per Minute --- */
+                $scope.charts["revenue-per-minute"] = Highcharts.chart(charts.revenuePerMinute.html_id, charts.revenuePerMinute.getOptions());
+                charts.setDefaultZoom($scope.charts["revenue-per-minute"], 10);
+                charts.setSize($scope.charts["revenue-per-minute"], undefined, 500);
 
                 /* --- Marketshare --- */
                 $scope.charts["marketshare"] = Highcharts.chart(charts.marketshare.html_id, charts.marketshare.getOptions());
@@ -141,7 +149,7 @@
             };
 
             $scope.findConsumerNameById = function(consumer_id) {
-                return consumer[consumer_id]["consumer_name"];
+                return $scope.consumers[consumer_id]["consumer_name"];
             };
 
             $scope.arraysEqual = function(arr1, arr2) {
@@ -172,6 +180,17 @@
             socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
                 data = angular.fromJson(data);
                 charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
+            });
+
+            // every 10sec market situation for last 60 secs
+            socket.on('revenuePerMinute', function (data) {
+                data = angular.fromJson(data);
+                charts.revenuePerMinute.updateGraphWithData($scope.charts["revenue-per-minute"], data);
+            });
+
+            socket.on('revenuePerHour', function (data) {
+                data = angular.fromJson(data);
+                charts.revenuePerHour.updateGraphWithData($scope.charts["revenue-per-hour"], data);
             });
 
             $scope.$on('$locationChangeStart', function() {
