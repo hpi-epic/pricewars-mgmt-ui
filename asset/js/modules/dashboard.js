@@ -111,7 +111,7 @@
              * Helper
              */
             $scope.merchantStatus = function(merchant){
-                if(merchant["state"] == "init"){
+                if(merchant["state"] == "initialized"){
                     return "hpanel hbgblue";
                 } else if (merchant["state"] == "running") {
                     return "hpanel hbggreen";
