@@ -89,7 +89,7 @@
                  }
              };
 
-             //$scope.getConsumers();
+             $scope.getConsumers();
 
             /**
              * Initializing Graphs
@@ -136,9 +136,12 @@
                 }
             };
 
-
             $scope.findMerchantNameById = function(merchant_id) {
                 return merchants.getMerchantName(merchant_id);
+            };
+
+            $scope.findConsumerNameById = function(consumer_id) {
+                return consumer[consumer_id]["consumer_name"];
             };
 
             $scope.arraysEqual = function(arr1, arr2) {
