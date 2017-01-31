@@ -178,6 +178,19 @@
                           });
               };
 
+              $scope.updateConsumer = function(){
+                $http({url: $scope.consumer_url + "/setting",
+                      dataType: "json",
+                      method: "PUT",
+                      data: $scope.consumer,
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            toastr.success("Consumer was successfully updated.");
+                    });
+              }
+
               $scope.executeConsumer = function(){
                 $http({url: $scope.consumer_url + "/setting",
                       dataType: "json",
