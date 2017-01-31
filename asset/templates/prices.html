@@ -52,12 +52,21 @@
                     </div>
 
                     <div class="btn-group">
-                        <p><strong>Filter for Product UID:</strong></p>
-                        <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="true">{{currentUIDFilter}}<span class="caret"></span></button>
+                        <!--<p><strong>Filter for Product UID:</strong></p>-->
+                        <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="true">UID: {{currentUIDFilter}}<span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                            <li><a href="javascript:void(0)" ng-click="filterPriceGraphFor('ALL')">ALL</a></li>
+                            <li><a href="javascript:void(0)" ng-click="filterPriceGraphForUID('ALL')">ALL UIDs</a></li>
                             <li class="divider"></li>
-                            <li ng-repeat='product_uid in product_uids'><a href="javascript:void(0)" ng-click="filterPriceGraphFor(product_uid)">{{product_uid}}</a></li>
+                            <li ng-repeat='product_uid in product_uids'><a href="javascript:void(0)" ng-click="filterPriceGraphFor(product_uid)">UID:{{product_uid}}</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="btn-group">
+                        <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="true">Merchants: {{currentMerchantFilter}}<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:void(0)" ng-click="filterPriceGraphForMerchant('ALL')">ALL Merchants</a></li>
+                            <li class="divider"></li>
+                            <li ng-repeat='merchant_name in merchant_names'><a href="javascript:void(0)" ng-click="filterPriceGraphForMerchant(merchant_name)">Merchant:{{merchant_name}}</a></li>
                         </ul>
                     </div>
                     <br><br>
@@ -67,75 +76,6 @@
 
             </div>
         </div>
-
-    </div>
-
-    <div class="row">
-
-        <div style="" class="col-md-12">
-            <div class="hpanel">
-
-                <div class="panel-body">
-                    <div class="m-b-md">
-                        <h4>
-                            Price Updates
-                        </h4>
-                    </div>
-
-                    <div class="btn-group">
-                        <p><strong>Filter for Product UID:</strong></p>
-                        <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="true">{{currentUIDFilter}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu">
-                            <li><a href="javascript:void(0)" ng-click="filterPriceGraphFor('ALL')">ALL</a></li>
-                            <li class="divider"></li>
-                            <li ng-repeat='product_uid in product_uids'><a href="javascript:void(0)" ng-click="filterPriceGraphFor(product_uid)">{{product_uid}}</a></li>
-                        </ul>
-                        </div>
-                    <br><br>
-
-                    <div id="highchart-price"></div>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
-
-    <div class="row">
-
-       <div style="" class="col-md-12">
-           <div class="hpanel">
-
-               <div class="panel-body">
-                   <div class="m-b-md">
-                       <h4>
-                           Price Chart Per Merchant
-                       </h4>
-                   </div>
-               </div>
-
-           </div>
-        </div>
-
-    </div>
-
-    <div class="row">
-
-        <div style="" class="col-md-4" ng-repeat="merchant in merchant_ids"  on-finish-render="ngRepeatFinished">
-           <div class="hpanel">
-
-               <div class="panel-body">
-                   <div class="m-b-md">
-                       <h4>
-                            Merchant {{merchant}}
-                       </h4>
-                   </div>
-
-                   <div id="highchart-price-{{merchant}}"></div>
-               </div>
-
-           </div>
-       </div>
 
     </div>
 
