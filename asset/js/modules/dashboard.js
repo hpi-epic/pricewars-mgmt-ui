@@ -68,7 +68,7 @@
              function getConsumerDetails() {
                  for (var consumerID in $scope.consumers) {
                      (function(consumerID) {
-                         $http.get($scope.consumers[consumerID]["api_endpoint_url"])
+                         $http.get($scope.consumers[consumerID]["api_endpoint_url"] + "/setting")
                              .then(function(response) {
                                  if(response.code == 200){
                                    console.log(response.code);
@@ -81,6 +81,10 @@
                                    delete $scope.consumers[consumer_id];
                                  }
                              });
+                          $http.get($scope.consumers[consumerID]["api_endpoint_url"]+ "/status")
+                             .then(function(response) {
+                               $scope.consumers[consumer_id]["status"] = response.data.status;
+                            });
                      })(consumerID);
                  }
              };
@@ -123,6 +127,15 @@
                     return "hpanel hbgred";
                 }
             };
+
+            $scope.ConsumerStatus = function(consumer){
+                if(consumer["state"] == "running"){
+                    return "hpanel hbggreen";
+                } else {
+                    return "hpanel hbgred";
+                }
+            };
+
 
             $scope.findMerchantNameById = function(merchant_id) {
                 return merchants.getMerchantName(merchant_id);
