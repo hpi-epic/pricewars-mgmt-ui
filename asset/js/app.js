@@ -276,7 +276,28 @@
                 title:      "Revenue per Minute",
                 html_id:    "chart-revenue-per-minute",
                 data:       [],
-                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenue.title, "Revenue per Minute");},
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenuePerMinute.title, "Revenue per Minute");},
+                updateGraphWithData: function(chart, data) {
+                    parseBulkData(data).forEach(function(dp) {
+                        let date = new Date(dp.value.timestamp);
+                        date.setMilliseconds(0);
+
+                        const lineID = dp.value.merchant_id;
+                        const lineName = merchants.getMerchantName(lineID);
+                        const point = [date.getTime(), dp.value.revenue];
+
+                        addPointToLine(chart, point, lineID, lineName);
+
+                        dontDrawLineIfMerchantNotRegistered(chart, lineID);
+                    });
+                    chart.redraw();
+                }
+            },
+            revenuePerHour: {
+                title:      "Revenue per Hour",
+                html_id:    "chart-revenue-per-hour",
+                data:       [],
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenuePerHour.title, "Revenue per Hour");},
                 updateGraphWithData: function(chart, data) {
                     parseBulkData(data).forEach(function(dp) {
                         let date = new Date(dp.value.timestamp);
@@ -294,7 +315,7 @@
                 }
             },
             marketshare: {
-                title:      "Marketshare per Minute",
+                title:      "Marketshare",
                 html_id:    "chart-marketshare",
                 data:       [],
                 getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Marketshare in %");},
@@ -319,28 +340,28 @@
                 html_id:    "highchart-price_and_sales",
                 data:       [],
                 getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false);},
-                updateGraphWithPriceData: function(chart, data, currentFilter) {
+                updateGraphWithPriceData: function(chart, data, currentFilterUID, currentFilterMerchant) {
                     parseBulkData(data).forEach(function(dp) {
                         productUIDs.pushIfNotExist(dp.value.uid);
 
-                        const lineName = createLineName(dp);
-                        const lineID = dp.value.merchant_id;
+                        const lineID = createLineName(dp);
                         let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
 
-                        addPointToLine(chart, point, lineID, lineName, true);
+                        addPointToLine(chart, point, lineID, lineID, true);
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
-                        dontDrawLineIfLineFiltered(chart, lineID, currentFilter);
+                        dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
+
+                        //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
                     });
                     chart.redraw(false);
                 },
-                updateGraphWithSalesData: function(chart, data, currentFilter) {
+                updateGraphWithSalesData: function(chart, data, currentFilterUID, currentFilterMerchant) {
                     parseBulkData(data).forEach(function(dp, index) {
                         if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             productUIDs.pushIfNotExist(dp.value.uid);
 
-                            const lineName = createLineName(dp);
-                            const lineID = dp.value.merchant_id
+                            const lineID = createLineName(dp);
                             let point;
                             if (dp.value.left_in_stock > 0) {
                                 point = {
@@ -349,9 +370,9 @@
                                     marker: {fillColor: '#d60000', radius: 4}
                                 };
 
-                                addPointToLine(chart, point, lineID, lineName, true);
+                                addPointToLine(chart, point, lineID, lineID, true);
 
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilter);
+                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
                             } else {
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
@@ -363,7 +384,7 @@
                                         lineWidth: 3
                                     }
                                 };
-                                line = addPointToLine(chart, point, lineID, lineName, true);
+                                let line = addPointToLine(chart, point, lineID, lineID, true);
 
                                 // add a null-point right after the actual point to make sure it wont be connected to the next point
                                 let nullPoint = {
@@ -371,9 +392,9 @@
                                     y: null
                                 };
                                 // pass the line from before in case the line was created in the call before
-                                line = addPointToLine(chart, point, lineID, lineName, true, line);
+                                line = addPointToLine(chart, nullPoint, lineID, lineID, true, line);
 
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilter);
+                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
                             }
                         }
                     });
@@ -390,31 +411,7 @@
 
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
                     chart.redraw();
-                },
-                filterForMerchant: function(chart, merchant_name) {
-                    chart.series.forEach(function(serie) {
-                        if (isLineFilteredForMerchant(chart, serie.options.id, merchant_name)) {
-                            serie.setVisible(true, false);
-                        } else {
-                            serie.setVisible(false, false);
-                        }
-                    });
-
-                    // redraw once at the end to avoid slow re-drawing at each series-visibility-change
-                    chart.redraw();
                 }
-            },
-            priceUpdates: {
-                title:      "Price Updates",
-                html_id:    "highchart-price",
-                data:   [],
-                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdates.title, "price", "Price", false);}
-            },
-            priceUpdatesPerMerchant: {
-                title:      function(merchant_name) {return "Price Updates of Merchant " + merchant_name;},
-                html_id:    function(merchant_id) {return "highchart-price-" + merchant_id;},
-                data:       [],
-                getOptions: function(title) {return getStockchartXDateYPriceOptions(title, "price_per_merchant", "Price", false);}
             },
 
             // functions that require an actual chart bound to an html-element
@@ -430,6 +427,17 @@
             getCurrentProductUIDs: function() {
                 return productUIDs;
             }
+        };
+
+        Date.prototype.hhmmss = function() {
+            var hh = this.getHours();
+            var mm = this.getMinutes();
+            var ss = this.getSeconds();
+
+            return [(hh>9 ? '' : '0') + hh,
+                (mm>9 ? '' : '0') + mm,
+                (ss>9 ? '' : '0') + ss
+            ].join(':');
         };
 
         function addPointToLine(chart, point, lineID, lineName, stepEnabled, lineToUse) {
@@ -463,6 +471,8 @@
             // add the new point to the line
             let shift = line.data.length > maxNumberOfPointsInLine;
             line.addPoint(point, false, shift);
+
+            return line;
         }
 
         function dontDrawLineIfMerchantNotRegistered(chart, lineID) {
@@ -477,10 +487,10 @@
         }
 
         // make sure to call after dontDrawLineIfMerchantNotRegistered or else effect might be overwritten
-        function dontDrawLineIfLineFiltered(chart, lineID, currentFilter) {
+        function dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant) {
             let line = chart.get(lineID);
 
-            if (isLineFiltered(chart, lineID, currentFilter)) {
+            if (isLineFilteredForUID(chart, lineID, currentFilterUID)) {
                 line.setVisible(true, false);
             } else {
                 line.setVisible(false, false);
@@ -492,13 +502,8 @@
             return line.name.includes('PID: ' + currentFilter) || currentFilter == filterForAllIDs;
         }
 
-        function isLineFilteredForMerchant(chart, lineID, merchant_name) {
-            let line = chart.get(lineID);
-            return line.name.includes('- M: ' + merchant_name) || merchant_name == filterForAllIDs;
-        }
-
         function createLineName(data) {
-            return "PID: " + data.value.uid + " - M: " + merchants.getMerchantName(data.value.merchant_id);
+            return "PID: " + data.value.uid + " - Merch: " + merchants.getMerchantName(data.value.merchant_id);
         }
 
         function parseBulkData(newData) {
@@ -563,7 +568,8 @@
                     selected: 6
                 },
                 legend: {
-                    enabled: true
+                    enabled: true,
+                    maxHeight: 100
                 },
                 tooltip: {
                     pointFormat: '<b>{series.name}:</b> {point.y:.2f}€'
