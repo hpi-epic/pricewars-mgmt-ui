@@ -84,7 +84,7 @@
                 }
             }
 
-             $scope.getConsumers();
+            $scope.getConsumers();
 
             /**
              * Initializing Graphs
@@ -137,12 +137,24 @@
             };
 
             $scope.consumerStatus = function(consumer){
-                if(consumer["state"] == "running"){
+                if(consumer["status"] == "running"){
                     return "hpanel hbggreen";
                 } else {
                     return "hpanel hbgred";
                 }
             };
+
+            $scope.statusFilter = function(consumers) {
+                var result = {};
+                angular.forEach(consumers, function(consumer, key) {
+                  angular.forEach(consumer, function(value, setting) {
+                    if (key == "status" && value == "running") {
+                        result[key] = consumer;
+                    }
+                  });
+                });
+                return result;
+            }
 
             $scope.findMerchantNameById = function(merchant_id) {
                 return merchants.getMerchantName(merchant_id);
