@@ -68,7 +68,7 @@
             function getConsumerDetails() {
                 for (var consumerID in $scope.consumers) {
                     (function(consumerID) {
-                        $http.get($scope.consumers[consumerID]["api_endpoint_url"])
+                        $http.get($scope.consumers[consumerID]["api_endpoint_url"] + "/setting")
                             .then(function(response) {
                                 Object.keys(response.data).sort().forEach(function(key) {
                                     if (key != "consumer_id") {
