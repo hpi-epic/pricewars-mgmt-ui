@@ -27,15 +27,37 @@
                 </div>
                 <div class="m-t-xl">
                   <br><br>
-                  <button class="btn btn-xs btn-default" type="button" data-toggle="collapse" data-target="#collapse-1" aria-expanded="true" aria-controls="collapseExample">
-                    View Details
+                  <button class="btn btn-xs btn-default" type="button" data-toggle="collapse" data-target="#collapse-low-level" aria-expanded="true" aria-controls="collapse-low-level">
+                    View tech. Details
+                  </button>
+                  <button class="btn btn-xs btn-default" type="button" data-toggle="collapse" data-target="#collapse-high-level" aria-expanded="true" aria-controls="collapse-high-level">
+                    View sales Details
                   </button>
                   <button type="button" class="btn btn-xs btn-info" ng-click="updateConsumer()">Update</button>
                   <button type="button" class="btn btn-xs btn-success" ng-click="executeConsumer()">Start</button>
                   <button type="button" class="btn btn-xs btn-warning" ng-click="terminateConsumer()">Stop</button>
 
+                  <div class="collapse"  id="collapse-high-level" aria-expanded="false" >
+                        <hr>
+                      <span class="font-bold no-margins">
+                          Purchases / min
+                      </span>
+                      <br>
+                      <input class="form-control" ng-model="purchases_per_minute" ng-change="translate_purchase_per_minute()" type="text"><br>
 
-                  <div class="collapse"  id="collapse-1" aria-expanded="false" >
+                      <hr><h4>Behaviors</h4>
+                      <div ng-repeat="behavior in consumer.behaviors track by $index">
+                        <span class="font-bold no-margins">
+                          {{behavior.name}} (in %)
+                        </span>
+                        <br>
+                        <input class="form-control" ng-model="consumer.behaviors[$index].amount" type="number"><br>
+                      </div>
+
+                      <br>
+                   </div>
+
+                  <div class="collapse"  id="collapse-low-level" aria-expanded="false" >
                         <hr>
                       <span class="font-bold no-margins">
                           Consumer API

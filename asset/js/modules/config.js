@@ -159,7 +159,7 @@
 
               $scope.consumer                     = {};
               $scope.consumer_url                 = endpoints.consumer_url;
-
+              $scope.purchases_per_minute         = 0;
               // Toastr options
               toastr.options = {
                   "debug": false,
@@ -170,11 +170,21 @@
                   "timeOut": "2000"
               };
 
+              $scope.translate_purchase_per_minute = function(){
+                $scope.consumer.amount_of_consumers = Math.ceil($scope.purchases_per_minute/100);
+                if($scope.consumer.amount_of_consumers<1){
+                  $scope.consumer.amount_of_consumers=1;
+                }
+                $scope.consumer.consumer_per_minute = Math.ceil($scope.purchases_per_minute/$scope.consumer.amount_of_consumers);
+                $scope.consumer.probability_of_sell = 100;
+              }
+
               $scope.getConsumerSettings = function() {
                   $http.get($scope.consumer_url + "/setting/")
                       .then(function(response) {
                               $scope.consumer = response.data;
                               $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+                              $scope.purchases_per_minute =  ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_sell)/100;
                           });
               };
 
