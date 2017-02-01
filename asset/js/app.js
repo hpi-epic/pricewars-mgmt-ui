@@ -243,7 +243,7 @@
                 }
             },
             revenue: {
-                title:      "Revenue",
+                title:      "Total Profit",
                 html_id:    "chart-revenue",
                 data:       [],
                 getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenue.title, "Revenue");},
@@ -306,7 +306,7 @@
                 }
             },
             marketshare: {
-                title:      "Marketshare",
+                title:      "Total Revenue",
                 html_id:    "chart-marketshare",
                 data:       [],
                 getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Marketshare in %");},
