@@ -156,6 +156,10 @@
                 return result;
             }
 
+            $scope.calculateConsumerTraffic = function(consumer){
+              return (consumer["amount_of_consumers"]*consumer["consumer_per_minute"]*consumer["probability_of_sell"])/100;
+            }
+
             $scope.findMerchantNameById = function(merchant_id) {
                 return merchants.getMerchantName(merchant_id);
             };
