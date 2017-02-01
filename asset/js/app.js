@@ -341,7 +341,8 @@
                             y: dp.value.price,
                             quality: dp.value.quality,
                             uid: dp.value.uid,
-                            product_id: dp.value.product_id
+                            product_id: dp.value.product_id,
+                            merchant_name: merchants.getMerchantName(dp.value.merchant_id),
                         };
 
                         addPointToLine(chart, point, lineID, lineID, true);
@@ -367,6 +368,7 @@
                                     quality: dp.value.quality,
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
+                                    merchant_name: merchants.getMerchantName(dp.value.merchant_id),
                                     marker: {fillColor: '#d60000', radius: 4}
                                 };
 
@@ -380,6 +382,7 @@
                                     quality: dp.value.quality,
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
+                                    merchant_name: merchants.getMerchantName(dp.value.merchant_id),
                                     marker: {
                                         fillColor: '#d60000',
                                         symbol: 'cross',
@@ -521,8 +524,9 @@
         }
 
         function createPriceOrSalesUpdateTooltip() {
-            return '<table><tr><td><b>Product {point.product_id}:&nbsp; &nbsp;</b></td><td>Price:&nbsp; &nbsp;</td><td style="text-align: right">{point.y:.2f}€</td></tr>' +
-                          '<tr><td></td><td>Quality:&nbsp; &nbsp;</td><td>{point.quality}</td></tr>' +
+            return '<table><tr><td><b>Merchant {point.merchant_name}&nbsp; &nbsp;</b></td><td><b>Product {point.product_id}&nbsp; &nbsp;</b></td></tr>' +
+                          '<tr><td style="text-align: right">Price:&nbsp; &nbsp;</td><td style="text-align: left">{point.y:.2f}€</td></tr>' +
+                          '<tr><td style="text-align: right">Quality:&nbsp; &nbsp;</td><td style="text-align: left">{point.quality}</td></tr>' +
                    '</table>';
         }
 
