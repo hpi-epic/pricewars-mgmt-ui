@@ -331,7 +331,7 @@
                 html_id:    "highchart-price_and_sales",
                 data:       [],
                 getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false, createPriceOrSalesUpdateTooltip());},
-                updateGraphWithPriceData: function(chart, data, currentFilterUID, currentFilterMerchant) {
+                updateGraphWithPriceData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp) {
                         productIDs.pushIfNotExist(dp.value.product_id);
 
@@ -342,19 +342,19 @@
                             quality: dp.value.quality,
                             uid: dp.value.uid,
                             product_id: dp.value.product_id,
-                            merchant_name: merchants.getMerchantName(dp.value.merchant_id),
+                            merchant_name: merchants.getMerchantName(dp.value.merchant_id)
                         };
 
                         addPointToLine(chart, point, lineID, lineID, true);
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
-                        dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
+                        dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
 
                         //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
                     });
                     chart.redraw(false);
                 },
-                updateGraphWithSalesData: function(chart, data, currentFilterUID, currentFilterMerchant) {
+                updateGraphWithSalesData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp, index) {
                         if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             productIDs.pushIfNotExist(dp.value.product_id);
@@ -374,7 +374,7 @@
 
                                 addPointToLine(chart, point, lineID, lineID, true);
 
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
+                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             } else {
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
@@ -400,7 +400,7 @@
                                 // pass the line from before in case the line was created in the call before
                                 line = addPointToLine(chart, nullPoint, lineID, lineID, true, line);
 
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
+                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             }
                         }
                     });
