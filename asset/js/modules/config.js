@@ -176,7 +176,7 @@
                   $scope.consumer.amount_of_consumers=1;
                 }
                 $scope.consumer.consumer_per_minute = Math.ceil($scope.purchases_per_minute/$scope.consumer.amount_of_consumers);
-                $scope.consumer.probability_of_sell = 100;
+                $scope.consumer.probability_of_buy = 100;
               }
 
               $scope.getConsumerSettings = function() {
@@ -184,7 +184,7 @@
                       .then(function(response) {
                               $scope.consumer = response.data;
                               $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
-                              $scope.purchases_per_minute =  ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_sell)/100;
+                              $scope.purchases_per_minute =  ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_buy)/100;
                           });
               };
 
