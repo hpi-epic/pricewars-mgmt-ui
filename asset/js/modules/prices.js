@@ -15,8 +15,8 @@
                 $scope.liveGraphData    = [];
                 $scope.merchant_ids     = [];
 
-                $scope.product_uids     = charts.getCurrentProductUIDs();
-                $scope.currentUIDFilter = "11";
+                $scope.product_ids     = charts.getCurrentProductIDs();
+                $scope.currentUIDFilter = filterForAll;
 
                 $scope.charts = [];
 
@@ -74,10 +74,9 @@
                 /**
                   * Helper
                 */
-                $scope.filterPriceGraphForUID = function(product_uid) {
-                    $scope.currentUIDFilter = product_uid;
-                    charts.priceUpdatesAndSales.filterForUID($scope.charts["highchart-price_and_sales"], product_uid);
-                    //showOnlyFilteredPriceColumns();
+                $scope.filterPriceGraphForID = function(product_id) {
+                    $scope.currentIDFilter = product_id;
+                    charts.priceUpdatesAndSales.filterForID($scope.charts["highchart-price_and_sales"], product_id);
                 };
 
                 /**
