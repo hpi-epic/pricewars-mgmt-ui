@@ -162,15 +162,6 @@
             getMerchantName: function(merchant_id) {
                 return ((merchant_id in merchants) && merchants[merchant_id].merchant_name) ? merchants[merchant_id].merchant_name : merchant_id.substring(0, 8);
             },
-            getMerchantNames: function() {
-                var result = [];
-                for (var id in merchants) {
-                    if (merchants.hasOwnProperty(id)) {
-                        result.push(merchants[id].merchant_name);
-                    }
-                }
-                return result;
-            },
             isRegisteredMerchant: function(merchant_id) {
                 return (merchant_id in merchants);
             },
@@ -203,7 +194,7 @@
         const maxNumberOfPointsInLine  = 10000;
         const filterForAllIDs          = "ALL";
 
-        var productUIDs                = [];
+        var productIDs                = [];
 
         /**
          * Highcharts Settings
@@ -252,7 +243,7 @@
                 }
             },
             revenue: {
-                title:      "Revenue",
+                title:      "Total Profit",
                 html_id:    "chart-revenue",
                 data:       [],
                 getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenue.title, "Revenue");},
@@ -315,7 +306,7 @@
                 }
             },
             marketshare: {
-                title:      "Marketshare",
+                title:      "Total Revenue",
                 html_id:    "chart-marketshare",
                 data:       [],
                 getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Marketshare in %");},
@@ -339,13 +330,19 @@
                 title:      "Price Updates and Item Sales",
                 html_id:    "highchart-price_and_sales",
                 data:       [],
-                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false);},
+                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false, createPriceOrSalesUpdateTooltip());},
                 updateGraphWithPriceData: function(chart, data, currentFilterUID, currentFilterMerchant) {
                     parseBulkData(data).forEach(function(dp) {
-                        productUIDs.pushIfNotExist(dp.value.uid);
+                        productIDs.pushIfNotExist(dp.value.product_id);
 
                         const lineID = createLineName(dp);
-                        let point = [new Date(dp.value.timestamp).getTime(), dp.value.price];
+                        let point = {
+                            x: new Date(dp.value.timestamp).getTime(),
+                            y: dp.value.price,
+                            quality: dp.value.quality,
+                            uid: dp.value.uid,
+                            product_id: dp.value.product_id
+                        };
 
                         addPointToLine(chart, point, lineID, lineID, true);
 
@@ -359,7 +356,7 @@
                 updateGraphWithSalesData: function(chart, data, currentFilterUID, currentFilterMerchant) {
                     parseBulkData(data).forEach(function(dp, index) {
                         if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
-                            productUIDs.pushIfNotExist(dp.value.uid);
+                            productIDs.pushIfNotExist(dp.value.product_id);
 
                             const lineID = createLineName(dp);
                             let point;
@@ -367,6 +364,9 @@
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
                                     y: dp.value.price,
+                                    quality: dp.value.quality,
+                                    uid: dp.value.uid,
+                                    product_id: dp.value.product_id,
                                     marker: {fillColor: '#d60000', radius: 4}
                                 };
 
@@ -377,6 +377,9 @@
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
                                     y: dp.value.price,
+                                    quality: dp.value.quality,
+                                    uid: dp.value.uid,
+                                    product_id: dp.value.product_id,
                                     marker: {
                                         fillColor: '#d60000',
                                         symbol: 'cross',
@@ -400,9 +403,9 @@
                     });
                     chart.redraw();
                 },
-                filterForUID: function(chart, productUID) {
+                filterForID: function(chart, productID) {
                     chart.series.forEach(function(serie) {
-                        if (isLineFilteredForUID(chart, serie.options.id, productUID)) {
+                        if (isLineFilteredForID(chart, serie.options.id, productID)) {
                             serie.setVisible(true, false);
                         } else {
                             serie.setVisible(false, false);
@@ -424,8 +427,8 @@
                 chart.setSize(width, height);
             },
 
-            getCurrentProductUIDs: function() {
-                return productUIDs;
+            getCurrentProductIDs: function() {
+                return productIDs;
             }
         };
 
@@ -487,23 +490,23 @@
         }
 
         // make sure to call after dontDrawLineIfMerchantNotRegistered or else effect might be overwritten
-        function dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant) {
+        function dontDrawLineIfLineFiltered(chart, lineID, currentFilterID) {
             let line = chart.get(lineID);
 
-            if (isLineFilteredForUID(chart, lineID, currentFilterUID)) {
+            if (isLineFilteredForID(chart, lineID, currentFilterID)) {
                 line.setVisible(true, false);
             } else {
                 line.setVisible(false, false);
             }
         }
 
-        function isLineFilteredForUID(chart, lineID, currentFilter) {
+        function isLineFilteredForID(chart, lineID, currentFilter) {
             let line = chart.get(lineID);
             return line.name.includes('PID: ' + currentFilter) || currentFilter == filterForAllIDs;
         }
 
         function createLineName(data) {
-            return "PID: " + data.value.uid + " - Merch: " + merchants.getMerchantName(data.value.merchant_id);
+            return "PID: " + data.value.product_id + " - Merch: " + merchants.getMerchantName(data.value.merchant_id);
         }
 
         function parseBulkData(newData) {
@@ -517,7 +520,13 @@
             return data;
         }
 
-        function getStockchartXDateYPriceOptions(title, id, y_axis_title, add_empty_series) {
+        function createPriceOrSalesUpdateTooltip() {
+            return '<table><tr><td><b>Product {point.product_id}:&nbsp; &nbsp;</b></td><td>Price:&nbsp; &nbsp;</td><td style="text-align: right">{point.y:.2f}€</td></tr>' +
+                          '<tr><td></td><td>Quality:&nbsp; &nbsp;</td><td>{point.quality}</td></tr>' +
+                   '</table>';
+        }
+
+        function getStockchartXDateYPriceOptions(title, id, y_axis_title, add_empty_series, customTooltip) {
             var result = {
                 title: {
                     text: title
@@ -572,7 +581,8 @@
                     maxHeight: 100
                 },
                 tooltip: {
-                    pointFormat: '<b>{series.name}:</b> {point.y:.2f}€'
+                    useHTML: true,
+                    pointFormat: customTooltip ? customTooltip : '<b>{series.name}:</b> {point.y:.2f}€'
                 },
                 series: []
             };
