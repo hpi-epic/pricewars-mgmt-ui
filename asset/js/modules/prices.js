@@ -16,7 +16,7 @@
                 $scope.merchant_ids     = [];
 
                 $scope.product_ids     = charts.getCurrentProductIDs();
-                $scope.currentUIDFilter = filterForAll;
+                $scope.currentIDFilter = filterForAll;
 
                 $scope.charts = [];
 
@@ -86,12 +86,12 @@
 
                 socket.on('buyOffer', function (data) {
                     data = angular.fromJson(data);
-                    charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], data, $scope.currentUIDFilter, $scope.currentMerchantFilter);
+                    charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
                 });
 
                 socket.on('updateOffer', function (data) {
                     data = angular.fromJson(data);
-                    charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], data, $scope.currentUIDFilter, $scope.currentMerchantFilter);
+                    charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
                 });
 
                 $scope.$on('$locationChangeStart', function() {
