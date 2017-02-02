@@ -331,7 +331,7 @@
                 html_id:    "highchart-price_and_sales",
                 data:       [],
                 getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false, createPriceOrSalesUpdateTooltip());},
-                updateGraphWithPriceData: function(chart, data, currentFilterUID, currentFilterMerchant) {
+                updateGraphWithPriceData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp) {
                         productIDs.pushIfNotExist(dp.value.product_id);
 
@@ -341,19 +341,20 @@
                             y: dp.value.price,
                             quality: dp.value.quality,
                             uid: dp.value.uid,
-                            product_id: dp.value.product_id
+                            product_id: dp.value.product_id,
+                            merchant_name: merchants.getMerchantName(dp.value.merchant_id)
                         };
 
                         addPointToLine(chart, point, lineID, lineID, true);
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
-                        dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
+                        dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
 
                         //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
                     });
                     chart.redraw(false);
                 },
-                updateGraphWithSalesData: function(chart, data, currentFilterUID, currentFilterMerchant) {
+                updateGraphWithSalesData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp, index) {
                         if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             productIDs.pushIfNotExist(dp.value.product_id);
@@ -367,12 +368,13 @@
                                     quality: dp.value.quality,
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
+                                    merchant_name: merchants.getMerchantName(dp.value.merchant_id),
                                     marker: {fillColor: '#d60000', radius: 4}
                                 };
 
                                 addPointToLine(chart, point, lineID, lineID, true);
 
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
+                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             } else {
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
@@ -380,6 +382,7 @@
                                     quality: dp.value.quality,
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
+                                    merchant_name: merchants.getMerchantName(dp.value.merchant_id),
                                     marker: {
                                         fillColor: '#d60000',
                                         symbol: 'cross',
@@ -397,7 +400,7 @@
                                 // pass the line from before in case the line was created in the call before
                                 line = addPointToLine(chart, nullPoint, lineID, lineID, true, line);
 
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterUID, currentFilterMerchant);
+                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             }
                         }
                     });
@@ -521,8 +524,9 @@
         }
 
         function createPriceOrSalesUpdateTooltip() {
-            return '<table><tr><td><b>Product {point.product_id}:&nbsp; &nbsp;</b></td><td>Price:&nbsp; &nbsp;</td><td style="text-align: right">{point.y:.2f}€</td></tr>' +
-                          '<tr><td></td><td>Quality:&nbsp; &nbsp;</td><td>{point.quality}</td></tr>' +
+            return '<table><tr><td><b>Merchant {point.merchant_name}&nbsp; &nbsp;</b></td><td><b>Product {point.product_id}&nbsp; &nbsp;</b></td></tr>' +
+                          '<tr><td style="text-align: right">Price:&nbsp; &nbsp;</td><td style="text-align: left">{point.y:.2f}€</td></tr>' +
+                          '<tr><td style="text-align: right">Quality:&nbsp; &nbsp;</td><td style="text-align: left">{point.quality}</td></tr>' +
                    '</table>';
         }
 
