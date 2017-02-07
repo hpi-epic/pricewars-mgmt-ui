@@ -500,8 +500,10 @@
             let shift = line.data.length > maxNumberOfPointsInLine;
 
             // set color of the point to the line color (has to be set for custom symbols to work)
-            point.marker.fillColor = line.color;
-            point.marker.lineColor = line.color;
+            if (point.marker) {
+                point.marker.fillColor = line.color;
+                point.marker.lineColor = line.color;
+            }
 
             line.addPoint(point, false, shift);
 
@@ -542,7 +544,7 @@
 
             // sort series (first by merchant name, then by product id, then by product quality
             series.sort(function(a,b){
-                if (a.options.pricewars.merchant_name == b.options.pricewars.merchant_name){
+                if (a.options.pricewars.merchant_name == b.options.pricewars.merchant_name) {
                     if (a.options.pricewars.product_id == b.options.pricewars.product_id) {
                         return a.options.pricewars.quality > b.options.pricewars.quality ? 1 : a.options.pricewars.quality < b.options.pricewars.quality ? -1 : 0;
                     }
@@ -555,7 +557,7 @@
             // set index
             let currentIndex = 0;
             for (var i = 0; i < series.length; i++) {
-                if (series[i].visible) {
+                if (series[i].visible && !series[i].name.startsWith("Navigator")) {
                     series[i].update({
                         legendIndex: currentIndex
                     }, false);
