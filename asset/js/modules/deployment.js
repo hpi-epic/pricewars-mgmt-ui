@@ -10,8 +10,8 @@
         }] //END: controller function
     );  // END: ngviewController
 
-    ana.controller('deploymentCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    ana.controller('deploymentCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', 'endpoints', '$rootScope',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, endpoints, $rootScope) {
 
               $scope.consumer                     = {};
               $scope.consumer.consumer_url        = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
@@ -20,7 +20,7 @@
 
               $scope.merchant                     = {};
               $scope.merchant.api_endpoint_url    = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de";
-              $scope.merchant.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+              $scope.merchant.marketplace_url     = endpoints.marketplace_url;
               $scope.merchant.merchant_name       = "Merchant der Erste";
               $scope.merchant.algorithm_name      = "Cooler Merchant doing Work";
               $scope.merchant.nextState           = "init";

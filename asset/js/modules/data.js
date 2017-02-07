@@ -1,10 +1,9 @@
 (function () {
     var da = angular.module('data', ['ngCookies']);
 
-    da.controller('exportCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope',
-            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope) {
+    da.controller('exportCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', 'endpoints', '$rootScope',
+            function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, endpoints, $rootScope) {
 
-              $scope.kafka_reverse_proxy_url      = "http://192.168.31.91:8001";
               $scope.topics                       = [];
 
               // Toastr options
@@ -18,7 +17,7 @@
               };
 
               $scope.getTopics = function(){
-                $http.get($scope.kafka_reverse_proxy_url + "/topics")
+                $http.get(endpoints.kafka_proxy + "/topics")
                     .then(function(response) {
                         $scope.topics  = response.data;
                     });
@@ -26,9 +25,9 @@
 
               $scope.getExport = function(topic){
                 $('#loadingModal').modal('show');
-                $http.get($scope.kafka_reverse_proxy_url + "/export/data/" + topic)
+                $http.get(endpoints.kafka_proxy + "/export/data/" + topic)
                     .then(function(response) {
-                        $scope.export_url  = $scope.kafka_reverse_proxy_url + "/"+ response.data.url;
+                        $scope.export_url  = endpoints.kafka_proxy + "/"+ response.data.url;
                     });
               }
 

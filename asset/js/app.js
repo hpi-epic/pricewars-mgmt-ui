@@ -69,6 +69,7 @@
     });
 
     frontend.factory('endpoints', function () {
+        //TODO: load those from config.js
         return {
             marketplace_url : "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace",
             producer_url    : "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de",

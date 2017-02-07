@@ -19,7 +19,6 @@
               $scope.initialProducts              = 0;
               $scope.consumer                     = {};
               $scope.consumer_url                 = endpoints.consumer_url;
-              $scope.marketplace_url              = endpoints.marketplace_url;
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -33,7 +32,7 @@
               };
 
               $scope.getMarketplaceSettings = function(){
-                $http.get($scope.marketplace_url + "/config")
+                $http.get(endpoints.marketplace_url + "/config")
                     .then(function(response) {
                         $scope.marketplace     = response.data;
                         // $scope.consumer_per_minute  = response.data.consumer_per_minute;
@@ -63,7 +62,7 @@
               }
 
               $scope.getSettings = function(){
-                $http.get($scope.marketplace_url + "/merchants")
+                $http.get(endpoints.marketplace_url + "/merchants")
                     .then(function(response) {
                         $scope.getConsumerSettings();
                         $scope.getMarketplaceSettings();
@@ -126,7 +125,7 @@
               };
 
               $scope.updateMarketplaceConfig = function(){
-                $http({url: $scope.marketplace_url + "/config",
+                $http({url: endpoints.marketplace_url + "/config",
                       dataType: "json",
                       method: "PUT",
                       data: {
@@ -235,7 +234,6 @@
           co.controller('merchantCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              $scope.marketplace_url              = endpoints.marketplace_url;
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -309,7 +307,7 @@
               };
 
               $scope.deleteMerchant = function(merchant_id){
-                $http({url: $scope.marketplace_url + "/merchants/"+merchant_id,
+                $http({url: endpoints.marketplace_url + "/merchants/"+merchant_id,
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -328,8 +326,6 @@
     co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
-              $scope.marketplace_url              = endpoints.marketplace_url;
-              $scope.producer_url                 = endpoints.producer_url;
               $scope.producer                     = {};
               $scope.new_product                  = {"uid":0,"product_id":0,"name":"Name","quality":0,"price":0};
 
@@ -344,14 +340,14 @@
               };
 
               $scope.getProducts = function(){
-                $http.get($scope.producer_url + "/products/")
+                $http.get(endpoints.producer_url + "/products/")
                     .then(function(response) {
                         $scope.producer = response.data;
                     });
               };
 
               $scope.updateProducts = function(){
-                $http({url: $scope.producer_url + "/products/",
+                $http({url: endpoints.producer_url + "/products/",
                       dataType: "json",
                       method: "PUT",
                       data: $scope.producer,
@@ -365,7 +361,7 @@
               };
 
               $scope.updateProduct = function(product_uid){
-                $http({url: $scope.producer_url + "/products/"+ product_uid,
+                $http({url: endpoints.producer_url + "/products/"+ product_uid,
                       dataType: "json",
                       method: "PUT",
                       data: [ $filter('filter')($scope.producer, {uid:product_uid})[0] ],
@@ -381,7 +377,7 @@
               };
 
               $scope.deleteProduct = function(uid){
-                $http({url: $scope.producer_url + "/products/"+ uid,
+                $http({url: endpoints.producer_url + "/products/"+ uid,
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -395,7 +391,7 @@
               };
 
               $scope.createProduct = function(){
-                $http({url: $scope.producer_url + "/products/",
+                $http({url: endpoints.producer_url + "/products/",
                       dataType: "json",
                       method: "POST",
                       data: [ $scope.new_product ],
@@ -425,8 +421,6 @@
     co.controller('marketplaceCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints) {
 
-              $scope.marketplace_url              = endpoints.marketplace_url;
-              $scope.producer_url                 = endpoints.producer_url;
               $scope.offers                       = {};
               $scope.products                     = {};
               $scope.merchants                    = merchants.get();
@@ -446,7 +440,7 @@
               };
 
               $scope.getOffers = function(){
-                $http.get($scope.marketplace_url + "/offers")
+                $http.get(endpoints.marketplace_url + "/offers")
                     .then(function(response) {
                         $scope.offers = response.data;
 
@@ -469,7 +463,7 @@
               });
 
               $scope.getProductInfo = function(){
-                    $http.get($scope.producer_url + "/products/")
+                    $http.get(endpoints.producer_url + "/products/")
                         .then(function(response) {
                             for (var key in response.data) {
                                 var product = response.data[key];
@@ -482,7 +476,7 @@
                $scope.getProductInfo();
 
                $scope.updateKey = function(){
-                 $http({url: $scope.marketplace_url + "/producer/key",
+                 $http({url: endpoints.marketplace_url + "/producer/key",
                        dataType: "json",
                        method: "PUT",
                        data: {},
