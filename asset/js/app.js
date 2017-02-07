@@ -408,12 +408,10 @@
                 },
                 filterForID: function(chart, productID) {
                     chart.series.forEach(function(serie) {
-                        if (isLineFilteredForID(chart, serie.options.id, productID)) {
-                            serie.setVisible(true, false);
-                        } else {
-                            serie.setVisible(false, false);
-                        }
+                        dontDrawLineIfLineFiltered(chart, serie.options.id, productID);
                     });
+
+                    sortLegend(chart);
 
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
                     chart.redraw();
@@ -457,7 +455,7 @@
                     name: lineName ? lineName : lineID,
                     id: lineID,
                     data: [],
-                    step: stepEnabled ? stepEnabled : false,
+                    step: stepEnabled ? stepEnabled : true,
                     dashStyle: dashStyle,
                     lineWidth: 2,
                     marker: {
@@ -469,6 +467,12 @@
                         hover: {
                             lineWidthPlus: 2
                         }
+                    },
+                    pricewars: {
+                        quality: point.quality,
+                        uid: point.uid,
+                        product_id: point.product_id,
+                        merchant_name: point.merchant_name
                     }
                 };
                 line = chart.addSeries(newLine);
@@ -498,18 +502,52 @@
 
             if (isLineFilteredForID(chart, lineID, currentFilterID)) {
                 line.setVisible(true, false);
+                line.options.showInLegend = true;
+                chart.legend.renderItem(line);
+                chart.legend.render();
             } else {
                 line.setVisible(false, false);
+                line.options.showInLegend = false;
+                line.legendItem = null;
+                chart.legend.destroyItem(line);
+                chart.legend.render();
             }
         }
 
-        function isLineFilteredForID(chart, lineID, currentFilter) {
+        function sortLegend(chart) {
+            var series = chart.series;
+
+            // sort series (first by merchant name, then by product id, then by product quality
+            series.sort(function(a,b){
+                if (a.options.pricewars.merchant_name == b.options.pricewars.merchant_name){
+                    if (a.options.pricewars.product_id == b.options.pricewars.product_id) {
+                        return a.options.pricewars.quality > b.options.pricewars.quality ? 1 : a.options.pricewars.quality < b.options.pricewars.quality ? -1 : 0;
+                    }
+                    return a.options.pricewars.product_id > b.options.pricewars.product_id ? 1 : -1;
+                }
+
+                return a.options.pricewars.merchant_name > b.options.pricewars.merchant_name ? 1 : -1;
+            });
+
+            // set index
+            let currentIndex = 0;
+            for (var i = 0; i < series.length; i++) {
+                if (series[i].visible) {
+                    series[i].update({
+                        legendIndex: currentIndex
+                    }, false);
+                    currentIndex++;
+                }
+            }
+        }
+
+        function isLineFilteredForID(chart, lineID, currentIDFilter) {
             let line = chart.get(lineID);
-            return line.name.includes('PID: ' + currentFilter) || currentFilter == filterForAllIDs;
+            return currentIDFilter == filterForAllIDs || line.options.pricewars.product_id == currentIDFilter;
         }
 
         function createLineName(data) {
-            return "PID: " + data.value.product_id + " - Merch: " + merchants.getMerchantName(data.value.merchant_id);
+            return "Merch: " + merchants.getMerchantName(data.value.merchant_id) + " - PUID: " + data.value.uid;
         }
 
         function parseBulkData(newData) {
@@ -517,8 +555,7 @@
             if (!(newData instanceof Array)) {
                 data = [newData]
             } else {
-                data = newData.map(e => {return angular.fromJson(e)}
-            )
+                data = newData.map(e => {return angular.fromJson(e)})
             }
             return data;
         }
@@ -593,8 +630,19 @@
 
             if (add_empty_series) {
                 result.series.push({
+                    lineWidth: 0,
                     name: id,
                     id: id,
+                    marker: {
+                        enabled: true,
+                        radius: 4,
+                        symbol: 'circle'
+                    },
+                    states: {
+                        hover: {
+                            lineWidthPlus: 0
+                        }
+                    },
                     data: []
                 });
             }

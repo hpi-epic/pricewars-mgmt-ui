@@ -16,7 +16,7 @@
                 $scope.merchant_ids     = [];
 
                 $scope.product_ids     = charts.getCurrentProductIDs();
-                $scope.currentIDFilter = filterForAll;
+                $scope.currentIDFilter = "1";
 
                 $scope.charts = [];
 
@@ -29,7 +29,7 @@
                     "positionClass": "toast-top-center",
                     "closeButton": true,
                     "toastClass": "animated fadeInDown",
-                    "timeOut": "2000",
+                    "timeOut": "2000"
                 };
 
                 $('.showhide').click(function (event) {
