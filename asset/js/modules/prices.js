@@ -10,8 +10,6 @@
                 var redrawGraphTimeout            = undefined;
                 var timeoutCancelled              = false;
 
-                $scope.marketplace_url             = endpoints.marketplace_url;
-
                 $scope.liveGraphData    = [];
                 $scope.merchant_ids     = [];
 

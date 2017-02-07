@@ -4,8 +4,6 @@
     da.controller('dashboardCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints', 'charts',
         function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints, charts) {
 
-            $scope.marketplace_url  = endpoints.marketplace_url;
-
             $scope.merchants        = merchants.get();
             $scope.consumers        = {};
             $scope.consumers_ids    = [];
@@ -46,7 +44,7 @@
              * REST calls
              */
              $scope.getConsumers = function(){
-                 $http.get($scope.marketplace_url + "/consumers")
+                 $http.get(endpoints.marketplace_url + "/consumers")
                      .then(function(response) {
                          for (var key in response.data) {
                              if (response.data.hasOwnProperty(key)) {
