@@ -201,12 +201,19 @@
          */
         Highcharts.setOptions({lang: {noData: "No data available (yet)"}});
 
-        // Define a custom cross symbol path
+        // Define a custom symbol paths
         Highcharts.SVGRenderer.prototype.symbols.cross = function (x, y, w, h) {
             return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
         };
         if (Highcharts.VMLRenderer) {
             Highcharts.VMLRenderer.prototype.symbols.cross = Highcharts.SVGRenderer.prototype.symbols.cross;
+        }
+
+        Highcharts.SVGRenderer.prototype.symbols.vertical_line = function (x, y, w, h) {
+            return ['M', x+w/2, y-w+w/2, 'L', x+w/2, y+w+w/2, 'z'];
+        };
+        if (Highcharts.VMLRenderer) {
+            Highcharts.VMLRenderer.prototype.symbols.vertical_line = Highcharts.SVGRenderer.prototype.symbols.vertical_line;
         }
 
         // Set default colors and exclude red so red is only used manually to mark selling data points
@@ -339,10 +346,16 @@
                             x: new Date(dp.value.timestamp).getTime(),
                             y: dp.value.price,
                             quality: dp.value.quality,
+                            quality_desc: qualityToString(dp.value.quality),
                             uid: dp.value.uid,
                             product_id: dp.value.product_id,
                             merchant_name: merchants.getMerchantName(dp.value.merchant_id),
-                            merchant_id: dp.value.merchant_id
+                            merchant_id: dp.value.merchant_id,
+                            description: "Price Update",
+                            marker: {
+                                symbol: 'vertical_line',
+                                lineWidth: 3
+                            }
                         };
 
                         addPointToLine(chart, point, lineID, lineID, true);
@@ -366,11 +379,15 @@
                                     x: new Date(dp.value.timestamp).getTime(),
                                     y: dp.value.price,
                                     quality: dp.value.quality,
+                                    quality_desc: qualityToString(dp.value.quality),
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
                                     merchant_name: merchants.getMerchantName(dp.value.merchant_id),
                                     merchant_id: dp.value.merchant_id,
-                                    marker: {fillColor: '#d60000', radius: 4}
+                                    description: "Sold!",
+                                    marker: {
+                                        radius: 4
+                                    }
                                 };
 
                                 addPointToLine(chart, point, lineID, lineID, true);
@@ -381,14 +398,14 @@
                                     x: new Date(dp.value.timestamp).getTime(),
                                     y: dp.value.price,
                                     quality: dp.value.quality,
+                                    quality_desc: qualityToString(dp.value.quality),
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
                                     merchant_name: merchants.getMerchantName(dp.value.merchant_id),
                                     merchant_id: dp.value.merchant_id,
+                                    description: "Sold! Out of Stock.",
                                     marker: {
-                                        fillColor: '#d60000',
                                         symbol: 'cross',
-                                        lineColor: '#d60000',
                                         lineWidth: 3
                                     }
                                 };
@@ -400,7 +417,7 @@
                                     y: null
                                 };
                                 // pass the line from before in case the line was created in the call before
-                                line = addPointToLine(chart, nullPoint, lineID, lineID, true, line);
+                                addPointToLine(chart, nullPoint, lineID, lineID, true, line);
 
                                 dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             }
@@ -481,6 +498,11 @@
 
             // add the new point to the line
             let shift = line.data.length > maxNumberOfPointsInLine;
+
+            // set color of the point to the line color (has to be set for custom symbols to work)
+            point.marker.fillColor = line.color;
+            point.marker.lineColor = line.color;
+
             line.addPoint(point, false, shift);
 
             return line;
@@ -594,6 +616,16 @@
             return rgb;
         }
 
+        function qualityToString(quality) {
+            switch (quality) {
+                case 1: return "1 (best)";
+                case 2: return "2 (good)";
+                case 3: return "3 (okay)";
+                case 4: return "4 (bad)";
+                default: return quality;
+            }
+        }
+
         function parseBulkData(newData) {
             var data = newData;
             if (!(newData instanceof Array)) {
@@ -605,9 +637,12 @@
         }
 
         function createPriceOrSalesUpdateTooltip() {
-            return '<table><tr><td><b>Merchant {point.merchant_name}&nbsp; &nbsp;</b></td><td><b>Product {point.product_id}&nbsp; &nbsp;</b></td></tr>' +
-                          '<tr><td style="text-align: right">Price:&nbsp; &nbsp;</td><td style="text-align: left">{point.y:.2f}€</td></tr>' +
-                          '<tr><td style="text-align: right">Quality:&nbsp; &nbsp;</td><td style="text-align: left">{point.quality}</td></tr>' +
+            return '<table>' +
+                        '<tr><td style="text-align: right"><b>Merchant:&nbsp; &nbsp;</b></td><td style="text-align: left"><b>{point.merchant_name}</b></td></tr>' +
+                        '<tr><td style="text-align: right"><b>Action:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.description}</td></td>' +
+                        '<tr><td style="text-align: right"><b>ProductID:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.product_id}</td></tr>' +
+                        '<tr><td style="text-align: right"><b>Quality:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.quality_desc}</td></tr>' +
+                        '<tr><td style="text-align: right"><b>Price:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.y:.2f}€</td></tr>' +
                    '</table>';
         }
 
