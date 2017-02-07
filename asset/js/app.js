@@ -211,8 +211,7 @@
 
         // Set default colors and exclude red so red is only used manually to mark selling data points
         Highcharts.theme = {
-            colors: ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9',
-                '#d05bf0', '#e4d354', '#116d01',  '#2b908f', '#91e8e1']
+            colors: ['#BD4F00', '#540078', '#007843', '#0073A8', '#96003E', '#16008A', '#8A8700']
         };
         Highcharts.setOptions(Highcharts.theme);
 
@@ -342,7 +341,8 @@
                             quality: dp.value.quality,
                             uid: dp.value.uid,
                             product_id: dp.value.product_id,
-                            merchant_name: merchants.getMerchantName(dp.value.merchant_id)
+                            merchant_name: merchants.getMerchantName(dp.value.merchant_id),
+                            merchant_id: dp.value.merchant_id
                         };
 
                         addPointToLine(chart, point, lineID, lineID, true);
@@ -369,6 +369,7 @@
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
                                     merchant_name: merchants.getMerchantName(dp.value.merchant_id),
+                                    merchant_id: dp.value.merchant_id,
                                     marker: {fillColor: '#d60000', radius: 4}
                                 };
 
@@ -383,6 +384,7 @@
                                     uid: dp.value.uid,
                                     product_id: dp.value.product_id,
                                     merchant_name: merchants.getMerchantName(dp.value.merchant_id),
+                                    merchant_id: dp.value.merchant_id,
                                     marker: {
                                         fillColor: '#d60000',
                                         symbol: 'cross',
@@ -449,14 +451,12 @@
 
             // create a new series/line if it is not present yet
             if (line === undefined || line === null) {
-                let dashStyle = 'Solid';
-                if (chart.series.length >= Highcharts.theme.colors.length) dashStyle = 'LongDash';
                 let newLine = {
                     name: lineName ? lineName : lineID,
                     id: lineID,
                     data: [],
                     step: stepEnabled ? stepEnabled : true,
-                    dashStyle: dashStyle,
+                    color: getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality),
                     lineWidth: 2,
                     marker: {
                         enabled: true,
@@ -472,7 +472,8 @@
                         quality: point.quality,
                         uid: point.uid,
                         product_id: point.product_id,
-                        merchant_name: point.merchant_name
+                        merchant_name: point.merchant_name,
+                        merchant_id: point.merchant_id
                     }
                 };
                 line = chart.addSeries(newLine);
@@ -548,6 +549,49 @@
 
         function createLineName(data) {
             return "Merch: " + merchants.getMerchantName(data.value.merchant_id) + " - PUID: " + data.value.uid;
+        }
+
+        var merchantColorMapping = {};
+
+        function getColorForMerchantAndProduct(merchant_name, product_id, product_quality) {
+            if (merchantColorMapping[merchant_name]) {
+                if (!merchantColorMapping[merchant_name][product_id]) merchantColorMapping[merchant_name][product_id] = {};
+
+                // color for this product and merchant exists already
+                if (merchantColorMapping[merchant_name][product_id][product_quality])
+                        return merchantColorMapping[merchant_name][product_id][product_quality];
+
+                // merchant and product is there but not the color for this quality
+                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 5);
+                return merchantColorMapping[merchant_name][product_id][product_quality];
+            } else {
+                // merchant is unknown - get new base color
+                merchantColorMapping[merchant_name] = {};
+                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[Object.keys(merchantColorMapping).length - 1];
+                merchantColorMapping[merchant_name][product_id] = {};
+                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 5);
+                return merchantColorMapping[merchant_name][product_id][product_quality];
+            }
+        }
+
+        // Changes the given color to have additional lum-luminance (eg 0.2 for 20% lighter)
+        function ColorLuminance(hex, lum) {
+            // validate hex string
+            hex = String(hex).replace(/[^0-9a-f]/gi, '');
+            if (hex.length < 6) {
+                hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+            }
+            lum = lum || 0;
+
+            // convert to decimal and change luminosity
+            var rgb = "#", c, i;
+            for (i = 0; i < 3; i++) {
+                c = parseInt(hex.substr(i*2,2), 16);
+                c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+                rgb += ("00"+c).substr(c.length);
+            }
+
+            return rgb;
         }
 
         function parseBulkData(newData) {
