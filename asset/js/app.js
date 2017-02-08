@@ -113,7 +113,7 @@
 
     // The merchant service. Stores all merchants currently registered
     // at the marketplace and if requested, updates them periodically (not by default).
-    frontend.factory('merchants', ['$http', 'endpoints', function ($http, endpoints) {
+    frontend.factory('merchants', ['$http', 'endpoints', '$rootScope', function ($http, endpoints, $rootScope) {
 
         var timeoutObj  = undefined;
         var timeout     = -1;
@@ -121,7 +121,7 @@
         var merchants   = {};
 
         function getMerchants() {
-            $http.get(endpoints.marketplace_url + "/merchants")
+            $http.get($rootScope.urls.marketplace_url + "/merchants")
                 .then(function(response) {
                     for (var key in response.data) {
                         if (response.data.hasOwnProperty(key)) {
@@ -159,7 +159,10 @@
             }
         }
 
-        getMerchants();
+        endpoints.getData().then(function(urls){
+          $rootScope.urls = urls;
+          getMerchants();
+        });
 
         return {
             get: function(merchant_id) {
