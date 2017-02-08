@@ -86,23 +86,23 @@
                    $scope.producer_url   = urls.producer_url;
                    $scope.kafka_proxy    = urls.kafka_proxy;
                    var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
-                });
 
-                socket.on('buyOffer', function (data) {
-                    data = angular.fromJson(data);
-                    charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
-                });
+                   socket.on('buyOffer', function (data) {
+                       data = angular.fromJson(data);
+                       charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
+                   });
 
-                socket.on('updateOffer', function (data) {
-                    data = angular.fromJson(data);
-                    charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
-                });
+                   socket.on('updateOffer', function (data) {
+                       data = angular.fromJson(data);
+                       charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
+                   });
 
-                $scope.$on('$locationChangeStart', function() {
-                    socket.disconnect();
+                   $scope.$on('$locationChangeStart', function() {
+                       socket.disconnect();
 
-                    timeoutCancelled = true;
-                    $timeout.cancel(redrawGraphTimeout);
+                       timeoutCancelled = true;
+                       $timeout.cancel(redrawGraphTimeout);
+                   });
                 });
 
             }] //END: controller function
