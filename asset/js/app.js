@@ -482,7 +482,6 @@
                     id: lineID,
                     data: [],
                     step: stepEnabled ? stepEnabled : true,
-                    color: getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality),
                     lineWidth: 2,
                     marker: {
                         enabled: true,
@@ -502,6 +501,12 @@
                         merchant_id: point.merchant_id
                     }
                 };
+                // stepEnabled currently means we are in a price chart
+                if (stepEnabled) {
+                    newLine.color = getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality);
+                } else {
+                    newLine.color = ColorLuminance(Highcharts.theme.colors[chart.series.length], 0.5);
+                }
                 line = chart.addSeries(newLine);
             }
 
@@ -733,7 +738,8 @@
                             lineWidthPlus: 0
                         }
                     },
-                    data: []
+                    data: [],
+                    color: ColorLuminance(Highcharts.theme.colors[0], 0.5)
                 });
             }
 
