@@ -85,12 +85,7 @@
     }]);
 
     frontend.factory('socket', ['endpoints', '$rootScope', function (endpoints, $rootScope) {
-        //while !(endpoints.hasOwnProperty("kafka_proxy")) {
-        //if (!("kafka_proxy" in endpoints)) {
-        //if ($rootScope.config_loaded){
-          //setTimeout(function(){ console.log("waiting for env.json") }, 1000);
-        //}
-        endpoints.getData().then(function(urls){
+        return endpoints.getData().then(function(urls){
           var socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'});
 
           return {
