@@ -17,7 +17,7 @@
               };
 
               $scope.getTopics = function(){
-                $http.get(endpoints.kafka_proxy + "/topics")
+                $http.get($scope.kafka_proxy + "/topics")
                     .then(function(response) {
                         $scope.topics  = response.data;
                     });
@@ -25,9 +25,9 @@
 
               $scope.getExport = function(topic){
                 $('#loadingModal').modal('show');
-                $http.get(endpoints.kafka_proxy + "/export/data/" + topic)
+                $http.get($scope.kafka_proxy + "/export/data/" + topic)
                     .then(function(response) {
-                        $scope.export_url  = endpoints.kafka_proxy + "/"+ response.data.url;
+                        $scope.export_url  = $scope.kafka_proxy + "/"+ response.data.url;
                     });
               }
 

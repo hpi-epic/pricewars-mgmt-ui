@@ -31,7 +31,7 @@
               };
 
               $scope.getMarketplaceSettings = function(){
-                $http.get(endpoints.marketplace_url + "/config")
+                $http.get($scope.marketplace_url + "/config")
                     .then(function(response) {
                         $scope.marketplace     = response.data;
                         // $scope.consumer_per_minute  = response.data.consumer_per_minute;
@@ -61,7 +61,7 @@
               }
 
               $scope.getSettings = function(){
-                $http.get(endpoints.marketplace_url + "/merchants")
+                $http.get($scope.marketplace_url + "/merchants")
                     .then(function(response) {
                         $scope.getConsumerSettings();
                         $scope.getMarketplaceSettings();
@@ -124,7 +124,7 @@
               };
 
               $scope.updateMarketplaceConfig = function(){
-                $http({url: endpoints.marketplace_url + "/config",
+                $http({url: $scope.marketplace_url + "/config",
                       dataType: "json",
                       method: "PUT",
                       data: {
@@ -317,7 +317,7 @@
               };
 
               $scope.deleteMerchant = function(merchant_id){
-                $http({url: endpoints.marketplace_url + "/merchants/"+merchant_id,
+                $http({url: $scope.marketplace_url + "/merchants/"+merchant_id,
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -350,14 +350,14 @@
               };
 
               $scope.getProducts = function(){
-                $http.get(endpoints.producer_url + "/products/")
+                $http.get($scope.producer_url + "/products/")
                     .then(function(response) {
                         $scope.producer = response.data;
                     });
               };
 
               $scope.updateProducts = function(){
-                $http({url: endpoints.producer_url + "/products/",
+                $http({url: $scope.producer_url + "/products/",
                       dataType: "json",
                       method: "PUT",
                       data: $scope.producer,
@@ -371,7 +371,7 @@
               };
 
               $scope.updateProduct = function(product_uid){
-                $http({url: endpoints.producer_url + "/products/"+ product_uid,
+                $http({url: $scope.producer_url + "/products/"+ product_uid,
                       dataType: "json",
                       method: "PUT",
                       data: [ $filter('filter')($scope.producer, {uid:product_uid})[0] ],
@@ -387,7 +387,7 @@
               };
 
               $scope.deleteProduct = function(uid){
-                $http({url: endpoints.producer_url + "/products/"+ uid,
+                $http({url: $scope.producer_url + "/products/"+ uid,
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -401,7 +401,7 @@
               };
 
               $scope.createProduct = function(){
-                $http({url: endpoints.producer_url + "/products/",
+                $http({url: $scope.producer_url + "/products/",
                       dataType: "json",
                       method: "POST",
                       data: [ $scope.new_product ],
@@ -456,7 +456,7 @@
               };
 
               $scope.getOffers = function(){
-                $http.get(endpoints.marketplace_url + "/offers")
+                $http.get($scope.marketplace_url + "/offers")
                     .then(function(response) {
                         $scope.offers = response.data;
 
@@ -479,7 +479,7 @@
               });
 
               $scope.getProductInfo = function(){
-                    $http.get(endpoints.producer_url + "/products/")
+                    $http.get($scope.producer_url + "/products/")
                         .then(function(response) {
                             for (var key in response.data) {
                                 var product = response.data[key];
@@ -496,9 +496,9 @@
                  $scope.kafka_proxy    = urls.kafka_proxy;
                  $scope.getProductInfo();
                });
-               
+
                $scope.updateKey = function(){
-                 $http({url: endpoints.marketplace_url + "/producer/key",
+                 $http({url: $scope.marketplace_url + "/producer/key",
                        dataType: "json",
                        method: "PUT",
                        data: {},
