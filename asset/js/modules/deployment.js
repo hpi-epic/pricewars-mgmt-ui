@@ -14,7 +14,6 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, endpoints, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer.consumer_url        = "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de";
               $scope.consumer.name                = "Consumer der Erste";
               $scope.consumer.description         = "Cooler Consumer doing Work";
 
@@ -24,6 +23,14 @@
               $scope.merchant.merchant_name       = "Merchant der Erste";
               $scope.merchant.algorithm_name      = "Cooler Merchant doing Work";
               $scope.merchant.nextState           = "init";
+
+              endpoints.getData().then(function(urls){
+                 $scope.consumer.consumer_url   = urls.consumer_url;
+                 $scope.marketplace_url         = urls.marketplace_url;
+                 $scope.producer_url            = urls.producer_url;
+                 $scope.kafka_proxy             = urls.kafka_proxy;
+
+              });
 
               // Toastr options
               toastr.options = {

@@ -31,7 +31,13 @@
                     });
               }
 
-              $scope.getTopics();
+              endpoints.getData().then(function(urls){
+                 $scope.consumer_url   = urls.consumer_url;
+                 $scope.marketplace_url= urls.marketplace_url;
+                 $scope.producer_url   = urls.producer_url;
+                 $scope.kafka_proxy    = urls.kafka_proxy;
+                 $scope.getTopics();
+              });
             }] //END: controller function
           );  // END: exportController
 

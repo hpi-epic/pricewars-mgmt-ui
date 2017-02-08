@@ -68,39 +68,52 @@
         }
     });
 
-    frontend.factory('endpoints', function () {
-        //TODO: load those from config.js
-        return {
-            marketplace_url : "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace",
-            producer_url    : "http://vm-mpws2016hp1-03.eaalab.hpi.uni-potsdam.de",
-            consumer_url    : "http://vm-mpws2016hp1-01.eaalab.hpi.uni-potsdam.de",
-            kafka_proxy     : "http://192.168.31.91:8001/"
-        };
-    });
+    frontend.factory('endpoints', ['$http', '$rootScope', function ($http, $rootScope) {
+        var data = {}
+        $rootScope.config_loaded = false;
 
-    frontend.factory('socket', ['endpoints', function (endpoints) {
-        var socket = io.connect(endpoints.kafka_proxy, {query: 'id=mgmt-ui'});
+        var getData = function() {
+          return $.getJSON("env.json").then(function(response) {
+            var data = angular.fromJson(response);
+            return data
+          });
+        };
 
         return {
-            on: function (eventName, callback) {
-                socket.on(eventName, function () {
-                    var args = arguments;
-                    $rootScope.$apply(function () {
-                        callback.apply(socket, args);
-                    });
-                });
-            },
-            emit: function (eventName, data, callback) {
-                socket.emit(eventName, data, function () {
-                    var args = arguments;
-                    $rootScope.$apply(function () {
-                        if (callback) {
-                            callback.apply(socket, args);
-                        }
-                    });
-                })
-            }
+          getData: getData
         };
+    }]);
+
+    frontend.factory('socket', ['endpoints', '$rootScope', function (endpoints, $rootScope) {
+        //while !(endpoints.hasOwnProperty("kafka_proxy")) {
+        //if (!("kafka_proxy" in endpoints)) {
+        //if ($rootScope.config_loaded){
+          //setTimeout(function(){ console.log("waiting for env.json") }, 1000);
+        //}
+        endpoints.getData().then(function(urls){
+          var socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'});
+
+          return {
+              on: function (eventName, callback) {
+                  socket.on(eventName, function () {
+                      var args = arguments;
+                      $rootScope.$apply(function () {
+                          callback.apply(socket, args);
+                      });
+                  });
+              },
+              emit: function (eventName, data, callback) {
+                  socket.emit(eventName, data, function () {
+                      var args = arguments;
+                      $rootScope.$apply(function () {
+                          if (callback) {
+                              callback.apply(socket, args);
+                          }
+                      });
+                  })
+              }
+          };
+        });
     }]);
 
     // The merchant service. Stores all merchants currently registered
