@@ -18,7 +18,6 @@
               $scope.max_req_per_sec              = 0;
               $scope.initialProducts              = 0;
               $scope.consumer                     = {};
-              $scope.consumer_url                 = endpoints.consumer_url;
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -148,7 +147,13 @@
                     $scope.updateMerchantSettings(key, value);
                 });
               }
-              $scope.getSettings();
+              endpoints.getData().then(function(urls){
+                $scope.consumer_url   = urls.consumer_url;
+                $scope.marketplace_url= urls.marketplace_url;
+                $scope.producer_url   = urls.producer_url;
+                $scope.kafka_proxy    = urls.kafka_proxy;
+                $scope.getSettings();
+              });
             }] //END: controller function
           );  // END: dashboardController
 
@@ -157,8 +162,8 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
               $scope.consumer                     = {};
-              $scope.consumer_url                 = endpoints.consumer_url;
               $scope.purchases_per_minute         = 0;
+
               // Toastr options
               toastr.options = {
                   "debug": false,
@@ -226,8 +231,13 @@
                     });
               }
 
-              $scope.getConsumerSettings();
-
+              endpoints.getData().then(function(urls){
+                $scope.consumer_url   = urls.consumer_url;
+                $scope.marketplace_url= urls.marketplace_url;
+                $scope.producer_url   = urls.producer_url;
+                $scope.kafka_proxy    = urls.kafka_proxy;
+                $scope.getConsumerSettings();
+              });
             }] //END: controller function
           );  // END: dashboardController
 
@@ -413,7 +423,13 @@
                 $("#newProductModal").modal("hide");
               };
 
-              $scope.getProducts();
+              endpoints.getData().then(function(urls){
+                $scope.consumer_url   = urls.consumer_url;
+                $scope.marketplace_url= urls.marketplace_url;
+                $scope.producer_url   = urls.producer_url;
+                $scope.kafka_proxy    = urls.kafka_proxy;
+                $scope.getProducts();
+              });
 
             }] //END: controller function
     );  // END: dashboardController
@@ -473,8 +489,14 @@
                         });
                };
 
-               $scope.getProductInfo();
-
+               endpoints.getData().then(function(urls){
+                 $scope.consumer_url   = urls.consumer_url;
+                 $scope.marketplace_url= urls.marketplace_url;
+                 $scope.producer_url   = urls.producer_url;
+                 $scope.kafka_proxy    = urls.kafka_proxy;
+                 $scope.getProductInfo();
+               });
+               
                $scope.updateKey = function(){
                  $http({url: endpoints.marketplace_url + "/producer/key",
                        dataType: "json",

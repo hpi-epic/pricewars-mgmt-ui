@@ -44,7 +44,7 @@
              * REST calls
              */
              $scope.getConsumers = function(){
-                 $http.get(endpoints.marketplace_url + "/consumers")
+                 $http.get($scope.marketplace_url + "/consumers")
                      .then(function(response) {
                          for (var key in response.data) {
                              if (response.data.hasOwnProperty(key)) {
@@ -82,7 +82,13 @@
                 }
             }
 
-            $scope.getConsumers();
+            endpoints.getData().then(function(urls){
+              $scope.consumer_url   = urls.consumer_url;
+              $scope.marketplace_url= urls.marketplace_url;
+              $scope.producer_url   = urls.producer_url;
+              $scope.kafka_proxy    = urls.kafka_proxy;
+              $scope.getConsumers();
+            });
 
             /**
              * Initializing Graphs
@@ -179,7 +185,13 @@
             /**
              * Handling socket events
              */
-            var socket = io.connect("http://192.168.31.91:8001/", {query: 'id=mgmt-ui'});
+            endpoints.getData().then(function(urls){
+               $scope.consumer_url   = urls.consumer_url;
+               $scope.marketplace_url= urls.marketplace_url;
+               $scope.producer_url   = urls.producer_url;
+               $scope.kafka_proxy    = urls.kafka_proxy;
+               var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
+            });
 
             socket.on('buyOffer', function (data) {
                 data = angular.fromJson(data);
