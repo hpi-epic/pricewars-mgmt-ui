@@ -19,7 +19,6 @@
 
               $scope.merchant                     = {};
               $scope.merchant.api_endpoint_url    = "http://vm-mpws2016hp1-06.eaalab.hpi.uni-potsdam.de";
-              $scope.merchant.marketplace_url     = endpoints.marketplace_url;
               $scope.merchant.merchant_name       = "Merchant der Erste";
               $scope.merchant.algorithm_name      = "Cooler Merchant doing Work";
               $scope.merchant.nextState           = "init";
@@ -29,7 +28,7 @@
                  $scope.marketplace_url         = urls.marketplace_url;
                  $scope.producer_url            = urls.producer_url;
                  $scope.kafka_proxy             = urls.kafka_proxy;
-
+                 $scope.merchant.marketplace_url= urls.marketplace_url;
               });
 
               // Toastr options
