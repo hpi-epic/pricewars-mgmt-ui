@@ -231,6 +231,10 @@
                     });
               }
 
+              $scope.objectToString = function(object){
+                return JSON.stringify(object);
+              }
+
               endpoints.getData().then(function(urls){
                 $scope.consumer_url   = urls.consumer_url;
                 $scope.marketplace_url= urls.marketplace_url;
