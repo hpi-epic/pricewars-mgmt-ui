@@ -63,7 +63,13 @@
                         {{behavior.name}} (in %)
                       </span>
                       <br>
-                      <input class="form-control" ng-model="consumer.behaviors[$index].amount" type="number"><br>
+                      <input class="form-control" ng-model="consumer.behaviors[$index].amount" type="number">
+                      <br>
+                      <span class="font-bold no-margins">
+                        Settings
+                      </span>
+                      <br>
+                      <input class="form-control" json-text  ng-model="consumer.behaviors[$index].settings" type="text"><br><hr>
                     </div>
                   </div>
 
