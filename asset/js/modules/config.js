@@ -187,7 +187,7 @@
                   $http.get($scope.consumer_url + "/setting/")
                       .then(function(response) {
                               $scope.consumer = response.data;
-                              $scope.consumer.marketplace_url     = "http://vm-mpws2016hp1-04.eaalab.hpi.uni-potsdam.de:8080/marketplace";
+                              $scope.consumer.marketplace_url     = $scope.marketplace_url;
                               $scope.purchases_per_minute =  ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_buy)/100;
                           });
               };
@@ -488,7 +488,7 @@
                             }
                         });
                };
-               
+
                endpoints.getData().then(function(urls){
                  $scope.consumer_url   = urls.consumer_url;
                  $scope.marketplace_url= urls.marketplace_url;
