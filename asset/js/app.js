@@ -229,8 +229,6 @@
         /**
          * Highcharts Settings
          */
-        Highcharts.setOptions({lang: {noData: "No data available (yet)"}});
-
         // Define a custom symbol paths
         Highcharts.SVGRenderer.prototype.symbols.cross = function (x, y, w, h) {
             return ['M', x, y, 'L', x + w, y + h, 'M', x + w, y, 'L', x, y + h, 'z'];
@@ -248,7 +246,7 @@
 
         // Set default colors and exclude red so red is only used manually to mark selling data points
         Highcharts.theme = {
-            colors: ['#BD4F00', '#540078', '#007843', '#0073A8', '#96003E', '#16008A', '#8A8700']
+            colors: ['#F26500', '#7F00B5', '#007843', '#00CF73', '#A30043', '#1B00AB', '#E0DC00', '#C42700']
         };
         Highcharts.setOptions(Highcharts.theme);
 
@@ -526,7 +524,8 @@
                 if (stepEnabled) {
                     newLine.color = getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality);
                 } else {
-                    newLine.color = ColorLuminance(Highcharts.theme.colors[chart.series.length], 0.5);
+                    let colorID = chart.series.length % Highcharts.theme.colors.length;
+                    newLine.color = ColorLuminance(Highcharts.theme.colors[colorID], 0.5);
                 }
                 line = chart.addSeries(newLine);
             }
@@ -621,14 +620,15 @@
                         return merchantColorMapping[merchant_name][product_id][product_quality];
 
                 // merchant and product is there but not the color for this quality
-                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 5);
+                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 10);
                 return merchantColorMapping[merchant_name][product_id][product_quality];
             } else {
                 // merchant is unknown - get new base color
                 merchantColorMapping[merchant_name] = {};
-                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[Object.keys(merchantColorMapping).length - 1];
+                let colorID = (Object.keys(merchantColorMapping).length - 1) % Highcharts.theme.colors.length;
+                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[colorID];
                 merchantColorMapping[merchant_name][product_id] = {};
-                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 5);
+                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 10);
                 return merchantColorMapping[merchant_name][product_id][product_quality];
             }
         }
@@ -649,7 +649,6 @@
                 c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
                 rgb += ("00"+c).substr(c.length);
             }
-
             return rgb;
         }
 
