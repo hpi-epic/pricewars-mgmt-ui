@@ -87,7 +87,6 @@
     });
 
     frontend.factory('endpoints', ['$http', '$rootScope', function ($http, $rootScope) {
-        var data = {}
         $rootScope.config_loaded = false;
 
         var getData = function() {
@@ -127,6 +126,34 @@
               }
           };
         });
+    }]);
+
+    frontend.factory('producer', ['$http', 'endpoints', '$rootScope', function ($http, endpoints, $rootScope) {
+        var products = {};
+
+        function getProducts(producer_url) {
+            $http.get(producer_url + "/products/").then(function(response) {
+                for (var key in response.data) {
+                    var product = response.data[key];
+                    products[product["uid"]] = product;
+                    delete(products[product["uid"]].uid);
+                }
+            });
+        }
+
+        endpoints.getData().then(function(urls) {
+            getProducts(urls.producer_url);
+        });
+
+        return {
+            getProducts         : function() { return products },
+            getNameForProductID : function(product_id) {
+                for (var uid in products) {
+                    if (products[uid].product_id == product_id) return products[uid].name;
+                }
+                return "";
+            }
+        };
     }]);
 
     // The merchant service. Stores all merchants currently registered
@@ -219,7 +246,7 @@
         };
     }]);
 
-    frontend.factory('charts', ['endpoints', 'socket', 'merchants', function (endpoints, socket, merchants) {
+    frontend.factory('charts', ['endpoints', 'socket', 'merchants', 'producer', function (endpoints, socket, merchants, producer) {
 
         const maxNumberOfPointsInLine  = 10000;
         const filterForAllIDs          = "ALL";
@@ -373,18 +400,13 @@
                         let point = {
                             x: new Date(dp.value.timestamp).getTime(),
                             y: dp.value.price,
-                            quality: dp.value.quality,
-                            quality_desc: qualityToString(dp.value.quality),
-                            uid: dp.value.uid,
-                            product_id: dp.value.product_id,
-                            merchant_name: merchants.getMerchantName(dp.value.merchant_id),
-                            merchant_id: dp.value.merchant_id,
                             description: "Price Update",
                             marker: {
                                 symbol: 'vertical_line',
                                 lineWidth: 3
                             }
                         };
+                        addPricewarsInfoToPoint(point, dp);
 
                         addPointToLine(chart, point, lineID, lineID, true);
 
@@ -406,17 +428,12 @@
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
                                     y: dp.value.price,
-                                    quality: dp.value.quality,
-                                    quality_desc: qualityToString(dp.value.quality),
-                                    uid: dp.value.uid,
-                                    product_id: dp.value.product_id,
-                                    merchant_name: merchants.getMerchantName(dp.value.merchant_id),
-                                    merchant_id: dp.value.merchant_id,
                                     description: "Sold!",
                                     marker: {
                                         radius: 4
                                     }
                                 };
+                                addPricewarsInfoToPoint(point, dp);
 
                                 addPointToLine(chart, point, lineID, lineID, true);
 
@@ -425,18 +442,13 @@
                                 point = {
                                     x: new Date(dp.value.timestamp).getTime(),
                                     y: dp.value.price,
-                                    quality: dp.value.quality,
-                                    quality_desc: qualityToString(dp.value.quality),
-                                    uid: dp.value.uid,
-                                    product_id: dp.value.product_id,
-                                    merchant_name: merchants.getMerchantName(dp.value.merchant_id),
-                                    merchant_id: dp.value.merchant_id,
                                     description: "Sold! Out of Stock.",
                                     marker: {
                                         symbol: 'cross',
                                         lineWidth: 3
                                     }
                                 };
+                                addPricewarsInfoToPoint(point, dp);
                                 let line = addPointToLine(chart, point, lineID, lineID, true);
 
                                 // add a null-point right after the actual point to make sure it wont be connected to the next point
@@ -490,6 +502,16 @@
                 (ss>9 ? '' : '0') + ss
             ].join(':');
         };
+
+        function addPricewarsInfoToPoint(point, data) {
+            point.quality = data.value.quality;
+            point.quality_desc = qualityToString(data.value.quality);
+            point.uid = data.value.uid;
+            point.product_id = data.value.product_id;
+            point.product_desc = productUIDToString(data.value.uid);
+            point.merchant_name = merchants.getMerchantName(data.value.merchant_id);
+            point.merchant_id = data.value.merchant_id;
+        }
 
         function addPointToLine(chart, point, lineID, lineName, stepEnabled, lineToUse) {
             let line = lineToUse ? lineToUse : chart.get(lineID);
@@ -662,6 +684,14 @@
             }
         }
 
+        function productUIDToString(uid) {
+            if (producer.getProducts().hasOwnProperty(uid)) {
+                return producer.getProducts()[uid].name;
+            } else {
+                return uid;
+            }
+        }
+
         function parseBulkData(newData) {
             var data = newData;
             if (!(newData instanceof Array)) {
@@ -677,6 +707,7 @@
                         '<tr><td style="text-align: right"><b>Merchant:&nbsp; &nbsp;</b></td><td style="text-align: left"><b>{point.merchant_name}</b></td></tr>' +
                         '<tr><td style="text-align: right"><b>Action:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.description}</td></td>' +
                         '<tr><td style="text-align: right"><b>ProductID:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.product_id}</td></tr>' +
+                        '<tr><td style="text-align: right"><b>Name:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.product_desc}</td></tr>' +
                         '<tr><td style="text-align: right"><b>Quality:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.quality_desc}</td></tr>' +
                         '<tr><td style="text-align: right"><b>Price:&nbsp; &nbsp;</b></td><td style="text-align: left">{point.y:.2f}€</td></tr>' +
                    '</table>';
