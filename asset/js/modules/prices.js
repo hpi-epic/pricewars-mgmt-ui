@@ -1,10 +1,8 @@
 (function () {
     var pr = angular.module('prices', ['ngCookies']);
 
-    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints', 'charts',
-            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints, charts) {
-
-                const filterForAll                 = "ALL";
+    pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints', 'charts', 'producer',
+            function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints, charts, producer) {
 
                 $scope.updateInterval             = 2000;
                 var redrawGraphTimeout            = undefined;
@@ -77,6 +75,10 @@
                     charts.priceUpdatesAndSales.filterForID($scope.charts["highchart-price_and_sales"], product_id);
                 };
 
+                $scope.getProductName = function(product_id) {
+                    return producer.getNameForProductID(product_id);
+                };
+
                 /**
                   * Handling socket events
                 */
@@ -85,6 +87,7 @@
                    $scope.marketplace_url= urls.marketplace_url;
                    $scope.producer_url   = urls.producer_url;
                    $scope.kafka_proxy    = urls.kafka_proxy;
+
                    var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
                    socket.on('buyOffer', function (data) {

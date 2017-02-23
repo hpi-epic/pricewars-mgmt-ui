@@ -42,10 +42,10 @@
 
                 <div class="panel-body">
                     <div class="btn-group">
-                        <!--<p><strong>Filter for Product UID:</strong></p>-->
-                        <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="true">ID: {{currentIDFilter}}<span class="caret"></span></button>
+                        <p><strong>Filter the graph for a Product ID:</strong></p>
+                        <button data-toggle="dropdown" class="btn btn-primary btn-sm dropdown-toggle" aria-expanded="true">ID {{currentIDFilter}}: {{getProductName(currentIDFilter)}}<span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                            <li ng-repeat='product_id in product_ids'><a href="javascript:void(0)" ng-click="filterPriceGraphForID(product_id)">ID: {{product_id}}</a></li>
+                            <li ng-repeat='product_id in product_ids'><a href="javascript:void(0)" ng-click="filterPriceGraphForID(product_id)">{{product_id}}: {{getProductName(product_id)}}</a></li>
                         </ul>
                     </div>
 
