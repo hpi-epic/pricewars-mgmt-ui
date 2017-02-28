@@ -360,6 +360,20 @@
                     });
               };
 
+              $scope.updateConsumerProductSettings = function() {
+                $http({url: $scope.consumer_url + "/setting/products",
+                      dataType: "json",
+                      method: "POST",
+                      data: {},
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            console.log(response.data);
+                  });
+              };
+
+
               $scope.updateProducts = function(){
                 $http({url: $scope.producer_url + "/products/",
                       dataType: "json",
@@ -371,6 +385,7 @@
                     }).success(function (data) {
                             toastr.success("Products were successfully updated.");
                             $scope.getProducts();
+                            $scope.updateConsumerProductSettings();
                     });
               };
 
@@ -385,6 +400,7 @@
                     }).success(function (data) {
                             toastr.success("Product was successfully updated.");
                             $scope.getProducts();
+                            $scope.updateConsumerProductSettings();
                     }).error(function (error) {
                             toastr.warning(error.message);
                     });
@@ -401,6 +417,7 @@
                     }).success(function (data) {
                             toastr.success("Products was successfully deleted.");
                             $scope.getProducts();
+                            $scope.updateConsumerProductSettings();
                     });
               };
 
@@ -415,6 +432,7 @@
                     }).success(function (data) {
                             toastr.success("Product was successfully created.");
                             $scope.getProducts();
+                            $scope.updateConsumerProductSettings();
                             $("#newProductModal").modal("hide");
                     });
               };
