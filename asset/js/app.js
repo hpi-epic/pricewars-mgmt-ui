@@ -210,6 +210,9 @@
         });
 
         return {
+            getNumberOfMerchants: function() {
+                return Object.keys(merchants).length;
+            },
             get: function(merchant_id) {
                 if (merchant_id) {
                     return merchants[merchant_id];
@@ -414,8 +417,7 @@
 
                         //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
                     });
-                    // do not redraw - the redrawing is triggered in the controller at a certain time interval
-                   //chart.redraw(false);
+                   chart.redraw();
                 },
                 updateGraphWithSalesData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp, index) {
@@ -464,8 +466,7 @@
                             }
                         }
                     });
-                    // do not redraw - the redrawing is triggered in the controller at a certain time interval
-                   // chart.redraw();
+                   chart.redraw();
                 },
                 filterForID: function(chart, productID) {
                     chart.series.forEach(function(serie) {
