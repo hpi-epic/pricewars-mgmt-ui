@@ -4,12 +4,8 @@
     pr.controller('pricesCtrl', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints', 'charts', 'producer',
             function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints, charts, producer) {
 
-                $scope.updateInterval             = 2000;
-                var redrawGraphTimeout            = undefined;
-                var timeoutCancelled              = false;
-
-                $scope.liveGraphData    = [];
-                $scope.merchant_ids     = [];
+                $scope.maxBulkSizeBuy       = 10;
+                $scope.maxBulkSizeUpdate    = 25;
 
                 $scope.product_ids     = charts.getCurrentProductIDs();
                 $scope.currentIDFilter = "1";
@@ -56,17 +52,6 @@
                 }
                 drawPriceGraphs();
 
-                function redrawGraphs() {
-                    for (var key in $scope.charts) {
-                        if ($scope.charts.hasOwnProperty(key)) {
-                           $scope.charts[key].redraw();
-                        }
-                    }
-                    if ($scope.offerPullTimeout) $timeout.cancel($scope.offerPullTimeout);
-                    if (!timeoutCancelled) $scope.offerPullTimeout = $timeout(redrawGraphs, $scope.updateInterval);
-                }
-                redrawGraphs();
-
                 /**
                   * Helper
                 */
@@ -90,22 +75,59 @@
 
                    var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
+                   $scope.maxBulkSizeUpdate = merchants.getNumberOfMerchants() == 0 ? $scope.maxBulkSizeUpdate : merchants.getNumberOfMerchants() * 5;
+                   var bulkBuyOfferUpdate = [];
+                   var bulkUpdateOfferUpdate = [];
+
+                   $scope.$watch('maxBulkSizeUpdate', function() {
+                       updateGraphWithPriceUpdate();
+                   });
+
+                    $scope.$watch('maxBulkSizeBuy', function() {
+                        updateGraphWithPriceUpdate();
+                    });
+
                    socket.on('buyOffer', function (data) {
                        data = angular.fromJson(data);
-                       charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
+
+                       if (data instanceof Array) {
+                           bulkBuyOfferUpdate = bulkBuyOfferUpdate.concat(data);
+                       } else {
+                           bulkBuyOfferUpdate.push(data);
+                       }
+
+                       updateGraphWithBuy();
                    });
 
                    socket.on('updateOffer', function (data) {
                        data = angular.fromJson(data);
-                       charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], data, $scope.currentIDFilter);
+
+                       if (data instanceof Array) {
+                           bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
+                       } else {
+                           bulkUpdateOfferUpdate.push(data);
+                       }
+
+                       updateGraphWithPriceUpdate();
                    });
 
                    $scope.$on('$locationChangeStart', function() {
                        socket.disconnect();
-
-                       timeoutCancelled = true;
-                       $timeout.cancel(redrawGraphTimeout);
                    });
+
+                    function updateGraphWithBuy() {
+                        if (bulkBuyOfferUpdate.length >= $scope.maxBulkSizeBuy) {
+                            charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], bulkBuyOfferUpdate, $scope.currentIDFilter);
+                            bulkBuyOfferUpdate = [];
+                        }
+                    }
+
+                    function updateGraphWithPriceUpdate() {
+                        if (bulkUpdateOfferUpdate.length >= $scope.maxBulkSizeUpdate) {
+                            charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], bulkUpdateOfferUpdate, $scope.currentIDFilter);
+                            bulkUpdateOfferUpdate = [];
+                        }
+                    }
                 });
 
             }] //END: controller function

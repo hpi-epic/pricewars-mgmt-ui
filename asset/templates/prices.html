@@ -23,8 +23,15 @@
                 <div class="panel-body">
                     <div class="form-horizontal">
                         <div class="form-group">
-                            <div style="float:right" class="col-sm-2"><input class="form-control" ng-model="updateInterval" type="number"></div>
-                            <label style="float:right" class="col-sm-2 control-label">Update Interval</label>
+                            <div style="float:right" class="col-sm-1"><input class="form-control" ng-model="maxBulkSizeBuy" type="number"></div>
+                            <label style="float:right" class="col-sm-4 control-label">Buy Offers until Redraw</label>
+
+                        </div>
+                    </div>
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <div style="float:right" class="col-sm-1"><input class="form-control" ng-model="maxBulkSizeUpdate" type="number"></div>
+                            <label style="float:right" class="col-sm-4 control-label">Price Updates until Redraw</label>
 
                         </div>
                     </div>
