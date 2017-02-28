@@ -1,4 +1,16 @@
-# Pricewars - UI
+# Management UI
+
+This repository contains the frontend of the Pricewars-Simulation. It allows access to all important settings of all components. 
+
+It allows:
+* Registration of new merchants
+* Changing of settings for existing merchants
+* Registration of new consumers
+* Changing of settings for existing consumers
+* Adding, removing or updating products the producer offers
+* Displaying the current offers in the marketplace
+* Displaying statistics about the current and past marketsituation
+* Displaying price updates and sales for each merchant and product
 
 The meta repository containing general information can be found [here](https://github.com/hpi-epic/masterproject-pricewars)
 
@@ -34,4 +46,30 @@ This User Interface is build on the [HOMER template](https://wrapbootstrap.com/t
 |-- config
 |   `-- deploy
 `-- tmp
+```
+
+## Design Choices
+
+### Socket.io
+For the communication with the [kafka-reverse-proxy](https://github.com/hpi-epic/pricewars-kafka-reverse-proxy) that offers the data for all charts of the UI, we chose [socket.io](http://socket.io/). Socket.io enables us to constantly stream new data so we do not have to do manual http-requests for updates every x seconds from the frontend. Instead we just listen to new messages coming in via socket and display them immediately.
+
+In the current setup of the frontend, the connection (and disconncetion) to the reverse-proxy via socket happens in each controller, that listens for certain socket messages, separately. The reason for that is that the reverse-proxy offers historic data for all statistics but this historic data is only sent to a client on a new connect. That means that if we want to receive historic data for any chart displayed and managed with the current controller, we currently have to trigger a new connect. Furthermore, to obtain the url to connect to via socket (ie the url of the reverse-proxy), we are using another factory called endpoints, that asynchronously reads the endpoints from a .json-file. So in every controller that is supposed to connect to the reverse-proxy, make sure to include the endpoints-factory and add the following code:
+
+```javascript
+ endpoints.getData().then(function(urls) {
+    var socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'}); // by calling this, we trigger the proxy to send us historic data
+    
+    $scope.$on('$locationChangeStart', function() {
+      // executed whenever we change to another controller/location
+      socket.disconnect();
+    });
+ }
+```
+
+To then listen to specific messages from the proxy to receive the historic data as well as live-data, simply add a `socket.on()` to the above code block, eg:
+```javascript
+  socket.on('nameOfTheMessage', function (data) {
+       data = angular.fromJson(data);
+       // handle the data, eg add it to a graph
+   });
 ```
