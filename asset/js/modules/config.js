@@ -192,7 +192,21 @@
                           });
               };
 
+              $scope.updateConsumerProductSettings = function() {
+                $http({url: $scope.consumer_url + "/setting/products",
+                      dataType: "json",
+                      method: "POST",
+                      data: {},
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    }).success(function (data) {
+                            console.log(response.data);
+                  });
+              };
+
               $scope.updateConsumer = function(){
+                $scope.updateConsumerProductSettings();
                 $http({url: $scope.consumer_url + "/setting",
                       dataType: "json",
                       method: "PUT",
