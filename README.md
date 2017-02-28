@@ -53,7 +53,7 @@ This User Interface is build on the [HOMER template](https://wrapbootstrap.com/t
 ### Socket.io
 For the communication with the [kafka-reverse-proxy](https://github.com/hpi-epic/pricewars-kafka-reverse-proxy) that offers the data for all charts of the UI, we chose [socket.io](http://socket.io/). Socket.io enables us to constantly stream new data so we do not have to do manual http-requests for updates every x seconds from the frontend. Instead we just listen to new messages coming in via socket and display them immediately.
 
-In the current setup of the frontend, the connection (and disconncetion) to the reverse-proxy via socket happens in each controller, that listens for certain socket messages, separately. The reason for that is that the reverse-proxy offers historic data for all statistics but this historic data is only sent to a client on a new connect. That means that if we want to receive historic data for any chart displayed and managed with the current controller, we currently have to trigger a new connect. Furthermore, to obtain the url to connect to via socket (ie the url of the reverse-proxy), we are using another factory called endpoints, that asynchronously reads the endpoints from a .json-file. So in every controller that is supposed to connect to the reverse-proxy, make sure to include the endpoints-factory and add the following code:
+In the current setup of the frontend, the connection (and disconncetion) to the reverse-proxy via socket happens in each controller, that listens for certain socket messages, separately. The reason for that is that the reverse-proxy offers historic data for all statistics but this historic data is only sent to a client on a new connect. That means that if we want to receive historic data for any chart displayed and managed with the current controller, we currently have to trigger a new connect. Furthermore, to obtain the url to connect to via socket (ie the url of the reverse-proxy), we are using another factory called endpoints, that asynchronously reads the endpoints from a .json-file. So in every controller that is supposed to connect to the reverse-proxy, make sure to include the `endpoints`-factory and add the following code:
 
 ```javascript
  endpoints.getData().then(function(urls) {
@@ -73,3 +73,39 @@ To then listen to specific messages from the proxy to receive the historic data 
        // handle the data, eg add it to a graph
    });
 ```
+
+### Highcharts
+We decided to use [Highcharts](http://www.highcharts.com/) for the charts displayed in the UI. We chose Highcharts because of its high flexibility and the great variety of charts and chart-options that fit our needs very well. 
+
+We refactored the frontend to offer an angular-factory for all (High)charts. This factory, called `charts`, can be found in `app.js`. All graphs and their settings are predefined here. Moreover, it offers methods to create pre-defined graphs, to add points to a graph and takes care of some custom settings we added such as custom symbols and tooltips or sorted legends.
+
+To add a completely new graph, add an object to the `charts`-object with the following syntax:
+```
+nameOfGraph: {
+  title: [String] (will be printed above the graph),
+  html_id: [String] (the html-id of the div the graph will be rendered into - has to exist in the HTML-code),
+  data: [] (currently not used but the intention was to store already drawn data into this array to be able to restore it when we come back to the graph at a later time),
+  getOptions: [function returning a Highcharts-settings-object] (used to initialize the graph with the Highcharts-constructor that expects such an object),
+  [additional functions, eg to add points to the graph that can then easily be called from the single controllers that receive the new data, for example:]
+  updateGraphWithData: function(chart, data) { 
+    // we need a reference to the chart since highcharts works on the charts-object created through the Highcharts-constructor, which has to be called from the single controllers since the constructor also depends on a reference to an existing html-element (see below)
+  }
+}
+``` 
+
+Useful helper-methods that the `charts`-factory offers for updating graphs with data are
+```
+ parseBulkData(data): Turns an array of unparsed JSON-objects (ie strings, which we receive whenever we receive historic data for example) into an array of parsed JSON-objects 
+ addPointToLine(chart, point, lineID, opt lineName, opt stepEnabled, opt lineToUse): Adds a given point (ie an object containing an x- and y-value) to the line with the given lineID or - if passed - to the lineToUse. If the line does not exist yet, it is created.
+```
+
+To create a chart from a controller, add the `charts`-factory to the controller and execute the following code: 
+```javascript
+   var chart = Highcharts.chart(charts.[nameOfGraph].html_id, charts.[nameOfGraph].getOptions());
+``` 
+
+To add new datapoints to a chart, use the methods specified in the factory:
+```javascript
+   charts.[nameOfGraph].updateGraphWithData(chart, data);
+``` 
+
