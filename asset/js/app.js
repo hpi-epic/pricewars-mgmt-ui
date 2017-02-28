@@ -73,10 +73,22 @@
             restrict: 'A',
             require: 'ngModel',
             link: function(scope, element, attr, ngModel) {
-              function into(input) {
+              function into(input) {                
                 return JSON.parse(input);
               }
               function out(data) {
+                if(data.hasOwnProperty('producer_prices')) {
+                  delete data['producer_prices'];
+                }
+                if(data.hasOwnProperty('max_buying_price')) {
+                  delete data['max_buying_price'];
+                }
+                if(data.hasOwnProperty('product_popularity')) {
+                  delete data['product_popularity'];
+                }
+                if(data.hasOwnProperty('unique_products')) {
+                  delete data['unique_products'];
+                }
                 return JSON.stringify(data);
               }
               ngModel.$parsers.push(into);
