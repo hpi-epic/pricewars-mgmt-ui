@@ -248,7 +248,7 @@
 
     frontend.factory('charts', ['endpoints', 'socket', 'merchants', 'producer', function (endpoints, socket, merchants, producer) {
 
-        const maxNumberOfPointsInLine  = 10000;
+        const maxNumberOfPointsInLine  = 1000;
         const filterForAllIDs          = "ALL";
 
         var productIDs                = [];
@@ -402,8 +402,7 @@
                             y: dp.value.price,
                             description: "Price Update",
                             marker: {
-                                symbol: 'vertical_line',
-                                lineWidth: 3
+                                radius: 4
                             }
                         };
                         addPricewarsInfoToPoint(point, dp);
@@ -415,7 +414,8 @@
 
                         //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
                     });
-                    chart.redraw(false);
+                    // do not redraw - the redrawing is triggered in the controller at a certain time interval
+                   //chart.redraw(false);
                 },
                 updateGraphWithSalesData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp, index) {
@@ -430,7 +430,8 @@
                                     y: dp.value.price,
                                     description: "Sold!",
                                     marker: {
-                                        radius: 4
+                                        symbol: 'vertical_line',
+                                        lineWidth: 4
                                     }
                                 };
                                 addPricewarsInfoToPoint(point, dp);
@@ -463,7 +464,8 @@
                             }
                         }
                     });
-                    chart.redraw();
+                    // do not redraw - the redrawing is triggered in the controller at a certain time interval
+                   // chart.redraw();
                 },
                 filterForID: function(chart, productID) {
                     chart.series.forEach(function(serie) {
@@ -540,7 +542,8 @@
                         product_id: point.product_id,
                         merchant_name: point.merchant_name,
                         merchant_id: point.merchant_id
-                    }
+                    },
+                    turboThreshold: maxNumberOfPointsInLine
                 };
                 // stepEnabled currently means we are in a price chart
                 if (stepEnabled) {
@@ -552,15 +555,14 @@
                 line = chart.addSeries(newLine);
             }
 
-            // add the new point to the line
-            let shift = line.data.length > maxNumberOfPointsInLine;
-
             // set color of the point to the line color (has to be set for custom symbols to work)
             if (point.marker) {
                 point.marker.fillColor = line.color;
                 point.marker.lineColor = line.color;
             }
 
+            // add the new point to the line
+            let shift = line.data.length > maxNumberOfPointsInLine;
             line.addPoint(point, false, shift);
 
             return line;
