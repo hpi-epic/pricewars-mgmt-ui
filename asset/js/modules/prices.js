@@ -119,6 +119,19 @@
                            updateGraphWithBuy();
                        });
 
+
+                        socket.on('addOffer', function (data) {
+                            data = angular.fromJson(data);
+
+                            if (data instanceof Array) {
+                                bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
+                            } else {
+                                bulkUpdateOfferUpdate.push(data);
+                            }
+
+                            updateGraphWithPriceUpdate();
+                        });
+
                        socket.on('updateOffer', function (data) {
                            data = angular.fromJson(data);
 
