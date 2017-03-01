@@ -144,7 +144,7 @@
         var products = {};
 
         function getProducts(producer_url) {
-            $http.get(producer_url + "/products/").then(function(response) {
+            $http.get(producer_url + "/products?showDeleted=true").then(function(response) {
                 for (var key in response.data) {
                     var product = response.data[key];
                     products[product["uid"]] = product;
