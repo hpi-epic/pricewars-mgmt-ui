@@ -368,7 +368,7 @@
               };
 
               $scope.getProducts = function(){
-                $http.get($scope.producer_url + "/products/")
+                $http.get($scope.producer_url + "/products")
                     .then(function(response) {
                         $scope.producer = response.data;
                     });
@@ -515,7 +515,7 @@
               });
 
               $scope.getProductInfo = function(){
-                    $http.get($scope.producer_url + "/products/")
+                    $http.get($scope.producer_url + "/products?showDeleted=true")
                         .then(function(response) {
                             for (var key in response.data) {
                                 var product = response.data[key];
