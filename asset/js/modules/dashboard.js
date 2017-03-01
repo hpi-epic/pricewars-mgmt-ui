@@ -8,7 +8,13 @@
             $scope.consumers        = {};
             $scope.consumers_ids    = [];
 
-            $scope.charts = [];
+            $scope.charts           = [];
+
+            /**
+             * Loading spinner (is shown until all graphs are drawn and have the initial historic data in it)
+             */
+            $("#loadingModal").modal("show");
+            var graphsInitialized   = [false, false, false, false, false]; // one bool for each graph!
 
             /**
              * UI Settings
@@ -186,6 +192,16 @@
                 return true;
             };
 
+            function removeLoadingSpinner(graphID) {
+                graphsInitialized[graphID] = true;
+
+                if (graphsInitialized.every(function(initialized) {
+                    return initialized;
+                })) {
+                    $("#loadingModal").modal("hide");
+                }
+            }
+
             /**
              * Handling socket events
              */
@@ -203,27 +219,32 @@
                   socket.on('buyOffer', function (data) {
                       data = angular.fromJson(data);
                       charts.liveSales.updateGraphWithData($scope.charts["liveSales"], data);
+                      removeLoadingSpinner(0);
                   });
 
                   socket.on('revenue', function (data) {
                       data = angular.fromJson(data);
                       charts.revenue.updateGraphWithData($scope.charts["revenue"], data);
+                      removeLoadingSpinner(1);
                   });
 
                   socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
                       data = angular.fromJson(data);
                       charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
+                      removeLoadingSpinner(2);
                   });
 
                   // every 10sec market situation for last 60 secs
                   socket.on('revenuePerMinute', function (data) {
                       data = angular.fromJson(data);
                       charts.revenuePerMinute.updateGraphWithData($scope.charts["revenue-per-minute"], data);
+                      removeLoadingSpinner(3);
                   });
 
                   socket.on('revenuePerHour', function (data) {
                       data = angular.fromJson(data);
                       charts.revenuePerHour.updateGraphWithData($scope.charts["revenue-per-hour"], data);
+                      removeLoadingSpinner(4);
                   });
 
                   $scope.$on('$locationChangeStart', function() {

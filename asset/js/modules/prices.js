@@ -13,6 +13,12 @@
                 $scope.charts = [];
 
                 /**
+                 * Loading spinner (is shown until all graphs are drawn and have the initial historic data in it)
+                 */
+                $("#loadingModal").modal("show");
+                var graphsInitialized   = [false, false, false]; // one bool for each graph!
+
+                /**
                   * UI settings
                 */
                 toastr.options = {
@@ -93,6 +99,16 @@
                     return producer.getNameForProductID(product_id);
                 };
 
+                function removeLoadingSpinner(graphID) {
+                    graphsInitialized[graphID] = true;
+
+                    if (graphsInitialized.every(function(initialized) {
+                            return initialized;
+                        })) {
+                        $("#loadingModal").modal("hide");
+                    }
+                }
+
                 /**
                   * Handling socket events
                 */
@@ -117,6 +133,7 @@
                            }
 
                            updateGraphWithBuy();
+                           removeLoadingSpinner(0);
                        });
 
 
@@ -130,6 +147,7 @@
                             }
 
                             updateGraphWithPriceUpdate();
+                            removeLoadingSpinner(1);
                         });
 
                        socket.on('updateOffer', function (data) {
@@ -142,6 +160,7 @@
                            }
 
                            updateGraphWithPriceUpdate();
+                           removeLoadingSpinner(2);
                        });
 
                        $scope.$on('$locationChangeStart', function() {
