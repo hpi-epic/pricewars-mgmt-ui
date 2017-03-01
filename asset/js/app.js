@@ -487,6 +487,9 @@
 
                     sortLegend(chart);
 
+                    // show all data points at first to avoid Highcharts-bug where no datapoints are shown otherwise
+                    chart.rangeSelector.clickButton(6, {type: 'all'}, false);
+
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
                     chart.redraw();
                 }
