@@ -143,6 +143,8 @@
             $scope.consumerStatus = function(consumer){
                 if(consumer["status"] == "running"){
                     return "hpanel hbggreen";
+                } else if (consumer["status"] == "dead") {
+                    return "hpanel hbgorange"
                 } else {
                     return "hpanel hbgred";
                 }
@@ -158,11 +160,15 @@
                   });
                 });
                 return result;
-            }
+            };
 
             $scope.calculateConsumerTraffic = function(consumer){
-              return (consumer["amount_of_consumers"]*consumer["consumer_per_minute"]*consumer["probability_of_buy"])/100;
-            }
+                if (consumer) {
+                    return (consumer["amount_of_consumers"] * consumer["consumer_per_minute"] * consumer["probability_of_buy"]) / 100;
+                } else {
+                    return "unknown"
+                }
+            };
 
             $scope.findMerchantNameById = function(merchant_id) {
                 return merchants.getMerchantName(merchant_id);
