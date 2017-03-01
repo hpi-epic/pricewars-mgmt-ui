@@ -132,25 +132,25 @@
              */
             $scope.merchantStatus = function(merchant){
                 if(merchant["state"] == "initialized"){
-                    return "hpanel hbgblue";
+                    return "hpanel dashboard-status-div hbgblue";
                 } else if (merchant["state"] == "running") {
-                    return "hpanel hbggreen";
+                    return "hpanel dashboard-status-div hbggreen";
                 } else if (merchant["state"] == "exiting") {
-                    return "hpanel hbgyellow";
+                    return "hpanel dashboard-status-div hbgyellow";
                 } else if (merchant["state"] == "stopping") {
-                    return "hpanel hbgorange";
+                    return "hpanel dashboard-status-div hbgorange";
                 } else {
-                    return "hpanel hbgred";
+                    return "hpanel dashboard-status-div hbgred";
                 }
             };
 
             $scope.consumerStatus = function(consumer){
                 if(consumer["status"] == "running"){
-                    return "hpanel hbggreen";
+                    return "hpanel dashboard-status-div hbggreen";
                 } else if (consumer["status"] == "dead") {
-                    return "hpanel hbgorange"
+                    return "hpanel dashboard-status-div hbgorange"
                 } else {
-                    return "hpanel hbgred";
+                    return "hpanel dashboard-status-div hbgred";
                 }
             };
 
@@ -199,6 +199,7 @@
                     return initialized;
                 })) {
                     $("#loadingModal").modal("hide");
+                    $(".dashboard-status-div .panel-body").equalHeights();
                 }
             }
 
