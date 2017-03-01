@@ -121,7 +121,9 @@
                 charts.setSize($scope.charts["marketshare"], undefined, 500);
             }
 
-            drawDashboardGraphs();
+            merchants.loadMerchants().then(function() {
+                drawDashboardGraphs();
+            });
 
             /**
              * Helper

@@ -50,7 +50,10 @@
                     $scope.charts["highchart-price_and_sales"] = Highcharts.stockChart(charts.priceUpdatesAndSales.html_id, charts.priceUpdatesAndSales.getOptions());
                     charts.setSize($scope.charts["highchart-price_and_sales"], undefined, 600);
                 }
-                drawPriceGraphs();
+
+                merchants.loadMerchants().then(function() {
+                    drawPriceGraphs();
+                });
 
                 /**
                  * Updating Graphs
