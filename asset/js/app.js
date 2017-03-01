@@ -177,8 +177,11 @@
 
         var merchants   = {};
 
+        var promises = [];
+
         function getMerchants() {
-            $http.get($rootScope.urls.marketplace_url + "/merchants")
+            promises.push(
+                $http.get($rootScope.urls.marketplace_url + "/merchants")
                 .then(function(response) {
                     for (var key in response.data) {
                         if (response.data.hasOwnProperty(key)) {
@@ -198,20 +201,23 @@
                     // check for merchants every x seconds
                     if (timeoutObj) clearTimeout(timeoutObj);
                     if (timeout > 0) timeoutObj = setTimeout(getMerchants, timeout);
-                });
+                })
+            )
         }
 
         function getMerchantDetails() {
             for (var merchantID in merchants) {
                 (function(merchant_id) {
-                    $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings")
+                    promises.push(
+                        $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings")
                         .then(function(response) {
                             Object.keys(response.data).sort().forEach(function(key) {
                                 if (key != "merchant_id" && key != "merchant_url") {
                                     merchants[merchant_id][key] = response.data[key];
                                 }
                             });
-                        });
+                        })
+                    )
                 })(merchantID);
             }
         }
@@ -222,6 +228,9 @@
         });
 
         return {
+            loadMerchants: function() {
+                return Promise.all(promises);
+            },
             getNumberOfMerchants: function() {
                 return Object.keys(merchants).length;
             },
