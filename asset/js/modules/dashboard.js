@@ -121,10 +121,6 @@
                 charts.setSize($scope.charts["marketshare"], undefined, 500);
             }
 
-            merchants.loadMerchants().then(function() {
-                drawDashboardGraphs();
-            });
-
             /**
              * Helper
              */
@@ -199,37 +195,41 @@
                $scope.producer_url   = urls.producer_url;
                $scope.kafka_proxy    = urls.kafka_proxy;
 
-              var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
+                merchants.loadMerchants().then(function() {
+                  drawDashboardGraphs();
 
-              socket.on('buyOffer', function (data) {
-                  data = angular.fromJson(data);
-                  charts.liveSales.updateGraphWithData($scope.charts["liveSales"], data);
-              });
+                  var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
-              socket.on('revenue', function (data) {
-                  data = angular.fromJson(data);
-                  charts.revenue.updateGraphWithData($scope.charts["revenue"], data);
-              });
+                  socket.on('buyOffer', function (data) {
+                      data = angular.fromJson(data);
+                      charts.liveSales.updateGraphWithData($scope.charts["liveSales"], data);
+                  });
 
-              socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
-                  data = angular.fromJson(data);
-                  charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
-              });
+                  socket.on('revenue', function (data) {
+                      data = angular.fromJson(data);
+                      charts.revenue.updateGraphWithData($scope.charts["revenue"], data);
+                  });
 
-              // every 10sec market situation for last 60 secs
-              socket.on('revenuePerMinute', function (data) {
-                  data = angular.fromJson(data);
-                  charts.revenuePerMinute.updateGraphWithData($scope.charts["revenue-per-minute"], data);
-              });
+                  socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
+                      data = angular.fromJson(data);
+                      charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
+                  });
 
-              socket.on('revenuePerHour', function (data) {
-                  data = angular.fromJson(data);
-                  charts.revenuePerHour.updateGraphWithData($scope.charts["revenue-per-hour"], data);
-              });
+                  // every 10sec market situation for last 60 secs
+                  socket.on('revenuePerMinute', function (data) {
+                      data = angular.fromJson(data);
+                      charts.revenuePerMinute.updateGraphWithData($scope.charts["revenue-per-minute"], data);
+                  });
 
-              $scope.$on('$locationChangeStart', function() {
-                  socket.disconnect();
-              });
+                  socket.on('revenuePerHour', function (data) {
+                      data = angular.fromJson(data);
+                      charts.revenuePerHour.updateGraphWithData($scope.charts["revenue-per-hour"], data);
+                  });
+
+                  $scope.$on('$locationChangeStart', function() {
+                      socket.disconnect();
+                  });
+                });
             });
 
         }] //END: controller function

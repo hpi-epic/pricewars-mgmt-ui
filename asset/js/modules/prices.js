@@ -51,10 +51,6 @@
                     charts.setSize($scope.charts["highchart-price_and_sales"], undefined, 600);
                 }
 
-                merchants.loadMerchants().then(function() {
-                    drawPriceGraphs();
-                });
-
                 /**
                  * Updating Graphs
                  */
@@ -106,36 +102,40 @@
                    $scope.producer_url   = urls.producer_url;
                    $scope.kafka_proxy    = urls.kafka_proxy;
 
-                   var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
+                    merchants.loadMerchants().then(function() {
+                       drawPriceGraphs();
 
-                   socket.on('buyOffer', function (data) {
-                       data = angular.fromJson(data);
+                       var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
-                       if (data instanceof Array) {
-                           bulkBuyOfferUpdate = bulkBuyOfferUpdate.concat(data);
-                       } else {
-                           bulkBuyOfferUpdate.push(data);
-                       }
+                       socket.on('buyOffer', function (data) {
+                           data = angular.fromJson(data);
 
-                       updateGraphWithBuy();
-                   });
+                           if (data instanceof Array) {
+                               bulkBuyOfferUpdate = bulkBuyOfferUpdate.concat(data);
+                           } else {
+                               bulkBuyOfferUpdate.push(data);
+                           }
 
-                   socket.on('updateOffer', function (data) {
-                       data = angular.fromJson(data);
+                           updateGraphWithBuy();
+                       });
 
-                       if (data instanceof Array) {
-                           bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
-                       } else {
-                           bulkUpdateOfferUpdate.push(data);
-                       }
+                       socket.on('updateOffer', function (data) {
+                           data = angular.fromJson(data);
 
-                       updateGraphWithPriceUpdate();
-                   });
+                           if (data instanceof Array) {
+                               bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
+                           } else {
+                               bulkUpdateOfferUpdate.push(data);
+                           }
 
-                   $scope.$on('$locationChangeStart', function() {
-                       socket.disconnect();
-                   });
+                           updateGraphWithPriceUpdate();
+                       });
 
+                       $scope.$on('$locationChangeStart', function() {
+                           socket.disconnect();
+                       });
+
+                    });
                 });
 
             }] //END: controller function
