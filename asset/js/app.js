@@ -113,33 +113,6 @@
         };
     }]);
 
-    frontend.factory('socket', ['endpoints', '$rootScope', function (endpoints, $rootScope) {
-        return endpoints.getData().then(function(urls){
-          var socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'});
-
-          return {
-              on: function (eventName, callback) {
-                  socket.on(eventName, function () {
-                      var args = arguments;
-                      $rootScope.$apply(function () {
-                          callback.apply(socket, args);
-                      });
-                  });
-              },
-              emit: function (eventName, data, callback) {
-                  socket.emit(eventName, data, function () {
-                      var args = arguments;
-                      $rootScope.$apply(function () {
-                          if (callback) {
-                              callback.apply(socket, args);
-                          }
-                      });
-                  })
-              }
-          };
-        });
-    }]);
-
     frontend.factory('producer', ['$http', 'endpoints', '$rootScope', function ($http, endpoints, $rootScope) {
         var products = {};
 
@@ -202,6 +175,9 @@
                     if (timeoutObj) clearTimeout(timeoutObj);
                     if (timeout > 0) timeoutObj = setTimeout(getMerchants, timeout);
                 })
+                .catch(function(e) {
+                    console.log(e);
+                })
             )
         }
 
@@ -216,6 +192,9 @@
                                     merchants[merchant_id][key] = response.data[key];
                                 }
                             });
+                        })
+                        .catch(function(e) {
+                            console.log(e);
                         })
                     )
                 })(merchantID);
@@ -270,7 +249,7 @@
         };
     }]);
 
-    frontend.factory('charts', ['endpoints', 'socket', 'merchants', 'producer', function (endpoints, socket, merchants, producer) {
+    frontend.factory('charts', ['endpoints', 'merchants', 'producer', function (endpoints, merchants, producer) {
 
         const maxNumberOfPointsInLine  = 1000;
         const filterForAllIDs          = "ALL";
