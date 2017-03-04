@@ -181,7 +181,7 @@
                 }
                 $scope.consumer.consumer_per_minute = Math.ceil($scope.purchases_per_minute/$scope.consumer.amount_of_consumers);
                 $scope.consumer.probability_of_buy = 100;
-              }
+              };
 
               $scope.getConsumerSettings = function() {
                   $http.get($scope.consumer_url + "/setting/")
@@ -217,7 +217,7 @@
                     }).success(function (data) {
                             toastr.success("Consumer was successfully updated.");
                     });
-              }
+              };
 
               $scope.executeConsumer = function(){
                 $http({url: $scope.consumer_url + "/setting",
@@ -230,7 +230,7 @@
                     }).success(function (data) {
                             toastr.success("Consumer was successfully deployed.");
                     });
-              }
+              };
 
               $scope.terminateConsumer = function(){
                 $http({url: $scope.consumer_url + "/setting",
@@ -243,11 +243,24 @@
                     }).success(function (data) {
                             toastr.warning("Consumer was successfully terminated.");
                     });
-              }
+              };
+
+                $scope.unregisterConsumer = function(){
+                    $http({url: $scope.consumer_url + "/register",
+                        dataType: "json",
+                        method: "DELETE",
+                        data: {},
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }).success(function (data) {
+                        toastr.warning("Consumer was successfully unregistered.");
+                    });
+                };
 
               $scope.objectToString = function(object){
                 return JSON.stringify(object);
-              }
+              };
 
               endpoints.getData().then(function(urls){
                 $scope.consumer_url   = urls.consumer_url;
@@ -368,7 +381,7 @@
               };
 
               $scope.getProducts = function(){
-                $http.get($scope.producer_url + "/products/")
+                $http.get($scope.producer_url + "/products")
                     .then(function(response) {
                         $scope.producer = response.data;
                     });
@@ -515,7 +528,7 @@
               });
 
               $scope.getProductInfo = function(){
-                    $http.get($scope.producer_url + "/products/")
+                    $http.get($scope.producer_url + "/products?showDeleted=true")
                         .then(function(response) {
                             for (var key in response.data) {
                                 var product = response.data[key];

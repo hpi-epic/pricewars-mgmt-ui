@@ -113,38 +113,11 @@
         };
     }]);
 
-    frontend.factory('socket', ['endpoints', '$rootScope', function (endpoints, $rootScope) {
-        return endpoints.getData().then(function(urls){
-          var socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'});
-
-          return {
-              on: function (eventName, callback) {
-                  socket.on(eventName, function () {
-                      var args = arguments;
-                      $rootScope.$apply(function () {
-                          callback.apply(socket, args);
-                      });
-                  });
-              },
-              emit: function (eventName, data, callback) {
-                  socket.emit(eventName, data, function () {
-                      var args = arguments;
-                      $rootScope.$apply(function () {
-                          if (callback) {
-                              callback.apply(socket, args);
-                          }
-                      });
-                  })
-              }
-          };
-        });
-    }]);
-
     frontend.factory('producer', ['$http', 'endpoints', '$rootScope', function ($http, endpoints, $rootScope) {
         var products = {};
 
         function getProducts(producer_url) {
-            $http.get(producer_url + "/products/").then(function(response) {
+            $http.get(producer_url + "/products?showDeleted=true").then(function(response) {
                 for (var key in response.data) {
                     var product = response.data[key];
                     products[product["uid"]] = product;
@@ -177,8 +150,11 @@
 
         var merchants   = {};
 
+        var promises = [];
+
         function getMerchants() {
-            $http.get($rootScope.urls.marketplace_url + "/merchants")
+            promises.push(
+                $http.get($rootScope.urls.marketplace_url + "/merchants")
                 .then(function(response) {
                     for (var key in response.data) {
                         if (response.data.hasOwnProperty(key)) {
@@ -198,20 +174,29 @@
                     // check for merchants every x seconds
                     if (timeoutObj) clearTimeout(timeoutObj);
                     if (timeout > 0) timeoutObj = setTimeout(getMerchants, timeout);
-                });
+                })
+                .catch(function(e) {
+                    console.log(e);
+                })
+            )
         }
 
         function getMerchantDetails() {
             for (var merchantID in merchants) {
                 (function(merchant_id) {
-                    $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings")
+                    promises.push(
+                        $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings")
                         .then(function(response) {
                             Object.keys(response.data).sort().forEach(function(key) {
                                 if (key != "merchant_id" && key != "merchant_url") {
                                     merchants[merchant_id][key] = response.data[key];
                                 }
                             });
-                        });
+                        })
+                        .catch(function(e) {
+                            console.log(e);
+                        })
+                    )
                 })(merchantID);
             }
         }
@@ -222,6 +207,9 @@
         });
 
         return {
+            loadMerchants: function() {
+                return Promise.all(promises);
+            },
             getNumberOfMerchants: function() {
                 return Object.keys(merchants).length;
             },
@@ -261,7 +249,7 @@
         };
     }]);
 
-    frontend.factory('charts', ['endpoints', 'socket', 'merchants', 'producer', function (endpoints, socket, merchants, producer) {
+    frontend.factory('charts', ['endpoints', 'merchants', 'producer', function (endpoints, merchants, producer) {
 
         const maxNumberOfPointsInLine  = 1000;
         const filterForAllIDs          = "ALL";
@@ -486,6 +474,10 @@
                     });
 
                     sortLegend(chart);
+
+                    // show all data points at first to avoid Highcharts-bug where no datapoints are shown otherwise
+                    chart.rangeSelector.clickButton(6, {type: 'all'}, false);
+                    chart.rangeSelector.clickButton(2, {count: 1, type: 'minute'}, false);
 
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
                     chart.redraw();

@@ -13,6 +13,12 @@
                 $scope.charts = [];
 
                 /**
+                 * Loading spinner (is shown until all graphs are drawn and have the initial historic data in it)
+                 */
+                $("#loadingModal").modal("show");
+                var graphsInitialized   = [false, false, false]; // one bool for each graph!
+
+                /**
                   * UI settings
                 */
                 toastr.options = {
@@ -50,7 +56,36 @@
                     $scope.charts["highchart-price_and_sales"] = Highcharts.stockChart(charts.priceUpdatesAndSales.html_id, charts.priceUpdatesAndSales.getOptions());
                     charts.setSize($scope.charts["highchart-price_and_sales"], undefined, 600);
                 }
-                drawPriceGraphs();
+
+                /**
+                 * Updating Graphs
+                 */
+                var bulkBuyOfferUpdate = [];
+                var bulkUpdateOfferUpdate = [];
+
+                $scope.$watch('maxBulkSizeUpdate', function() {
+                    updateGraphWithPriceUpdate();
+                });
+
+                $scope.$watch('maxBulkSizeBuy', function() {
+                    updateGraphWithPriceUpdate();
+                });
+
+                function updateGraphWithBuy() {
+                    if (bulkBuyOfferUpdate.length >= $scope.maxBulkSizeBuy) {
+                        charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], bulkBuyOfferUpdate, $scope.currentIDFilter);
+                        bulkBuyOfferUpdate = [];
+                        $scope.$digest();
+                    }
+                }
+
+                function updateGraphWithPriceUpdate() {
+                    if (bulkUpdateOfferUpdate.length >= $scope.maxBulkSizeUpdate) {
+                        charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], bulkUpdateOfferUpdate, $scope.currentIDFilter);
+                        bulkUpdateOfferUpdate = [];
+                        $scope.$digest();
+                    }
+                }
 
                 /**
                   * Helper
@@ -64,6 +99,16 @@
                     return producer.getNameForProductID(product_id);
                 };
 
+                function removeLoadingSpinner(graphID) {
+                    graphsInitialized[graphID] = true;
+
+                    if (graphsInitialized.every(function(initialized) {
+                            return initialized;
+                        })) {
+                        $("#loadingModal").modal("hide");
+                    }
+                }
+
                 /**
                   * Handling socket events
                 */
@@ -73,61 +118,56 @@
                    $scope.producer_url   = urls.producer_url;
                    $scope.kafka_proxy    = urls.kafka_proxy;
 
-                   var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
+                    merchants.loadMerchants().then(function() {
+                       drawPriceGraphs();
 
-                   $scope.maxBulkSizeUpdate = merchants.getNumberOfMerchants() == 0 ? $scope.maxBulkSizeUpdate : merchants.getNumberOfMerchants() * 5;
-                   var bulkBuyOfferUpdate = [];
-                   var bulkUpdateOfferUpdate = [];
+                       var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
-                   $scope.$watch('maxBulkSizeUpdate', function() {
-                       updateGraphWithPriceUpdate();
-                   });
+                       socket.on('buyOffer', function (data) {
+                           data = angular.fromJson(data);
 
-                    $scope.$watch('maxBulkSizeBuy', function() {
-                        updateGraphWithPriceUpdate();
+                           if (data instanceof Array) {
+                               bulkBuyOfferUpdate = bulkBuyOfferUpdate.concat(data);
+                           } else {
+                               bulkBuyOfferUpdate.push(data);
+                           }
+
+                           updateGraphWithBuy();
+                           removeLoadingSpinner(0);
+                       });
+
+
+                        socket.on('addOffer', function (data) {
+                            data = angular.fromJson(data);
+
+                            if (data instanceof Array) {
+                                bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
+                            } else {
+                                bulkUpdateOfferUpdate.push(data);
+                            }
+
+                            updateGraphWithPriceUpdate();
+                            removeLoadingSpinner(1);
+                        });
+
+                       socket.on('updateOffer', function (data) {
+                           data = angular.fromJson(data);
+
+                           if (data instanceof Array) {
+                               bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
+                           } else {
+                               bulkUpdateOfferUpdate.push(data);
+                           }
+
+                           updateGraphWithPriceUpdate();
+                           removeLoadingSpinner(2);
+                       });
+
+                       $scope.$on('$locationChangeStart', function() {
+                           socket.disconnect();
+                       });
+
                     });
-
-                   socket.on('buyOffer', function (data) {
-                       data = angular.fromJson(data);
-
-                       if (data instanceof Array) {
-                           bulkBuyOfferUpdate = bulkBuyOfferUpdate.concat(data);
-                       } else {
-                           bulkBuyOfferUpdate.push(data);
-                       }
-
-                       updateGraphWithBuy();
-                   });
-
-                   socket.on('updateOffer', function (data) {
-                       data = angular.fromJson(data);
-
-                       if (data instanceof Array) {
-                           bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
-                       } else {
-                           bulkUpdateOfferUpdate.push(data);
-                       }
-
-                       updateGraphWithPriceUpdate();
-                   });
-
-                   $scope.$on('$locationChangeStart', function() {
-                       socket.disconnect();
-                   });
-
-                    function updateGraphWithBuy() {
-                        if (bulkBuyOfferUpdate.length >= $scope.maxBulkSizeBuy) {
-                            charts.priceUpdatesAndSales.updateGraphWithSalesData($scope.charts["highchart-price_and_sales"], bulkBuyOfferUpdate, $scope.currentIDFilter);
-                            bulkBuyOfferUpdate = [];
-                        }
-                    }
-
-                    function updateGraphWithPriceUpdate() {
-                        if (bulkUpdateOfferUpdate.length >= $scope.maxBulkSizeUpdate) {
-                            charts.priceUpdatesAndSales.updateGraphWithPriceData($scope.charts["highchart-price_and_sales"], bulkUpdateOfferUpdate, $scope.currentIDFilter);
-                            bulkUpdateOfferUpdate = [];
-                        }
-                    }
                 });
 
             }] //END: controller function

@@ -8,7 +8,13 @@
             $scope.consumers        = {};
             $scope.consumers_ids    = [];
 
-            $scope.charts = [];
+            $scope.charts           = [];
+
+            /**
+             * Loading spinner (is shown until all graphs are drawn and have the initial historic data in it)
+             */
+            $("#loadingModal").modal("show");
+            var graphsInitialized   = [false, false, false, false, false]; // one bool for each graph!
 
             /**
              * UI Settings
@@ -121,30 +127,30 @@
                 charts.setSize($scope.charts["marketshare"], undefined, 500);
             }
 
-            drawDashboardGraphs();
-
             /**
              * Helper
              */
             $scope.merchantStatus = function(merchant){
                 if(merchant["state"] == "initialized"){
-                    return "hpanel hbgblue";
+                    return "hpanel dashboard-status-div hbgblue";
                 } else if (merchant["state"] == "running") {
-                    return "hpanel hbggreen";
+                    return "hpanel dashboard-status-div hbggreen";
                 } else if (merchant["state"] == "exiting") {
-                    return "hpanel hbgyellow";
+                    return "hpanel dashboard-status-div hbgyellow";
                 } else if (merchant["state"] == "stopping") {
-                    return "hpanel hbgorange";
+                    return "hpanel dashboard-status-div hbgorange";
                 } else {
-                    return "hpanel hbgred";
+                    return "hpanel dashboard-status-div hbgred";
                 }
             };
 
             $scope.consumerStatus = function(consumer){
                 if(consumer["status"] == "running"){
-                    return "hpanel hbggreen";
+                    return "hpanel dashboard-status-div hbggreen";
+                } else if (consumer["status"] == "dead") {
+                    return "hpanel dashboard-status-div hbgorange"
                 } else {
-                    return "hpanel hbgred";
+                    return "hpanel dashboard-status-div hbgred";
                 }
             };
 
@@ -158,11 +164,15 @@
                   });
                 });
                 return result;
-            }
+            };
 
             $scope.calculateConsumerTraffic = function(consumer){
-              return (consumer["amount_of_consumers"]*consumer["consumer_per_minute"]*consumer["probability_of_buy"])/100;
-            }
+                if (consumer) {
+                    return (consumer["amount_of_consumers"] * consumer["consumer_per_minute"] * consumer["probability_of_buy"]) / 100;
+                } else {
+                    return "unknown"
+                }
+            };
 
             $scope.findMerchantNameById = function(merchant_id) {
                 return merchants.getMerchantName(merchant_id);
@@ -182,6 +192,17 @@
                 return true;
             };
 
+            function removeLoadingSpinner(graphID) {
+                graphsInitialized[graphID] = true;
+
+                if (graphsInitialized.every(function(initialized) {
+                    return initialized;
+                })) {
+                    $("#loadingModal").modal("hide");
+                    $(".dashboard-status-div .panel-body").equalHeights();
+                }
+            }
+
             /**
              * Handling socket events
              */
@@ -191,37 +212,46 @@
                $scope.producer_url   = urls.producer_url;
                $scope.kafka_proxy    = urls.kafka_proxy;
 
-              var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
+                merchants.loadMerchants().then(function() {
+                  drawDashboardGraphs();
 
-              socket.on('buyOffer', function (data) {
-                  data = angular.fromJson(data);
-                  charts.liveSales.updateGraphWithData($scope.charts["liveSales"], data);
-              });
+                  var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
-              socket.on('revenue', function (data) {
-                  data = angular.fromJson(data);
-                  charts.revenue.updateGraphWithData($scope.charts["revenue"], data);
-              });
+                  socket.on('buyOffer', function (data) {
+                      data = angular.fromJson(data);
+                      charts.liveSales.updateGraphWithData($scope.charts["liveSales"], data);
+                      removeLoadingSpinner(0);
+                  });
 
-              socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
-                  data = angular.fromJson(data);
-                  charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
-              });
+                  socket.on('revenue', function (data) {
+                      data = angular.fromJson(data);
+                      charts.revenue.updateGraphWithData($scope.charts["revenue"], data);
+                      removeLoadingSpinner(1);
+                  });
 
-              // every 10sec market situation for last 60 secs
-              socket.on('revenuePerMinute', function (data) {
-                  data = angular.fromJson(data);
-                  charts.revenuePerMinute.updateGraphWithData($scope.charts["revenue-per-minute"], data);
-              });
+                  socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
+                      data = angular.fromJson(data);
+                      charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
+                      removeLoadingSpinner(2);
+                  });
 
-              socket.on('revenuePerHour', function (data) {
-                  data = angular.fromJson(data);
-                  charts.revenuePerHour.updateGraphWithData($scope.charts["revenue-per-hour"], data);
-              });
+                  // every 10sec market situation for last 60 secs
+                  socket.on('revenuePerMinute', function (data) {
+                      data = angular.fromJson(data);
+                      charts.revenuePerMinute.updateGraphWithData($scope.charts["revenue-per-minute"], data);
+                      removeLoadingSpinner(3);
+                  });
 
-              $scope.$on('$locationChangeStart', function() {
-                  socket.disconnect();
-              });
+                  socket.on('revenuePerHour', function (data) {
+                      data = angular.fromJson(data);
+                      charts.revenuePerHour.updateGraphWithData($scope.charts["revenue-per-hour"], data);
+                      removeLoadingSpinner(4);
+                  });
+
+                  $scope.$on('$locationChangeStart', function() {
+                      socket.disconnect();
+                  });
+                });
             });
 
         }] //END: controller function

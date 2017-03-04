@@ -38,7 +38,7 @@
                   "positionClass": "toast-top-center",
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
-                  "timeOut": "2000",
+                  "timeOut": "2000"
               };
 
               $scope.registerConsumer = function(){
