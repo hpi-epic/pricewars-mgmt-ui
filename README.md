@@ -94,10 +94,8 @@ nameOfGraph: {
 ```
 
 Useful helper-methods that the `charts`-factory offers for updating graphs with data are
-```
- parseBulkData(data): Turns an array of unparsed JSON-objects (ie strings, which we receive whenever we receive historic data for example) into an array of parsed JSON-objects
- addPointToLine(chart, point, lineID, opt lineName, opt stepEnabled, opt lineToUse): Adds a given point (ie an object containing an x- and y-value) to the line with the given lineID or - if passed - to the lineToUse. If the line does not exist yet, it is created.
-```
+* `parseBulkData(data)`: Turns an array of unparsed JSON-objects (ie strings, which we receive whenever we receive historic data for example) into an array of parsed JSON-objects 
+* `addPointToLine(chart, point, lineID, opt lineName, opt stepEnabled, opt lineToUse`: Adds a given point (ie an object containing an x- and y-value) to the line with the given lineID or - if passed - to the lineToUse. If the line does not exist yet, it is created.
 
 To create a chart from a controller, add the `charts`-factory to the controller and execute the following code:
 ```javascript
@@ -107,4 +105,9 @@ To create a chart from a controller, add the `charts`-factory to the controller 
 To add new datapoints to a chart, use the methods specified in the factory:
 ```javascript
    charts.[nameOfGraph].updateGraphWithData(chart, data);
-```
+``` 
+
+#### Drawbacks
+Using Highcharts turned out to also have some drawbacks. Highcarts is optimized for big amount of data points in a rather small number of lines but not for many lines in a single chart. However, in our use case, especially in the Price-graph, we do have to render many lines. In the default setup there are 16 different products, if we only have 5 active merchants this already results in 16 * 5 = 80 lines in the Price-graph. Unfortunately, this often leads to big lags when viewing the price graph, especially when it is initially rendered since then 100 historic data points are added while new datapoints from the live data might already be incoming. 
+
+We already tried to reduce the slow rendering as much as possible, eg by only redrawing the graph after every *x* new incoming data points (the exact values can be changed in the UI). Still the graph might tend to lag and cause freezes in the browser if there are many merchants active and the settings are set to a high load. To solve this problem, either a change of the library would be necessary or the design of the graphs and the streaming of the data has to be completely refactored. An alternative approach could be to use http-calls from the UI to the kafka proxy instead of using socket-messages. Using this, we could actively request the currently viewed data (and update it every *x* seconds) to avoid drawing unnecessary data that is not currently visible in the graph anyway. 
