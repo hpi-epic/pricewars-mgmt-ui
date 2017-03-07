@@ -176,7 +176,7 @@
                     if (timeout > 0) timeoutObj = setTimeout(getMerchants, timeout);
                 })
                 .catch(function(e) {
-                    console.log(e);
+                    console.log("Error during merchant retrieval");
                 })
             )
         }
@@ -194,7 +194,7 @@
                             });
                         })
                         .catch(function(e) {
-                            console.log(e);
+                            console.log("Error during merchant detail retrieval from '" + merchants[merchant_id]["api_endpoint_url"] + "/settings'");
                         })
                     )
                 })(merchantID);
