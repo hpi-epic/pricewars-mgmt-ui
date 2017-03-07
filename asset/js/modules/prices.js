@@ -100,12 +100,14 @@
                 };
 
                 function removeLoadingSpinner(graphID) {
-                    graphsInitialized[graphID] = true;
+                    if (!graphsInitialized[graphID]) {
+                        graphsInitialized[graphID] = true;
 
-                    if (graphsInitialized.every(function(initialized) {
-                            return initialized;
-                        })) {
-                        $("#loadingModal").modal("hide");
+                        if (graphsInitialized.every(function (initialized) {
+                                return initialized;
+                            })) {
+                            $("#loadingModal").modal("hide");
+                        }
                     }
                 }
 
