@@ -201,7 +201,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            console.log(response.data);
+                            console.log(data);
                   });
               };
 
