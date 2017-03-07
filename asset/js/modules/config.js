@@ -201,7 +201,7 @@
                           "Content-Type": "application/json"
                       }
                     }).success(function (data) {
-                            console.log(response.data);
+                            console.log(data);
                   });
               };
 
@@ -501,7 +501,7 @@
                   "positionClass": "toast-top-center",
                   "closeButton": true,
                   "toastClass": "animated fadeInDown",
-                  "timeOut": "2000",
+                  "timeOut": "2000"
               };
 
               $scope.getOffers = function(){
