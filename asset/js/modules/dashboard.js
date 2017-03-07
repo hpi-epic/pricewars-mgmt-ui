@@ -193,13 +193,15 @@
             };
 
             function removeLoadingSpinner(graphID) {
-                graphsInitialized[graphID] = true;
+                if (!graphsInitialized[graphID]) {
+                    graphsInitialized[graphID] = true;
 
-                if (graphsInitialized.every(function(initialized) {
-                    return initialized;
-                })) {
-                    $("#loadingModal").modal("hide");
-                    $(".dashboard-status-div .panel-body").equalHeights();
+                    if (graphsInitialized.every(function (initialized) {
+                            return initialized;
+                        })) {
+                        $("#loadingModal").modal("hide");
+                        $(".dashboard-status-div .panel-body").equalHeights();
+                    }
                 }
             }
 
