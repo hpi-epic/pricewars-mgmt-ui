@@ -40,7 +40,9 @@ For the currently unique components of the simulation - the marketplace, the pro
 
 For the deployment on the virtual machines of the EPIC chair, we use the URLs in `env.json`. For running the frontend in the docker-setup, we use `env.docker.json`. To change a single endpoint, just edit the files. To change the json-file used, change the filename in the `endpoints`-factory in `app.js`.
 
-## Design Choices
+## Concept
+
+Since the user interface is based on angular, the project is build accordingly. The main entrance point for the logic can be found in `app.js`, where we set the available routes and their respective controllers and html-files. The controllers are split up into javascript-files, named according to the route they belong to. 
 
 ### Socket.io
 For the communication with the [kafka-reverse-proxy](https://github.com/hpi-epic/pricewars-kafka-reverse-proxy) that offers the data for all charts of the UI, we chose [socket.io](http://socket.io/). Socket.io enables us to constantly stream new data so we do not have to do manual http-requests for updating every x seconds the frontend. Instead we just listen to new messages coming in via socket and display them immediately.
