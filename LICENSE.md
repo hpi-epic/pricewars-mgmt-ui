@@ -2,6 +2,8 @@ MIT License
 
 Copyright © 2016-present Marvin Bornstein, Johanna Latt, Jan Lindemann, Nikolai J. Podlesny, Sebastian Serth, Jan Selke
 
+The source repository may include assets, logos, names or trademarks of other entities; potential usage restrictions for these elements still apply and are not touched by this software license.
+
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
