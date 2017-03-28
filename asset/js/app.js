@@ -397,27 +397,29 @@
                 getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false, createPriceOrSalesUpdateTooltip());},
                 updateGraphWithPriceData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp) {
-                        productIDs.pushIfNotExist(dp.value.product_id);
+                        if (dp.value.amount > 0) {
+                            productIDs.pushIfNotExist(dp.value.product_id);
 
-                        const lineID = createLineName(dp);
-                        let point = {
-                            x: new Date(dp.value.timestamp).getTime(),
-                            y: dp.value.price,
-                            description: "Price Update",
-                            marker: {
-                                radius: 4
-                            }
-                        };
-                        addPricewarsInfoToPoint(point, dp);
+                            const lineID = createLineName(dp);
+                            let point = {
+                                x: new Date(dp.value.timestamp).getTime(),
+                                y: dp.value.price,
+                                description: "Price Update",
+                                marker: {
+                                    radius: 4
+                                }
+                            };
+                            addPricewarsInfoToPoint(point, dp);
 
-                        addPointToLine(chart, point, lineID, lineID, true);
+                            addPointToLine(chart, point, lineID, lineID, true);
 
-                        dontDrawLineIfMerchantNotRegistered(chart, lineID);
-                        dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
+                            dontDrawLineIfMerchantNotRegistered(chart, lineID);
+                            dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
 
-                        //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
+                            //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
+                        }
                     });
-                   chart.redraw();
+                    chart.redraw();
                 },
                 updateGraphWithSalesData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp, index) {
@@ -466,7 +468,7 @@
                             }
                         }
                     });
-                   chart.redraw();
+                    chart.redraw();
                 },
                 filterForID: function(chart, productID) {
                     chart.series.forEach(function(serie) {
