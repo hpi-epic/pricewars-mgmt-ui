@@ -28,7 +28,7 @@ The meta repository containing general information can be found [here](https://g
 
 ## Requirements
 
-This User Interface is build on the [HOMER template](https://wrapbootstrap.com/theme/homer-responsive-admin-theme-WB055J451) which requires  angularJS 1.5.5. For copyright purposes it is necessary to purchase a separate license when using this dashboard for other reasons or projects.
+This User Interface is build on the [HOMER template](https://wrapbootstrap.com/theme/homer-responsive-admin-theme-WB055J451) which requires angularJS 1.5.5. For copyright purposes it is necessary to purchase a separate license when using this dashboard for other reasons or projects.
 
 ## Folder Structure
 
