@@ -327,6 +327,27 @@
                     chart.redraw();
                 }
             },
+            profitPerMinute: {
+                title:      "Profit per Minute",
+                html_id:    "chart-profit-per-minute",
+                data:       [],
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.profitPerMinute.title, "Profit per Minute");},
+                updateGraphWithData: function(chart, data) {
+                    parseBulkData(data).forEach(function(dp) {
+                        let date = new Date(dp.value.timestamp);
+                        date.setMilliseconds(0);
+
+                        const lineID = dp.value.merchant_id;
+                        const lineName = merchants.getMerchantName(lineID);
+                        const point = [date.getTime(), dp.value.profit];
+
+                        addPointToLine(chart, point, lineID, lineName);
+
+                        dontDrawLineIfMerchantNotRegistered(chart, lineID);
+                    });
+                    chart.redraw();
+                }
+            },
             revenuePerMinute: {
                 title:      "Revenue per Minute",
                 html_id:    "chart-revenue-per-minute",
