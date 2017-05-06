@@ -108,6 +108,10 @@
                 charts.setDefaultZoom($scope.charts["revenue"], 10);
                 charts.setSize($scope.charts["revenue"], undefined, 500);
 
+                $scope.charts["profit-per-minute"] = Highcharts.chart(charts.profitPerMinute.html_id, charts.profitPerMinute.getOptions());
+                charts.setDefaultZoom($scope.charts["profit-per-minute"], 10);
+                charts.setSize($scope.charts["profit-per-minute"], undefined, 500);
+
                 $scope.charts["revenue-per-minute"] = Highcharts.chart(charts.revenuePerMinute.html_id, charts.revenuePerMinute.getOptions());
                 charts.setDefaultZoom($scope.charts["revenue-per-minute"], 10);
                 charts.setSize($scope.charts["revenue"], undefined, 500);
@@ -235,6 +239,13 @@
                       data = angular.fromJson(data);
                       charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
                       removeLoadingSpinner(2);
+                  });
+
+                  // every 10sec market situation for last 60 secs
+                  socket.on('profitPerMinute', function (data) {
+                      data = angular.fromJson(data);
+                      charts.profitPerMinute.updateGraphWithData($scope.charts["profit-per-minute"], data);
+                      removeLoadingSpinner(3);
                   });
 
                   // every 10sec market situation for last 60 secs
