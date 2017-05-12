@@ -349,10 +349,10 @@
                 }
             },
             revenuePerMinute: {
-                title:      "Revenue per Minute",
+                title:      "Revenue per Minute (Short-Term Performance)",
                 html_id:    "chart-revenue-per-minute",
                 data:       [],
-                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenuePerMinute.title, "Revenue per Minute");},
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenuePerMinute.title, "Revenue");},
                 updateGraphWithData: function(chart, data) {
                     parseBulkData(data).forEach(function(dp) {
                         let date = new Date(dp.value.timestamp);
@@ -391,10 +391,10 @@
                 }
             },
             marketshare: {
-                title:      "Total Revenue",
+                title:      "Total Revenue Share (Long-Term Performance)",
                 html_id:    "chart-marketshare",
                 data:       [],
-                getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Marketshare in %");},
+                getOptions: function() {return getStackedChartXDateYPercentGroupMerchantOptions(charts.marketshare.title, "Revenue");},
                 updateGraphWithData: function(chart, data) {
                     parseBulkData(data).forEach(function(dp) {
                         let date = new Date(dp.value.timestamp);
