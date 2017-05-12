@@ -251,7 +251,7 @@
 
     frontend.factory('charts', ['endpoints', 'merchants', 'producer', function (endpoints, merchants, producer) {
 
-        const maxNumberOfPointsInLine  = 1000;
+        const maxNumberOfPointsInLine  = 100;
         const filterForAllIDs          = "ALL";
 
         var productIDs                = [];
@@ -352,7 +352,7 @@
                 title:      "Revenue per Minute (Short-Term Performance)",
                 html_id:    "chart-revenue-per-minute",
                 data:       [],
-                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenuePerMinute.title, "Revenue");},
+                getOptions: function() {return getLineChartXDateYPriceGroupMerchantOptions(charts.revenuePerMinute.title, "Revenue");},
                 updateGraphWithData: function(chart, data) {
                     parseBulkData(data).forEach(function(dp) {
                         let date = new Date(dp.value.timestamp);
@@ -909,6 +909,43 @@
                 },
                 tooltip: {
                     pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}%'
+                },
+                scrollbar: {
+                    enabled: true
+                },
+                series: []
+            };
+        }
+
+        function getLineChartXDateYPriceGroupMerchantOptions(title, y_axis_title) {
+            return {
+                chart: {
+                    type: 'spline',
+                    zoomType: 'x'
+                },
+                title: {
+                    text: title
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: {
+                        text: 'Date'
+                    },
+                    showEmpty: false
+                },
+                yAxis: {
+                    title: {
+                        text: y_axis_title
+                    }
+                },
+                legend: {
+                    //reversed: true,
+                    enabled: true,
+                    labelFormat: 'Merchant {name}'
+                },
+                tooltip: {
+                    headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
+                    pointFormat: '<b>Merchant {series.name}:</b> {point.y:.2f}'
                 },
                 scrollbar: {
                     enabled: true
