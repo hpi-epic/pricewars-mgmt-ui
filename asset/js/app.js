@@ -24,7 +24,7 @@
                 when('/dashboard/prices', {
                     templateUrl: 'asset/templates/prices.html',
                     controller: 'pricesCtrl'
-                }).craet
+                }).
                 when('/config/merchant', {
                     templateUrl: 'asset/templates/merchant.html',
                     controller: 'merchantCtrl'
