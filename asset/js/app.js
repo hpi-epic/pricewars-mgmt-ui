@@ -24,7 +24,7 @@
                 when('/dashboard/prices', {
                     templateUrl: 'asset/templates/prices.html',
                     controller: 'pricesCtrl'
-                }).
+                }).craet
                 when('/config/merchant', {
                     templateUrl: 'asset/templates/merchant.html',
                     controller: 'merchantCtrl'
@@ -658,7 +658,8 @@
         }
 
         function createLineName(data) {
-            return "Merch: " + merchants.getMerchantName(data.value.merchant_id) + " - PUID: " + data.value.uid;
+            return merchants.getMerchantName(data.value.merchant_id);
+            //return merchants.getMerchantName(data.value.merchant_id) + " - PUID: " + data.value.uid;
         }
 
         var merchantColorMapping = {};
