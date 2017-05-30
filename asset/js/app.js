@@ -595,7 +595,7 @@
 
             // add the new point to the line
             let shift = line.data.length > maxNumberOfPointsInLine;
-            if (point.x && point.y) {
+            if ((point.x && point.y) || (Object.prototype.toString.call( point ) === '[object Array]' && point.length == 2)) {
                 // TODO: this if-clause is an important fix, but we should check
                 // why we have so many null'ed points at all.
                 line.addPoint(point, false, shift);
@@ -860,7 +860,7 @@
                 legend: {
                     //reversed: true,
                     enabled: true,
-                    labelFormat: '{name}'
+                    labelFormat: name
                 },
                 tooltip: {
                     headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
@@ -908,7 +908,7 @@
                 legend: {
                     //reversed: true,
                     enabled: true,
-                    labelFormat: '{name}'
+                    labelFormat: name
                 },
                 plotOptions: {
                     column: {
@@ -949,7 +949,7 @@
                 legend: {
                     //reversed: true,
                     enabled: true,
-                    labelFormat: '{name}'
+                    labelFormat: name
                 },
                 tooltip: {
                     headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
