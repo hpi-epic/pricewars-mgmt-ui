@@ -591,7 +591,11 @@
 
             // add the new point to the line
             let shift = line.data.length > maxNumberOfPointsInLine;
-            line.addPoint(point, false, shift);
+            if (point.x && point.y) {
+                // TODO: this if-clause is an important fix, but we should check
+                // why we have so many null'ed points at all.
+                line.addPoint(point, false, shift);
+            }
 
             return line;
         }
