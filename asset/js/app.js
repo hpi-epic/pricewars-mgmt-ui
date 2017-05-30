@@ -571,7 +571,11 @@
                         merchant_name: point.merchant_name,
                         merchant_id: point.merchant_id
                     },
-                    turboThreshold: maxNumberOfPointsInLine
+                    //turboThreshold: maxNumberOfPointsInLine
+                    // TODO: we need to fix 'old points' being added arbitrarily
+                    // which crashed the price graph. Disabling turbo is just
+                    // a temporary fix.
+                    turboThreshold: 0
                 };
                 // stepEnabled currently means we are in a price chart
                 if (stepEnabled) {
@@ -856,7 +860,7 @@
                 legend: {
                     //reversed: true,
                     enabled: true,
-                    labelFormat: 'Merchant {name}'
+                    labelFormat: '{name}'
                 },
                 tooltip: {
                     headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
@@ -904,7 +908,7 @@
                 legend: {
                     //reversed: true,
                     enabled: true,
-                    labelFormat: 'Merchant {name}'
+                    labelFormat: '{name}'
                 },
                 plotOptions: {
                     column: {
@@ -945,7 +949,7 @@
                 legend: {
                     //reversed: true,
                     enabled: true,
-                    labelFormat: 'Merchant {name}'
+                    labelFormat: '{name}'
                 },
                 tooltip: {
                     headerFormat: '<b>{point.x:%b %e, %Y %H:%M}</b><br/>',
