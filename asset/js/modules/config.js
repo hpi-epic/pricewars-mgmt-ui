@@ -395,9 +395,12 @@
                       headers: {
                           "Content-Type": "application/json"
                       }
-                    }).success(function (data) {
-                            console.log(response.data);
-                  });
+                    }).then(function successCallback(response) {
+                      console.log('Update successful.');
+                    }, function errorCallback(response) {
+                      console.log('Update failed.');
+                    }
+                  );
               };
 
 
