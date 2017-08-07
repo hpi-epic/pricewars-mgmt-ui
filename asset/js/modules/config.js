@@ -511,8 +511,12 @@
 
                         // sort the offers by product_uid
                         $scope.offers.sort(function(a, b){
-                            if(a.uid < b.uid) return -1;
-                            if(a.uid > b.uid) return 1;
+                            if (a.uid < b.uid) return -1;
+                            else if (a.uid > b.uid) return 1;
+                            else {
+                                if(a.price < b.price) return -1;
+                                if(a.price > b.price) return 1;
+                            }
                             return 0;
                         });
 
