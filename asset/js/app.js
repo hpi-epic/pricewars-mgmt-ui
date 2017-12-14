@@ -306,11 +306,11 @@
                     chart.redraw();
                 }
             },
-            revenue: {
+            profit: {
                 title:      "Total Profit",
-                html_id:    "chart-revenue",
+                html_id:    "chart-profit",
                 data:       [],
-                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.revenue.title, "Revenue");},
+                getOptions: function() {return getColumnChartXDateYPriceGroupMerchantOptions(charts.profit.title, "Profit");},
                 updateGraphWithData: function(chart, data) {
                     parseBulkData(data).forEach(function(dp) {
                         let date = new Date(dp.value.timestamp);
@@ -318,7 +318,7 @@
 
                         const lineID = dp.value.merchant_id;
                         const lineName = merchants.getMerchantName(lineID);
-                        const point = [date.getTime(), dp.value.revenue];
+                        const point = [date.getTime(), dp.value.profit];
 
                         addPointToLine(chart, point, lineID, lineName);
 
