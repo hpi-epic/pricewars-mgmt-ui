@@ -103,10 +103,9 @@
                 /* --- Livesales --- */
                 $scope.charts["liveSales"] = Highcharts.stockChart(charts.liveSales.html_id, charts.liveSales.getOptions());
 
-                /* --- Revenue --- */
-                $scope.charts["revenue"] = Highcharts.chart(charts.revenue.html_id, charts.revenue.getOptions());
-                charts.setDefaultZoom($scope.charts["revenue"], 10);
-                charts.setSize($scope.charts["revenue"], undefined, 500);
+                $scope.charts["profit"] = Highcharts.chart(charts.profit.html_id, charts.profit.getOptions());
+                charts.setDefaultZoom($scope.charts["profit"], 10);
+                charts.setSize($scope.charts["profit"], undefined, 500);
 
                 $scope.charts["profit-per-minute"] = Highcharts.chart(charts.profitPerMinute.html_id, charts.profitPerMinute.getOptions());
                 charts.setDefaultZoom($scope.charts["profit-per-minute"], 10);
@@ -114,7 +113,7 @@
 
                 $scope.charts["revenue-per-minute"] = Highcharts.chart(charts.revenuePerMinute.html_id, charts.revenuePerMinute.getOptions());
                 charts.setDefaultZoom($scope.charts["revenue-per-minute"], 10);
-                charts.setSize($scope.charts["revenue"], undefined, 500);
+                charts.setSize($scope.charts["revenue-per-minute"], undefined, 500);
 
                 $scope.charts["revenue-per-hour"] = Highcharts.chart(charts.revenuePerHour.html_id, charts.revenuePerHour.getOptions());
                 charts.setDefaultZoom($scope.charts["revenue-per-hour"], 10);
@@ -229,9 +228,9 @@
                       removeLoadingSpinner(0);
                   });
 
-                  socket.on('revenue', function (data) {
+                  socket.on('profit', function (data) {
                       data = angular.fromJson(data);
-                      charts.revenue.updateGraphWithData($scope.charts["revenue"], data);
+                      charts.profit.updateGraphWithData($scope.charts["profit"], data);
                       removeLoadingSpinner(1);
                   });
 
