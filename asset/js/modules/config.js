@@ -423,7 +423,7 @@
                 $http({url: $scope.producer_url + "/products/"+ product_uid,
                       dataType: "json",
                       method: "PUT",
-                      data: [ $filter('filter')($scope.producer, {uid:product_uid})[0] ],
+                      data: $filter('filter')($scope.producer, {uid:product_uid})[0],
                       headers: {
                           "Content-Type": "application/json"
                       }

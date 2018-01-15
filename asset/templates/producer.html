@@ -51,6 +51,12 @@
                     <br>
                     <input class="form-control" ng-model='producer[$index]["price"]' type="number"><br>
 
+                    <span class="font-bold no-margins">
+                        Fixed Order Cost
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='producer[$index]["fixed_order_cost"]' type="number"><br>
+
 
                     <br>
                     <button type="button" class="btn btn-xs btn-success" ng-click='updateProduct(product["uid"])'>Update</button>
@@ -97,6 +103,12 @@
                   </span>
                   <br>
                   <input class="form-control" ng-model='new_product.price' type="number"><br>
+
+                  <span class="font-bold no-margins">
+                      Fixed Order Cost
+                  </span>
+                  <br>
+                  <input class="form-control" ng-model='new_product.fixed_order_cost' type="number"><br>
 
 
                   <br>
