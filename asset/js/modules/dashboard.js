@@ -234,7 +234,7 @@
                       removeLoadingSpinner(1);
                   });
 
-                  socket.on('cumulativeTurnoverBasedMarketshare', function (data) {
+                  socket.on('cumulativeRevenueBasedMarketshare', function (data) {
                       data = angular.fromJson(data);
                       charts.marketshare.updateGraphWithData($scope.charts["marketshare"], data);
                       removeLoadingSpinner(2);
