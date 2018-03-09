@@ -134,13 +134,9 @@
              * Helper
              */
             $scope.merchantStatus = function(merchant){
-                if(merchant["state"] == "initialized"){
-                    return "hpanel dashboard-status-div hbgblue";
-                } else if (merchant["state"] == "running") {
+                if (merchant["state"] === "running") {
                     return "hpanel dashboard-status-div hbggreen";
-                } else if (merchant["state"] == "exiting") {
-                    return "hpanel dashboard-status-div hbgyellow";
-                } else if (merchant["state"] == "stopping") {
+                } else if (merchant["state"] === "stopping") {
                     return "hpanel dashboard-status-div hbgorange";
                 } else {
                     return "hpanel dashboard-status-div hbgred";
