@@ -182,22 +182,29 @@
         }
 
         function getMerchantDetails() {
-            for (var merchantID in merchants) {
-                (function(merchant_id) {
-                    promises.push(
-                        $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings")
-                        .then(function(response) {
-                            Object.keys(response.data).sort().forEach(function(key) {
-                                if (key != "merchant_id" && key != "merchant_url") {
-                                    merchants[merchant_id][key] = response.data[key];
-                                }
-                            });
-                        })
-                        .catch(function(e) {
-                            console.log("Error during merchant detail retrieval from '" + merchants[merchant_id]["api_endpoint_url"] + "/settings'");
-                        })
-                    )
-                })(merchantID);
+            for (const merchant_id in merchants) {
+                promises.push(
+                    $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings")
+                    .then(function(response) {
+                        Object.keys(response.data).sort().forEach(function(key) {
+                            if (key !== "merchant_id" && key !== "merchant_url") {
+                                merchants[merchant_id][key] = response.data[key];
+                            }
+                        });
+                    })
+                    .catch(function(e) {
+                        console.log("Error during merchant detail retrieval from '" + merchants[merchant_id]["api_endpoint_url"] + "/settings'");
+                    })
+                );
+                promises.push(
+                $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings/execution")
+                    .then(function(response) {
+                        merchants[merchant_id]['state'] = response.data['state'];
+                    })
+                    .catch(function(e) {
+                        console.log("Error during merchant detail retrieval from '" + merchants[merchant_id]["api_endpoint_url"] + "/settings/execution'");
+                    })
+                )
             }
         }
 
