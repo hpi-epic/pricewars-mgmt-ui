@@ -544,73 +544,8 @@
 
                             dontDrawLineIfMerchantNotRegistered(chart, lineID);
                             dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
-
-                            //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
                         }
                     });
-                    chart.redraw();
-                },
-                updateGraphWithSalesData: function(chart, data, currentFilterID) {
-                    parseBulkData(data).forEach(function(dp, index) {
-                        if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
-                            productIDs.pushIfNotExist(dp.value.product_id);
-
-                            const lineID = createLineName(dp);
-                            let point;
-                            if (dp.value.left_in_stock > 0) {
-                                point = {
-                                    x: new Date(dp.value.timestamp).getTime(),
-                                    y: dp.value.price,
-                                    description: "Sold!",
-                                    marker: {
-                                        symbol: 'vertical_line',
-                                        lineWidth: 4
-                                    }
-                                };
-                                addPricewarsInfoToPoint(point, dp);
-
-                                addPointToLine(chart, point, lineID, lineID, true);
-
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
-                            } else {
-                                point = {
-                                    x: new Date(dp.value.timestamp).getTime(),
-                                    y: dp.value.price,
-                                    description: "Sold! Out of Stock.",
-                                    marker: {
-                                        symbol: 'cross',
-                                        lineWidth: 3
-                                    }
-                                };
-                                addPricewarsInfoToPoint(point, dp);
-                                let line = addPointToLine(chart, point, lineID, lineID, true);
-
-                                // add a null-point right after the actual point to make sure it wont be connected to the next point
-                                let nullPoint = {
-                                    x: new Date(dp.value.timestamp).getTime() + 1,
-                                    y: null
-                                };
-                                // pass the line from before in case the line was created in the call before
-                                addPointToLine(chart, nullPoint, lineID, lineID, true, line);
-
-                                dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
-                            }
-                        }
-                    });
-                    chart.redraw();
-                },
-                filterForID: function(chart, productID) {
-                    chart.series.forEach(function(serie) {
-                        dontDrawLineIfLineFiltered(chart, serie.options.id, productID);
-                    });
-
-                    sortLegend(chart);
-
-                    // show all data points at first to avoid Highcharts-bug where no datapoints are shown otherwise
-                    chart.rangeSelector.clickButton(6, {type: 'all'}, false);
-                    chart.rangeSelector.clickButton(2, {count: 1, type: 'minute'}, false);
-
-                    // redraw once at the end to avoid slow re-drawing at each series-visibility-change
                     chart.redraw();
                 }
             },
