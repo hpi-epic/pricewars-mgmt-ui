@@ -66,7 +66,7 @@
 
                     const socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
-                    socket.on('updateOffer', function (data) {
+                    socket.on('inventory_level', function (data) {
                         data = angular.fromJson(data);
 
                         if (data instanceof Array) {
@@ -77,7 +77,6 @@
 
                         updateGraphWithPriceUpdate();
                     });
-
                     $scope.$on('$locationChangeStart', function () {
                         socket.disconnect();
                     });

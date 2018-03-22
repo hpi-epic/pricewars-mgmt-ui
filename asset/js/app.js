@@ -526,25 +526,11 @@
                 getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false, createPriceOrSalesUpdateTooltip());},
                 updateGraphWithPriceData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp) {
-                        if (dp.value.amount > 0) {
-                            productIDs.pushIfNotExist(dp.value.product_id);
-
-                            const lineID = createLineName(dp);
-                            let point = {
-                                x: new Date(dp.value.timestamp).getTime(),
-                                y: dp.value.price,
-                                description: "Price Update",
-                                marker: {
-                                    radius: 4
-                                }
-                            };
-                            addPricewarsInfoToPoint(point, dp);
-
-                            addPointToLine(chart, point, lineID, lineID, true);
-
-                            dontDrawLineIfMerchantNotRegistered(chart, lineID);
-                            dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
-                        }
+                        const lineID = dp.value.merchant_id;
+                        const lineName = merchants.getMerchantName(lineID);
+                        let point = [new Date(dp.value.timestamp).getTime(), dp.value.level];
+                        addPointToLine(chart, point, lineID, lineName);
+                        dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
                     chart.redraw();
                 }
