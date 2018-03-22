@@ -13,12 +13,6 @@
                 $scope.charts = [];
 
                 /**
-                 * Loading spinner (is shown until all graphs are drawn and have the initial historic data in it)
-                 */
-                $("#loadingModal").modal("show");
-                var graphsInitialized   = [false, false, false]; // one bool for each graph!
-
-                /**
                   * UI settings
                 */
                 toastr.options = {
@@ -63,14 +57,6 @@
                 var bulkBuyOfferUpdate = [];
                 var bulkUpdateOfferUpdate = [];
 
-                $scope.$watch('maxBulkSizeUpdate', function() {
-                    updateGraphWithPriceUpdate();
-                });
-
-                $scope.$watch('maxBulkSizeBuy', function() {
-                    updateGraphWithPriceUpdate();
-                });
-
                 function updateGraphWithBuy() {
                     if (bulkBuyOfferUpdate.length >= $scope.maxBulkSizeBuy) {
                         charts.inventory.updateGraphWithSalesData($scope.charts["highchart-inventory"], bulkBuyOfferUpdate, $scope.currentIDFilter);
@@ -84,18 +70,6 @@
                         charts.inventory.updateGraphWithPriceData($scope.charts["highchart-inventory"], bulkUpdateOfferUpdate, $scope.currentIDFilter);
                         bulkUpdateOfferUpdate = [];
                         $scope.$digest();
-                    }
-                }
-
-                function removeLoadingSpinner(graphID) {
-                    if (!graphsInitialized[graphID]) {
-                        graphsInitialized[graphID] = true;
-
-                        if (graphsInitialized.every(function (initialized) {
-                                return initialized;
-                            })) {
-                            $("#loadingModal").modal("hide");
-                        }
                     }
                 }
 
