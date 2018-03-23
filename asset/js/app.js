@@ -520,15 +520,16 @@
             },
 
             inventory: {
-                title:      "Price Updates and Item Sales",
+                title:      "Inventory Levels over Time",
                 html_id:    "highchart-inventory",
                 data:       [],
-                getOptions: function() {return getStockchartXDateYPriceOptions(charts.priceUpdatesAndSales.title, "price_and_sales", "Price", false, createPriceOrSalesUpdateTooltip());},
+                getOptions: getInventoryChartOptions,
                 updateGraphWithPriceData: function(chart, data, currentFilterID) {
                     parseBulkData(data).forEach(function(dp) {
                         const lineID = dp.value.merchant_id;
                         const lineName = merchants.getMerchantName(lineID);
                         let point = [new Date(dp.value.timestamp).getTime(), dp.value.level];
+
                         addPointToLine(chart, point, lineID, lineName);
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
@@ -863,6 +864,68 @@
             }
 
             return result;
+        }
+
+        function getInventoryChartOptions() {
+            return {
+                title: {
+                    text: "Inventory Levels over Time"
+                },
+                xAxis: {
+                    type: 'datetime',
+                    title: {
+                        text: 'Date'
+                    },
+                    ordinal: false
+                },
+                yAxis: {
+                    title: {
+                        text: "Inventory"
+                    },
+                    opposite: false
+                },
+                rangeSelector: {
+                    buttons: [{
+                        count: 10,
+                        type: 'second',
+                        text: '10S'
+                    }, {
+                        count: 30,
+                        type: 'second',
+                        text: '30S'
+                    }, {
+                        count: 1,
+                        type: 'minute',
+                        text: '1M'
+                    }, {
+                        count: 5,
+                        type: 'minute',
+                        text: '5M'
+                    }, {
+                        count: 30,
+                        type: 'minute',
+                        text: '30M'
+                    }, {
+                        count: 1,
+                        type: 'hour',
+                        text: '1H'
+                    }, {
+                        type: 'all',
+                        text: 'All'
+                    }],
+                    inputEnabled: false,
+                    selected: 6
+                },
+                legend: {
+                    enabled: true,
+                    maxHeight: 100
+                },
+                tooltip: {
+                    useHTML: true,
+                    pointFormat: '<b>Inventory Level:</b> {point.y}'
+                },
+                series: []
+            };
         }
 
         function getColumnChartXDateYPriceGroupMerchantOptions(title, y_axis_title) {

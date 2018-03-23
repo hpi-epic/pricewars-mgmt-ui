@@ -39,7 +39,7 @@
                 }, 50);
             });
 
-            function drawPriceGraphs() {
+            function drawInventoryGraph() {
                 $scope.charts["highchart-inventory"] = Highcharts.stockChart(charts.inventory.html_id, charts.inventory.getOptions());
                 charts.setSize($scope.charts["highchart-inventory"], undefined, 600);
             }
@@ -62,7 +62,7 @@
                 $scope.kafka_proxy = urls.kafka_proxy;
 
                 merchants.loadMerchants().then(function () {
-                    drawPriceGraphs();
+                    drawInventoryGraph();
 
                     const socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
 
