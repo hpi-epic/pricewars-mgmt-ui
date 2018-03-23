@@ -448,8 +448,6 @@
 
                             dontDrawLineIfMerchantNotRegistered(chart, lineID);
                             dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
-
-                            //console.log("Update by " + merchants.getMerchantName(dp.value.merchant_id) + ": " + dp.value.uid + " --> " + dp.value.price + "€ (at " + (new Date(dp.value.timestamp)).hhmmss() + ")");
                         }
                     });
                     chart.redraw();
@@ -520,11 +518,9 @@
             },
 
             inventory: {
-                title:      "Inventory Levels over Time",
                 html_id:    "highchart-inventory",
-                data:       [],
                 getOptions: getInventoryChartOptions,
-                updateGraphWithPriceData: function(chart, data, currentFilterID) {
+                updateGraphWithPriceData: function(chart, data) {
                     parseBulkData(data).forEach(function(dp) {
                         const lineID = dp.value.merchant_id;
                         const lineName = merchants.getMerchantName(lineID);
@@ -550,17 +546,6 @@
             getCurrentProductIDs: function() {
                 return productIDs;
             }
-        };
-
-        Date.prototype.hhmmss = function() {
-            var hh = this.getHours();
-            var mm = this.getMinutes();
-            var ss = this.getSeconds();
-
-            return [(hh>9 ? '' : '0') + hh,
-                (mm>9 ? '' : '0') + mm,
-                (ss>9 ? '' : '0') + ss
-            ].join(':');
         };
 
         function addPricewarsInfoToPoint(point, data) {

@@ -4,10 +4,7 @@
     inventory.controller('inventoryController', ['$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', '$timeout', 'merchants', 'endpoints', 'charts', 'producer',
         function ($routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, $timeout, merchants, endpoints, charts, producer) {
 
-            $scope.product_ids = charts.getCurrentProductIDs();
-            $scope.currentIDFilter = "1";
-
-            $scope.charts = [];
+            $scope.chart = Highcharts.stockChart(charts.inventory.html_id, charts.inventory.getOptions());
 
             /**
              * UI settings
@@ -40,42 +37,30 @@
             });
 
             function drawInventoryGraph() {
-                $scope.charts["highchart-inventory"] = Highcharts.stockChart(charts.inventory.html_id, charts.inventory.getOptions());
-                charts.setSize($scope.charts["highchart-inventory"], undefined, 600);
-            }
-
-            let bulkUpdateOfferUpdate = [];
-
-            function updateGraphWithPriceUpdate() {
-                charts.inventory.updateGraphWithPriceData($scope.charts["highchart-inventory"], bulkUpdateOfferUpdate, $scope.currentIDFilter);
-                bulkUpdateOfferUpdate = [];
-                $scope.$digest();
+                charts.setSize($scope.chart, undefined, 600);
             }
 
             /**
              * Handling socket events
              */
             endpoints.getData().then(function (urls) {
-                $scope.consumer_url = urls.consumer_url;
-                $scope.marketplace_url = urls.marketplace_url;
-                $scope.producer_url = urls.producer_url;
-                $scope.kafka_proxy = urls.kafka_proxy;
-
                 merchants.loadMerchants().then(function () {
                     drawInventoryGraph();
 
-                    const socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
+                    const socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'});
 
                     socket.on('inventory_level', function (data) {
                         data = angular.fromJson(data);
+                        let events = [];
 
                         if (data instanceof Array) {
-                            bulkUpdateOfferUpdate = bulkUpdateOfferUpdate.concat(data);
+                            events = data;
                         } else {
-                            bulkUpdateOfferUpdate.push(data);
+                            events.push(data);
                         }
 
-                        updateGraphWithPriceUpdate();
+                        charts.inventory.updateGraphWithPriceData($scope.chart, events);
+                        $scope.$digest();
                     });
                     $scope.$on('$locationChangeStart', function () {
                         socket.disconnect();
