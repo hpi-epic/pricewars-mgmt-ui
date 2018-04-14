@@ -334,6 +334,19 @@
               };
 
               $scope.updateMerchantSettings = function(merchant_id){
+                // Send the holding cost rate to the marketplace, which actually manages the holding cost.
+                $http({url: $rootScope.urls.marketplace_url + "/holding_cost_rate",
+                      dataType: "json",
+                      method: "PUT",
+                      data: {
+                        "rate": $scope.merchants[merchant_id]["holding_cost_rate"],
+                        "merchant_id": merchant_id
+                      },
+                      headers: {
+                          "Content-Type": "application/json"
+                      }
+                    });
+
                 $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings",
                       dataType: "json",
                       method: "PUT",
