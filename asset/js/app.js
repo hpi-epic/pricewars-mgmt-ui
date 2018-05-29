@@ -210,6 +210,15 @@
                         console.log("Error during merchant detail retrieval from '" + merchants[merchant_id]["api_endpoint_url"] + "/settings/execution'");
                     })
                 )
+                promises.push(
+                    $http.get($rootScope.urls.marketplace_url + "/holding_cost_rate/" + merchant_id)
+                    .then(function(response) {
+                        merchants[merchant_id]['holding_cost_rate'] = response.data;
+                    })
+                    .catch(function(e) {
+                        console.log("Error during holding cost retrieval from: " + $rootScope.urls.marketplace_url + "/holding_cost_rate/" + merchant_id);
+                    })
+                )
             }
         }
 

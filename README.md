@@ -33,13 +33,21 @@ This User Interface is build on the [HOMER template](https://wrapbootstrap.com/t
 
 ## Installation
 
-To run the frontend locally on your machine, start a webserver of your choice in the top-folder of the repository, eg a python server on port 8000 using Python 3.x by executing `python -m http.server 8000`. Then open `localhost:8000` in a browser to see the frontend running.  
+To run the frontend locally on your machine, start a webserver of your choice in the top-folder of the repository, eg a python server on port 8000 by executing `python3 -m http.server 8000`. Then open `localhost:8000` in a browser to see the frontend running.
 
 ## Configuration
 
 For the currently unique components of the simulation - the marketplace, the producer, the consumer and the kafka-reverse-proxy - we use environment-varibales to set their URLS globally. This allows us to easily access and change them, for example when the user interface is run in our Docker-deployment.
 
 For the deployment on the virtual machines of the EPIC chair, we use the URLs in `env.json`. For running the frontend in the docker-setup, we use `env.docker.json`. To change a single endpoint, just edit the files. To change the json-file used, change the filename in the `endpoints`-factory in `app.js`.
+
+## Merchant Configuration
+
+Merchants have the option to expose setting parameters.
+These settings are shown in the management UI and are configurable.
+If the merchant settings are changed in the management UI, the merchant will be updated with the new values.
+All merchants have a `holding_cost_rate` parameter.
+When the `holding_cost_rate` is changed, also the Price Wars platform is notified in order to calculate holding costs with the new rate.
 
 ## Concept
 
