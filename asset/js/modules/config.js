@@ -491,8 +491,10 @@
               };
 
               $scope.getOffers = function(){
-                $http.get($scope.marketplace_url + "/offers")
-                    .then(function(response) {
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.marketplace_url + "/offers"}
+                }).then(function(response) {
                         $scope.offers = response.data;
 
                         // sort the offers by product_uid
@@ -518,15 +520,17 @@
               });
 
               $scope.getProductInfo = function(){
-                    $http.get($scope.producer_url + "/products?showDeleted=true")
-                        .then(function(response) {
-                            for (var key in response.data) {
-                                var product = response.data[key];
-                                $scope.products[product["uid"]] = product;
-                                delete($scope.products[product["uid"]].uid);
-                            }
-                        });
-               };
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.producer_url + "/products?showDeleted=true"}
+                }).then(function(response) {
+                  for (var key in response.data) {
+                      var product = response.data[key];
+                      $scope.products[product["uid"]] = product;
+                      delete($scope.products[product["uid"]].uid);
+                  }
+                });
+              };
 
                endpoints.getData().then(function(urls){
                  $scope.consumer_url   = urls.consumer_url;
@@ -538,7 +542,8 @@
                });
 
                $scope.updateKey = function(){
-                 $http({url: $scope.marketplace_url + "/producer/key",
+                 $http({url: "/request",
+                       params: {"url": $scope.marketplace_url + "/producer/key"},
                        dataType: "json",
                        method: "PUT",
                        data: {},
