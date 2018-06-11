@@ -179,7 +179,8 @@
               };
 
               $scope.executeConsumer = function(){
-                $http({url: $scope.consumer_url + "/setting",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting"},
                       dataType: "json",
                       method: "POST",
                       data: $scope.consumer,
@@ -192,7 +193,8 @@
               };
 
               $scope.terminateConsumer = function(){
-                $http({url: $scope.consumer_url + "/setting",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting"},
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -205,7 +207,8 @@
               };
 
                 $scope.unregisterConsumer = function(){
-                    $http({url: $scope.consumer_url + "/register",
+                    $http({url: "/request",
+                        params: {"url": $scope.consumer_url + "/register"},
                         dataType: "json",
                         method: "DELETE",
                         data: {},
@@ -224,8 +227,6 @@
               endpoints.getData().then(function(urls){
                 $scope.consumer_url   = urls.consumer_url;
                 $scope.marketplace_url= urls.marketplace_url;
-                $scope.producer_url   = urls.producer_url;
-                $scope.kafka_proxy    = urls.kafka_proxy;
                 $scope.getConsumerSettings();
               });
             }] //END: controller function
@@ -360,7 +361,8 @@
               };
 
               $scope.updateConsumerProductSettings = function() {
-                $http({url: $scope.consumer_url + "/setting/products",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting/products"},
                       dataType: "json",
                       method: "POST",
                       data: {},
