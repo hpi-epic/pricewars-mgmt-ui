@@ -249,7 +249,8 @@
               };
 
               $scope.startMerchant = function(merchant_id){
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution"},
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"start"},
@@ -263,7 +264,8 @@
               };
 
               $scope.terminateMerchant = function(merchant_id){
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution"},
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"kill"},
@@ -277,7 +279,8 @@
               };
 
               $scope.stopMerchant = function(merchant_id){
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution"},
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"stop"},
@@ -292,7 +295,8 @@
 
               $scope.updateMerchantSettings = function(merchant_id){
                 // Also send the new holding cost rate to the marketplace.
-                $http({url: $rootScope.urls.marketplace_url + "/holding_cost_rate",
+                $http({url: "/request",
+                      params: {"url": $rootScope.urls.marketplace_url + "/holding_cost_rate"},
                       dataType: "json",
                       method: "PUT",
                       data: {
@@ -304,7 +308,8 @@
                       }
                     });
 
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings"},
                       dataType: "json",
                       method: "PUT",
                       data: $scope.merchants[merchant_id],
@@ -318,7 +323,8 @@
               };
 
               $scope.deleteMerchant = function(merchant_id){
-                $http({url: $scope.marketplace_url + "/merchants/"+merchant_id,
+                $http({url: "/request",
+                      params: {"url": $scope.marketplace_url + "/merchants/"+merchant_id},
                       dataType: "json",
                       method: "DELETE",
                       data: {},
