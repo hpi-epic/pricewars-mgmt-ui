@@ -354,10 +354,12 @@
               };
 
               $scope.getProducts = function(){
-                $http.get($scope.producer_url + "/products")
-                    .then(function(response) {
-                        $scope.producer = response.data;
-                    });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.producer_url + "/products"}
+                }).then(function(response) {
+                  $scope.producer = response.data;
+                });
               };
 
               $scope.updateConsumerProductSettings = function() {
@@ -379,7 +381,8 @@
 
 
               $scope.updateProducts = function(){
-                $http({url: $scope.producer_url + "/products/",
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/"},
                       dataType: "json",
                       method: "PUT",
                       data: $scope.producer,
@@ -394,7 +397,8 @@
               };
 
               $scope.updateProduct = function(product_uid){
-                $http({url: $scope.producer_url + "/products/"+ product_uid,
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/"+ product_uid},
                       dataType: "json",
                       method: "PUT",
                       data: $filter('filter')($scope.producer, {uid:product_uid})[0],
@@ -411,7 +415,8 @@
               };
 
               $scope.deleteProduct = function(uid){
-                $http({url: $scope.producer_url + "/products/"+ uid,
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/" + uid},
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -426,7 +431,8 @@
               };
 
               $scope.createProduct = function(){
-                $http({url: $scope.producer_url + "/products/",
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/"},
                       dataType: "json",
                       method: "POST",
                       data: [ $scope.new_product ],
