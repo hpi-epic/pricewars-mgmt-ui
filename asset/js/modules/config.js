@@ -13,11 +13,9 @@
     co.controller('globalCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              // $scope.consumer_per_minute          = 30.0;
               $scope.max_updates_per_sale         = 20.0;
               $scope.max_req_per_sec              = 0;
               $scope.initialProducts              = 0;
-              $scope.consumer                     = {};
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -34,25 +32,10 @@
                 $http.get($scope.marketplace_url + "/config")
                     .then(function(response) {
                         $scope.marketplace     = response.data;
-                        // $scope.consumer_per_minute  = response.data.consumer_per_minute;
                         $scope.max_updates_per_sale = response.data.max_updates_per_sale;
                         $scope.max_req_per_sec = response.data.max_req_per_sec;
                     });
               };
-
-              $scope.getConsumerSettings = function() {
-                  $http.get($scope.consumer_url + "/setting")
-                      .then(function(response) {
-                            $scope.consumer = response.data;
-                  });
-              };
-
-              /*$scope.getMerchantSettings = function(url){
-                $http.get(url + "/settings")
-                    .then(function(response) {
-                        $scope.merchants[url]  = response.data;
-                    });
-              };*/
 
               $scope.updateinitialProductsConfig = function(){
                 angular.forEach($scope.merchants, function(value, key) {
@@ -63,34 +46,8 @@
               $scope.getSettings = function(){
                 $http.get($scope.marketplace_url + "/merchants")
                     .then(function(response) {
-                        $scope.getConsumerSettings();
                         $scope.getMarketplaceSettings();
                     });
-              };
-
-              $scope.updateConsumerSettings = function(){
-                $scope.consumer.consumer_per_minute    = $scope.consumer_per_minute;
-                $scope.consumer.max_req_per_sec        = $scope.max_req_per_sec;
-                $http({url: $scope.consumer_url + "/setting",
-                      dataType: "json",
-                      method: "DELETE",
-                      data: {},
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                            toastr.warning("Consumer was successfully stopped.");
-                });
-                $http({url: $scope.consumer_url + "/setting",
-                      dataType: "json",
-                      method: "POST",
-                      data: $scope.consumer,
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                          toastr.success("Consumer was successfully started.");
-                });
               };
 
               $scope.updateMerchantSettings = function(id, settings){
@@ -141,14 +98,12 @@
               };
 
               $scope.updateGlobalConfig = function(){
-                $scope.updateConsumerSettings();
                 $scope.updateMarketplaceConfig();
                 angular.forEach($scope.merchants, function(value, key) {
                     $scope.updateMerchantSettings(key, value);
                 });
               }
               endpoints.getData().then(function(urls){
-                $scope.consumer_url   = urls.consumer_url;
                 $scope.marketplace_url= urls.marketplace_url;
                 $scope.producer_url   = urls.producer_url;
                 $scope.kafka_proxy    = urls.kafka_proxy;
@@ -184,16 +139,19 @@
               };
 
               $scope.getConsumerSettings = function() {
-                  $http.get($scope.consumer_url + "/setting/")
-                      .then(function(response) {
-                              $scope.consumer = response.data;
-                              $scope.consumer.marketplace_url     = $scope.marketplace_url;
-                              $scope.purchases_per_minute =  ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_buy)/100;
-                          });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.consumer_url + "/setting/"}
+                }).then(function(response) {
+                  $scope.consumer = response.data;
+                  $scope.consumer.marketplace_url = $scope.marketplace_url;
+                  $scope.purchases_per_minute = ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_buy)/100;
+                });
               };
 
               $scope.updateConsumerProductSettings = function() {
-                $http({url: $scope.consumer_url + "/setting/products",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting/products"},
                       dataType: "json",
                       method: "POST",
                       data: {},
@@ -207,7 +165,8 @@
 
               $scope.updateConsumer = function(){
                 $scope.updateConsumerProductSettings();
-                $http({url: $scope.consumer_url + "/setting",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting"},
                       dataType: "json",
                       method: "PUT",
                       data: $scope.consumer,
