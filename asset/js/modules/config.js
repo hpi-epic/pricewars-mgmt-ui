@@ -29,31 +29,27 @@
               };
 
               $scope.getMarketplaceSettings = function(){
-                $http.get($scope.marketplace_url + "/config")
-                    .then(function(response) {
-                        $scope.marketplace     = response.data;
-                        $scope.max_updates_per_sale = response.data.max_updates_per_sale;
-                        $scope.max_req_per_sec = response.data.max_req_per_sec;
-                    });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.marketplace_url + "/config"}
+                }).then(function(response) {
+                  $scope.marketplace = response.data;
+                  $scope.max_updates_per_sale = response.data.max_updates_per_sale;
+                  $scope.max_req_per_sec = response.data.max_req_per_sec;
+                });
               };
 
-              $scope.updateinitialProductsConfig = function(){
+              $scope.updateInitialProductsConfig = function(){
                 angular.forEach($scope.merchants, function(value, key) {
                     $scope.updateMerchantInitialProductSettings(key, value);
                 });
               }
 
-              $scope.getSettings = function(){
-                $http.get($scope.marketplace_url + "/merchants")
-                    .then(function(response) {
-                        $scope.getMarketplaceSettings();
-                    });
-              };
-
               $scope.updateMerchantSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.max_req_per_sec = $scope.max_req_per_sec;
-                $http({url: url + "/settings",
+                $http({url: "/request",
+                      params: {"url": url + "/settings"},
                       dataType: "json",
                       method: "PUT",
                       data: settings,
@@ -68,7 +64,8 @@
               $scope.updateMerchantInitialProductSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.initialProducts = $scope.initialProducts;
-                $http({url: url + "/settings",
+                $http({url: "/request",
+                      params: {"url": url + "/settings"},
                       dataType: "json",
                       method: "PUT",
                       data: settings,
@@ -81,11 +78,11 @@
               };
 
               $scope.updateMarketplaceConfig = function(){
-                $http({url: $scope.marketplace_url + "/config",
+                $http({url: "/request",
+                      params: {"url": $scope.marketplace_url + "/config"},
                       dataType: "json",
                       method: "PUT",
                       data: {
-                        // "consumer_per_minute": $scope.consumer_per_minute,
                         "max_req_per_sec": $scope.max_req_per_sec,
                         "max_updates_per_sale": $scope.max_updates_per_sale
                       },
@@ -107,7 +104,7 @@
                 $scope.marketplace_url= urls.marketplace_url;
                 $scope.producer_url   = urls.producer_url;
                 $scope.kafka_proxy    = urls.kafka_proxy;
-                $scope.getSettings();
+                $scope.getMarketplaceSettings();
               });
             }] //END: controller function
           );  // END: dashboardController
