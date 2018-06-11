@@ -4,7 +4,7 @@
     da.controller('exportCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', 'endpoints', '$rootScope',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, endpoints, $rootScope) {
 
-              $scope.topics                       = [];
+              $scope.topics = [];
 
               // Toastr options
               toastr.options = {
@@ -17,18 +17,22 @@
               };
 
               $scope.getTopics = function(){
-                $http.get($scope.kafka_proxy + "/topics")
-                    .then(function(response) {
-                        $scope.topics  = response.data;
-                    });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.kafka_proxy + "/topics"}
+                }).then(function(response) {
+                  $scope.topics  = response.data;
+                });
               }
 
               $scope.getExport = function(topic){
                 $('#loadingModal').modal('show');
-                $http.get($scope.kafka_proxy + "/export/data/" + topic)
-                    .then(function(response) {
-                        $scope.export_url  = $scope.kafka_proxy + "/"+ response.data.url;
-                    });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.kafka_proxy + "/export/data/" + topic}
+                }).then(function(response) {
+                  $scope.export_url  = $scope.kafka_proxy + "/"+ response.data.url;
+                });
               }
 
               endpoints.getData().then(function(urls){

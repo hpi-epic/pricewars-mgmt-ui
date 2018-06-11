@@ -50,8 +50,9 @@
              * REST calls
              */
              $scope.getConsumers = function(){
-                 $http.get($scope.marketplace_url + "/consumers")
-                     .then(function(response) {
+                 $http({url: "/request",
+                        params: {"url": $scope.marketplace_url + "/consumers"}
+                      }).then(function(response) {
                          for (var key in response.data) {
                              if (response.data.hasOwnProperty(key)) {
                                  var consumer = response.data[key];
@@ -72,18 +73,21 @@
             function getConsumerDetails() {
                 for (var consumerID in $scope.consumers) {
                     (function(consumerID) {
-                        $http.get($scope.consumers[consumerID]["api_endpoint_url"] + "/setting")
-                            .then(function(response) {
+                        $http({url: "/request",
+                              params: {"url": $scope.consumers[consumerID]["api_endpoint_url"] + "/setting"}
+                        }).then(function(response) {
                                 Object.keys(response.data).sort().forEach(function(key) {
                                     if (key != "consumer_id") {
                                         $scope.consumers[consumerID][key] = response.data[key];
                                     }
                                 });
                             });
-                        $http.get($scope.consumers[consumerID]["api_endpoint_url"]+ "/status")
-                            .then(function(response) {
-                                $scope.consumers[consumerID]["status"] = response.data.status;
-                            });
+                        $http({
+                          url: "/request",
+                          params: {"url": $scope.consumers[consumerID]["api_endpoint_url"]+ "/status"}
+                        }).then(function(response) {
+                          $scope.consumers[consumerID]["status"] = response.data.status;
+                        });
                     })(consumerID);
                 }
             }
