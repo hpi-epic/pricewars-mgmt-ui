@@ -26,4 +26,4 @@ def forward_request():
     return requests.request(request.method, request.args['url'], json=request.get_json()).text
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=80)

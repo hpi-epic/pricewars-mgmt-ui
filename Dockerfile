@@ -1,6 +1,11 @@
-FROM nginx:latest
+FROM python:3.6-alpine
 
-ADD nginx.conf /etc/nginx
+ENV APP_HOME /management-ui
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
 
-ADD . /usr/share/nginx/html
-RUN mv -f /usr/share/nginx/html/env.docker.json /usr/share/nginx/html/env.json
+ADD . $APP_HOME
+
+RUN python3 -m pip install flask requests
+
+CMD ["python3", "-u", "server.py"]
