@@ -29,17 +29,27 @@ The management UI is not required but eases the first steps on the platform.
 
 ## Requirements
 
+* Python 3
+* Flask
+* Requests
+
+Install the Python modules with:
+
+`python3 -m pip install flask requests`
+
 This User Interface is build on the [HOMER template](https://wrapbootstrap.com/theme/homer-responsive-admin-theme-WB055J451) which requires angularJS 1.5.5. For copyright purposes, it is necessary to purchase a separate license when using this dashboard for other reasons or projects.
 
-## Installation
+## Setup
 
-To run the frontend locally on your machine, start a webserver of your choice in the top-folder of the repository, eg a python server on port 8000 by executing `python3 -m http.server 8000`. Then open `localhost:8000` in a browser to see the frontend running.
+To start the management UI locally on your machine, run `python3 server.py` in the top-folder of the repository.
+By default the webserver runs on port 80 and needs root privileges to start.
+If the server is started, open the UI  on `localhost:80` in a browser to see the frontend running.
 
 ## Configuration
 
 For the currently unique components of the simulation - the marketplace, the producer, the consumer and the kafka-reverse-proxy - we use environment-varibales to set their URLS globally. This allows us to easily access and change them, for example when the user interface is run in our Docker-deployment.
 
-For the deployment on the virtual machines of the EPIC chair, we use the URLs in `env.json`. For running the frontend in the docker-setup, we use `env.docker.json`. To change a single endpoint, just edit the files. To change the json-file used, change the filename in the `endpoints`-factory in `app.js`.
+For the deployment on the virtual machines of the EPIC chair, we use the URLs in `env.json`. To change a single endpoint, just edit the files. The docker-setup uses the configuration file `env.docker.json` instead of `env.json`.
 
 ## Merchant Configuration
 
