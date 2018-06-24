@@ -49,7 +49,7 @@ If the server is started, open the UI  on `localhost:80` in a browser to see the
 
 For the currently unique components of the simulation - the marketplace, the producer, the consumer and the kafka-reverse-proxy - we use configuration variables to set their URLS globally. This allows us to easily access and change them, for example when the user interface is run in our Docker-deployment.
 
-For the deployment on the virtual machines of the EPIC chair, we use the URLs in `env.json`. To change a single endpoint, just edit the files. The docker-setup uses the configuration file `env.docker.json` instead of `env.json`.
+The endpoint URLs are configured in `env.json`. The default values are for the docker setup. Change the URLs accordingly if you deploy the platform not with docker-compose.
 
 ## Merchant Configuration
 
