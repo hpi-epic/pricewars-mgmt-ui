@@ -141,7 +141,6 @@
                   params: {"url": $scope.consumer_url + "/setting/"}
                 }).then(function(response) {
                   $scope.consumer = response.data;
-                  $scope.consumer.marketplace_url = $scope.marketplace_url;
                   $scope.purchases_per_minute = ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_buy)/100;
                 });
               };
