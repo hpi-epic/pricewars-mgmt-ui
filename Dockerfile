@@ -6,6 +6,6 @@ WORKDIR $APP_HOME
 
 ADD . $APP_HOME
 
-RUN python3 -m pip install flask requests
+RUN python3 -m pip install -r requirements.txt
 
 CMD ["python3", "-u", "server.py"]
