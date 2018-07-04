@@ -47,7 +47,7 @@
                 merchants.loadMerchants().then(function () {
                     drawInventoryGraph();
 
-                    const socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'});
+                    const socket = io.connect({query: 'id=mgmt-ui'});
 
                     socket.on('inventory_level', function (data) {
                         data = angular.fromJson(data);
