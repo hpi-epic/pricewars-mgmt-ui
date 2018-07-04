@@ -7,7 +7,6 @@ from kafka import KafkaConsumer
 from kafka import TopicPartition
 from kafka.errors import NoBrokersAvailable
 
-#TODO: remove hard-coded topics
 # The following kafka topics are accessible by the management UI
 topics = ['addOffer', 'buyOffer', 'profit', 'updateOffer', 'updates', 'salesPerMinutes',
           'cumulativeAmountBasedMarketshare', 'cumulativeRevenueBasedMarketshare',
