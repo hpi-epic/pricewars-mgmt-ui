@@ -122,7 +122,10 @@
         var products = {};
 
         function getProducts(producer_url) {
-            $http.get(producer_url + "/products?showDeleted=true").then(function(response) {
+            $http({
+                url: "/request",
+                params: {"url": producer_url + "/products?showDeleted=true"}
+            }).then(function(response) {
                 for (var key in response.data) {
                     var product = response.data[key];
                     products[product["uid"]] = product;
@@ -159,8 +162,10 @@
 
         function getMerchants() {
             promises.push(
-                $http.get($rootScope.urls.marketplace_url + "/merchants")
-                .then(function(response) {
+                $http({
+                    url: "/request",
+                    params: {"url": $rootScope.urls.marketplace_url + "/merchants"}
+                }).then(function(response) {
                     for (var key in response.data) {
                         if (response.data.hasOwnProperty(key)) {
                             var merchant = response.data[key];
@@ -189,8 +194,10 @@
         function getMerchantDetails() {
             for (const merchant_id in merchants) {
                 promises.push(
-                    $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings")
-                    .then(function(response) {
+                    $http({
+                        url: "/request",
+                        params: {"url": merchants[merchant_id]["api_endpoint_url"] + "/settings"}
+                    }).then(function(response) {
                         Object.keys(response.data).sort().forEach(function(key) {
                             if (key !== "merchant_id" && key !== "merchant_url") {
                                 merchants[merchant_id][key] = response.data[key];
@@ -202,8 +209,10 @@
                     })
                 );
                 promises.push(
-                $http.get(merchants[merchant_id]["api_endpoint_url"] + "/settings/execution")
-                    .then(function(response) {
+                    $http({
+                        url: "/request",
+                        params: {"url": merchants[merchant_id]["api_endpoint_url"] + "/settings/execution"}
+                    }).then(function(response) {
                         merchants[merchant_id]['state'] = response.data['state'];
                     })
                     .catch(function(e) {
@@ -211,8 +220,10 @@
                     })
                 )
                 promises.push(
-                    $http.get($rootScope.urls.marketplace_url + "/holding_cost_rate/" + merchant_id)
-                    .then(function(response) {
+                    $http({
+                        url: "/request",
+                        params: {"url": $rootScope.urls.marketplace_url + "/holding_cost_rate/" + merchant_id}
+                    }).then(function(response) {
                         merchants[merchant_id]['holding_cost_rate'] = response.data;
                     })
                     .catch(function(e) {

@@ -13,11 +13,9 @@
     co.controller('globalCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              // $scope.consumer_per_minute          = 30.0;
               $scope.max_updates_per_sale         = 20.0;
               $scope.max_req_per_sec              = 0;
               $scope.initialProducts              = 0;
-              $scope.consumer                     = {};
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -31,72 +29,27 @@
               };
 
               $scope.getMarketplaceSettings = function(){
-                $http.get($scope.marketplace_url + "/config")
-                    .then(function(response) {
-                        $scope.marketplace     = response.data;
-                        // $scope.consumer_per_minute  = response.data.consumer_per_minute;
-                        $scope.max_updates_per_sale = response.data.max_updates_per_sale;
-                        $scope.max_req_per_sec = response.data.max_req_per_sec;
-                    });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.marketplace_url + "/config"}
+                }).then(function(response) {
+                  $scope.marketplace = response.data;
+                  $scope.max_updates_per_sale = response.data.max_updates_per_sale;
+                  $scope.max_req_per_sec = response.data.max_req_per_sec;
+                });
               };
 
-              $scope.getConsumerSettings = function() {
-                  $http.get($scope.consumer_url + "/setting")
-                      .then(function(response) {
-                            $scope.consumer = response.data;
-                  });
-              };
-
-              /*$scope.getMerchantSettings = function(url){
-                $http.get(url + "/settings")
-                    .then(function(response) {
-                        $scope.merchants[url]  = response.data;
-                    });
-              };*/
-
-              $scope.updateinitialProductsConfig = function(){
+              $scope.updateInitialProductsConfig = function(){
                 angular.forEach($scope.merchants, function(value, key) {
                     $scope.updateMerchantInitialProductSettings(key, value);
                 });
               }
 
-              $scope.getSettings = function(){
-                $http.get($scope.marketplace_url + "/merchants")
-                    .then(function(response) {
-                        $scope.getConsumerSettings();
-                        $scope.getMarketplaceSettings();
-                    });
-              };
-
-              $scope.updateConsumerSettings = function(){
-                $scope.consumer.consumer_per_minute    = $scope.consumer_per_minute;
-                $scope.consumer.max_req_per_sec        = $scope.max_req_per_sec;
-                $http({url: $scope.consumer_url + "/setting",
-                      dataType: "json",
-                      method: "DELETE",
-                      data: {},
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                            toastr.warning("Consumer was successfully stopped.");
-                });
-                $http({url: $scope.consumer_url + "/setting",
-                      dataType: "json",
-                      method: "POST",
-                      data: $scope.consumer,
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                          toastr.success("Consumer was successfully started.");
-                });
-              };
-
               $scope.updateMerchantSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.max_req_per_sec = $scope.max_req_per_sec;
-                $http({url: url + "/settings",
+                $http({url: "/request",
+                      params: {"url": url + "/settings"},
                       dataType: "json",
                       method: "PUT",
                       data: settings,
@@ -111,7 +64,8 @@
               $scope.updateMerchantInitialProductSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.initialProducts = $scope.initialProducts;
-                $http({url: url + "/settings",
+                $http({url: "/request",
+                      params: {"url": url + "/settings"},
                       dataType: "json",
                       method: "PUT",
                       data: settings,
@@ -124,11 +78,11 @@
               };
 
               $scope.updateMarketplaceConfig = function(){
-                $http({url: $scope.marketplace_url + "/config",
+                $http({url: "/request",
+                      params: {"url": $scope.marketplace_url + "/config"},
                       dataType: "json",
                       method: "PUT",
                       data: {
-                        // "consumer_per_minute": $scope.consumer_per_minute,
                         "max_req_per_sec": $scope.max_req_per_sec,
                         "max_updates_per_sale": $scope.max_updates_per_sale
                       },
@@ -141,18 +95,16 @@
               };
 
               $scope.updateGlobalConfig = function(){
-                $scope.updateConsumerSettings();
                 $scope.updateMarketplaceConfig();
                 angular.forEach($scope.merchants, function(value, key) {
                     $scope.updateMerchantSettings(key, value);
                 });
               }
               endpoints.getData().then(function(urls){
-                $scope.consumer_url   = urls.consumer_url;
                 $scope.marketplace_url= urls.marketplace_url;
                 $scope.producer_url   = urls.producer_url;
                 $scope.kafka_proxy    = urls.kafka_proxy;
-                $scope.getSettings();
+                $scope.getMarketplaceSettings();
               });
             }] //END: controller function
           );  // END: dashboardController
@@ -184,15 +136,18 @@
               };
 
               $scope.getConsumerSettings = function() {
-                  $http.get($scope.consumer_url + "/setting/")
-                      .then(function(response) {
-                              $scope.consumer = response.data;
-                              $scope.purchases_per_minute =  ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_buy)/100;
-                          });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.consumer_url + "/setting/"}
+                }).then(function(response) {
+                  $scope.consumer = response.data;
+                  $scope.purchases_per_minute = ($scope.consumer.amount_of_consumers*$scope.consumer.consumer_per_minute*$scope.consumer.probability_of_buy)/100;
+                });
               };
 
               $scope.updateConsumerProductSettings = function() {
-                $http({url: $scope.consumer_url + "/setting/products",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting/products"},
                       dataType: "json",
                       method: "POST",
                       data: {},
@@ -206,7 +161,8 @@
 
               $scope.updateConsumer = function(){
                 $scope.updateConsumerProductSettings();
-                $http({url: $scope.consumer_url + "/setting",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting"},
                       dataType: "json",
                       method: "PUT",
                       data: $scope.consumer,
@@ -219,7 +175,8 @@
               };
 
               $scope.executeConsumer = function(){
-                $http({url: $scope.consumer_url + "/setting",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting"},
                       dataType: "json",
                       method: "POST",
                       data: $scope.consumer,
@@ -232,7 +189,8 @@
               };
 
               $scope.terminateConsumer = function(){
-                $http({url: $scope.consumer_url + "/setting",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting"},
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -245,7 +203,8 @@
               };
 
                 $scope.unregisterConsumer = function(){
-                    $http({url: $scope.consumer_url + "/register",
+                    $http({url: "/request",
+                        params: {"url": $scope.consumer_url + "/register"},
                         dataType: "json",
                         method: "DELETE",
                         data: {},
@@ -264,8 +223,6 @@
               endpoints.getData().then(function(urls){
                 $scope.consumer_url   = urls.consumer_url;
                 $scope.marketplace_url= urls.marketplace_url;
-                $scope.producer_url   = urls.producer_url;
-                $scope.kafka_proxy    = urls.kafka_proxy;
                 $scope.getConsumerSettings();
               });
             }] //END: controller function
@@ -291,7 +248,8 @@
               };
 
               $scope.startMerchant = function(merchant_id){
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution"},
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"start"},
@@ -305,7 +263,8 @@
               };
 
               $scope.terminateMerchant = function(merchant_id){
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution"},
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"kill"},
@@ -319,7 +278,8 @@
               };
 
               $scope.stopMerchant = function(merchant_id){
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings/execution"},
                       dataType: "json",
                       method: "POST",
                       data: {"nextState":"stop"},
@@ -334,7 +294,8 @@
 
               $scope.updateMerchantSettings = function(merchant_id){
                 // Also send the new holding cost rate to the marketplace.
-                $http({url: $rootScope.urls.marketplace_url + "/holding_cost_rate",
+                $http({url: "/request",
+                      params: {"url": $rootScope.urls.marketplace_url + "/holding_cost_rate"},
                       dataType: "json",
                       method: "PUT",
                       data: {
@@ -346,7 +307,8 @@
                       }
                     });
 
-                $http({url: $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings",
+                $http({url: "/request",
+                      params: {"url": $scope.merchants[merchant_id]["api_endpoint_url"] + "/settings"},
                       dataType: "json",
                       method: "PUT",
                       data: $scope.merchants[merchant_id],
@@ -360,7 +322,8 @@
               };
 
               $scope.deleteMerchant = function(merchant_id){
-                $http({url: $scope.marketplace_url + "/merchants/"+merchant_id,
+                $http({url: "/request",
+                      params: {"url": $scope.marketplace_url + "/merchants/"+merchant_id},
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -393,14 +356,17 @@
               };
 
               $scope.getProducts = function(){
-                $http.get($scope.producer_url + "/products")
-                    .then(function(response) {
-                        $scope.producer = response.data;
-                    });
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.producer_url + "/products"}
+                }).then(function(response) {
+                  $scope.producer = response.data;
+                });
               };
 
               $scope.updateConsumerProductSettings = function() {
-                $http({url: $scope.consumer_url + "/setting/products",
+                $http({url: "/request",
+                      params: {"url": $scope.consumer_url + "/setting/products"},
                       dataType: "json",
                       method: "POST",
                       data: {},
@@ -417,7 +383,8 @@
 
 
               $scope.updateProducts = function(){
-                $http({url: $scope.producer_url + "/products/",
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/"},
                       dataType: "json",
                       method: "PUT",
                       data: $scope.producer,
@@ -432,7 +399,8 @@
               };
 
               $scope.updateProduct = function(product_uid){
-                $http({url: $scope.producer_url + "/products/"+ product_uid,
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/"+ product_uid},
                       dataType: "json",
                       method: "PUT",
                       data: $filter('filter')($scope.producer, {uid:product_uid})[0],
@@ -449,7 +417,8 @@
               };
 
               $scope.deleteProduct = function(uid){
-                $http({url: $scope.producer_url + "/products/"+ uid,
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/" + uid},
                       dataType: "json",
                       method: "DELETE",
                       data: {},
@@ -464,7 +433,8 @@
               };
 
               $scope.createProduct = function(){
-                $http({url: $scope.producer_url + "/products/",
+                $http({url: "/request",
+                      params: {"url": $scope.producer_url + "/products/"},
                       dataType: "json",
                       method: "POST",
                       data: [ $scope.new_product ],
@@ -520,8 +490,10 @@
               };
 
               $scope.getOffers = function(){
-                $http.get($scope.marketplace_url + "/offers")
-                    .then(function(response) {
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.marketplace_url + "/offers"}
+                }).then(function(response) {
                         $scope.offers = response.data;
 
                         // sort the offers by product_uid
@@ -547,15 +519,17 @@
               });
 
               $scope.getProductInfo = function(){
-                    $http.get($scope.producer_url + "/products?showDeleted=true")
-                        .then(function(response) {
-                            for (var key in response.data) {
-                                var product = response.data[key];
-                                $scope.products[product["uid"]] = product;
-                                delete($scope.products[product["uid"]].uid);
-                            }
-                        });
-               };
+                $http({
+                  url: "/request",
+                  params: {"url": $scope.producer_url + "/products?showDeleted=true"}
+                }).then(function(response) {
+                  for (var key in response.data) {
+                      var product = response.data[key];
+                      $scope.products[product["uid"]] = product;
+                      delete($scope.products[product["uid"]].uid);
+                  }
+                });
+              };
 
                endpoints.getData().then(function(urls){
                  $scope.consumer_url   = urls.consumer_url;
@@ -567,7 +541,8 @@
                });
 
                $scope.updateKey = function(){
-                 $http({url: $scope.marketplace_url + "/producer/key",
+                 $http({url: "/request",
+                       params: {"url": $scope.marketplace_url + "/producer/key"},
                        dataType: "json",
                        method: "PUT",
                        data: {},

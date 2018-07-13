@@ -29,17 +29,25 @@ The management UI is not required but eases the first steps on the platform.
 
 ## Requirements
 
+* Python 3
+
+Install the Python modules with:
+
+`python3 -m pip install -r requirements.txt`
+
 This User Interface is build on the [HOMER template](https://wrapbootstrap.com/theme/homer-responsive-admin-theme-WB055J451) which requires angularJS 1.5.5. For copyright purposes, it is necessary to purchase a separate license when using this dashboard for other reasons or projects.
 
-## Installation
+## Setup
 
-To run the frontend locally on your machine, start a webserver of your choice in the top-folder of the repository, eg a python server on port 8000 by executing `python3 -m http.server 8000`. Then open `localhost:8000` in a browser to see the frontend running.
+To start the management UI locally on your machine, run `python3 server.py` in the top-folder of the repository.
+By default the webserver runs on port 80 and needs root privileges to start.
+If the server is started, open the UI  on `localhost:80` in a browser to see the frontend running.
 
 ## Configuration
 
-For the currently unique components of the simulation - the marketplace, the producer, the consumer and the kafka-reverse-proxy - we use environment-varibales to set their URLS globally. This allows us to easily access and change them, for example when the user interface is run in our Docker-deployment.
+For the currently unique components of the simulation - the marketplace, the producer, the consumer and the kafka-reverse-proxy - we use configuration variables to set their URLS globally. This allows us to easily access and change them, for example when the user interface is run in our Docker-deployment.
 
-For the deployment on the virtual machines of the EPIC chair, we use the URLs in `env.json`. For running the frontend in the docker-setup, we use `env.docker.json`. To change a single endpoint, just edit the files. To change the json-file used, change the filename in the `endpoints`-factory in `app.js`.
+The endpoint URLs are configured in `env.json`. The default values are for the docker setup. Change the URLs accordingly if you deploy the platform not with docker-compose.
 
 ## Merchant Configuration
 
@@ -54,13 +62,14 @@ When the `holding_cost_rate` is changed, also the Price Wars platform is notifie
 Since the user interface is based on angular, the project is build accordingly. The main entrance point for the logic can be found in `app.js`, where we set the available routes and their respective controllers and html-files. The controllers are split up into javascript-files, named according to the route they belong to. 
 
 ### Socket.io
-For the communication with the [kafka-reverse-proxy](https://github.com/hpi-epic/pricewars-kafka-reverse-proxy) that offers the data for all charts of the UI, we chose [socket.io](http://socket.io/). Socket.io enables us to constantly stream new data so we do not have to do manual http-requests for updating every x seconds the frontend. Instead we just listen to new messages coming in via socket and display them immediately.
+For the communication with the [kafka-reverse-proxy](https://github.com/hpi-epic/pricewars-kafka-reverse-proxy) that offers the data for all charts of the UI, we chose [socket.io](https://socket.io/). Socket.io enables us to constantly stream new data so we do not have to do manual http-requests for updating every x seconds the frontend. Instead we just listen to new messages coming in via socket and display them immediately.
 
-In the current setup of the frontend, the connection (and disconnection) to the reverse-proxy via socket happens in each controller, that listens for certain socket messages, separately. The reason for that is that the reverse-proxy offers historic data for all statistics but this historic data is only sent to a client on a new connect. That means that if we want to receive historic data for any chart displayed and managed with the current controller, we currently have to trigger a new connect. Furthermore, to obtain the url to connect to via socket (ie the url of the reverse-proxy), we are using another factory called endpoints, that asynchronously reads the endpoints from a .json-file. So in every controller that is supposed to connect to the reverse-proxy, make sure to include the `endpoints`-factory and add the following code:
+In the current setup of the frontend, the connection (and disconnection) to the websocket happens in each controller, that listens for certain socket messages, separately. The reason for that is that the server offers historic data for all statistics but this historical data is only sent to a client on a new connect. That means that if we want to receive historic data for any chart displayed and managed with the current controller, we currently have to trigger a new connect.
+Bellow is example code for using socket.io in our controllers:
 
 ```javascript
  endpoints.getData().then(function(urls) {
-    var socket = io.connect(urls.kafka_proxy, {query: 'id=mgmt-ui'}); // by calling this, we trigger the proxy to send us historic data
+    var socket = io.connect({query: 'id=mgmt-ui'}); // by calling this, we trigger the server to send us historical data
 
     $scope.$on('$locationChangeStart', function() {
       // executed whenever we change to another controller/location
@@ -69,7 +78,7 @@ In the current setup of the frontend, the connection (and disconnection) to the 
  }
 ```
 
-To then listen to specific messages from the proxy to receive the historic data as well as live-data, simply add a `socket.on()` to the above code block, eg:
+Then listen to specific messages by adding `socket.on()` to the above code block, e.g.:
 ```javascript
   socket.on('nameOfTheMessage', function (data) {
        data = angular.fromJson(data);
