@@ -118,12 +118,11 @@
                    $scope.consumer_url   = urls.consumer_url;
                    $scope.marketplace_url= urls.marketplace_url;
                    $scope.producer_url   = urls.producer_url;
-                   $scope.kafka_proxy    = urls.kafka_proxy;
 
                     merchants.loadMerchants().then(function() {
                        drawPriceGraphs();
 
-                       var socket = io.connect($scope.kafka_proxy, {query: 'id=mgmt-ui'});
+                       var socket = io.connect({query: 'id=mgmt-ui'});
 
                        socket.on('buyOffer', function (data) {
                            data = angular.fromJson(data);
