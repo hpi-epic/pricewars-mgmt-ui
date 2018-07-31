@@ -15,7 +15,6 @@
 
               $scope.max_updates_per_sale         = 20.0;
               $scope.max_req_per_sec              = 0;
-              $scope.initialProducts              = 0;
               $scope.merchants                    = merchants.get();
 
               // Toastr options
@@ -39,31 +38,9 @@
                 });
               };
 
-              $scope.updateInitialProductsConfig = function(){
-                angular.forEach($scope.merchants, function(value, key) {
-                    $scope.updateMerchantInitialProductSettings(key, value);
-                });
-              }
-
               $scope.updateMerchantSettings = function(id, settings){
                 let url = $scope.merchants.get(id).api_endpoint_url;
                 settings.max_req_per_sec = $scope.max_req_per_sec;
-                $http({url: "/request",
-                      params: {"url": url + "/settings"},
-                      dataType: "json",
-                      method: "PUT",
-                      data: settings,
-                      headers: {
-                          "Content-Type": "application/json"
-                      }
-                    }).success(function (data) {
-                          toastr.success("Merchant settings were successfully updated.");
-                });
-              };
-
-              $scope.updateMerchantInitialProductSettings = function(id, settings){
-                let url = $scope.merchants.get(id).api_endpoint_url;
-                settings.initialProducts = $scope.initialProducts;
                 $http({url: "/request",
                       params: {"url": url + "/settings"},
                       dataType: "json",
