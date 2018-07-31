@@ -103,7 +103,6 @@
               endpoints.getData().then(function(urls){
                 $scope.marketplace_url= urls.marketplace_url;
                 $scope.producer_url   = urls.producer_url;
-                $scope.kafka_proxy    = urls.kafka_proxy;
                 $scope.getMarketplaceSettings();
               });
             }] //END: controller function
@@ -461,7 +460,6 @@
                 $scope.consumer_url   = urls.consumer_url;
                 $scope.marketplace_url= urls.marketplace_url;
                 $scope.producer_url   = urls.producer_url;
-                $scope.kafka_proxy    = urls.kafka_proxy;
                 $scope.getProducts();
               });
 
@@ -535,7 +533,6 @@
                  $scope.consumer_url   = urls.consumer_url;
                  $scope.marketplace_url= urls.marketplace_url;
                  $scope.producer_url   = urls.producer_url;
-                 $scope.kafka_proxy    = urls.kafka_proxy;
                  $scope.getProductInfo();
                  $scope.getOffers();
                });
