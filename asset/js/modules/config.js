@@ -13,7 +13,6 @@
     co.controller('globalCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'merchants', 'endpoints',
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, merchants, endpoints) {
 
-              $scope.max_updates_per_sale         = 20.0;
               $scope.max_req_per_sec              = 0;
               $scope.merchants                    = merchants.get();
 
@@ -32,8 +31,6 @@
                   url: "/request",
                   params: {"url": $scope.marketplace_url + "/config"}
                 }).then(function(response) {
-                  $scope.marketplace = response.data;
-                  $scope.max_updates_per_sale = response.data.max_updates_per_sale;
                   $scope.max_req_per_sec = response.data.max_req_per_sec;
                 });
               };
@@ -60,8 +57,7 @@
                       dataType: "json",
                       method: "PUT",
                       data: {
-                        "max_req_per_sec": $scope.max_req_per_sec,
-                        "max_updates_per_sale": $scope.max_updates_per_sale
+                        "max_req_per_sec": $scope.max_req_per_sec
                       },
                       headers: {
                           "Content-Type": "application/json"
