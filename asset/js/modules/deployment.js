@@ -14,13 +14,13 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, endpoints, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer.name                = "Consumer der Erste";
-              $scope.consumer.description         = "Cooler Consumer doing Work";
+              $scope.consumer.name                = "";
+              $scope.consumer.description         = "";
 
               $scope.merchant                     = {};
               $scope.merchant.api_endpoint_url    = "";
-              $scope.merchant.merchant_name       = "Merchant der Erste";
-              $scope.merchant.algorithm_name      = "Cooler Merchant doing Work";
+              $scope.merchant.merchant_name       = "";
+              $scope.merchant.algorithm_name      = "";
               $scope.merchant.nextState           = "init";
 
               endpoints.getData().then(function(urls){
