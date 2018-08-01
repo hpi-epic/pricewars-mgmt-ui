@@ -8,7 +8,6 @@
         'dashboard',
         'prices',
         'inventory',
-        'data'
         ]);
 
     frontend.config(['$routeProvider',
@@ -49,10 +48,6 @@
                 when('/config/global', {
                     templateUrl: 'asset/templates/global.html',
                     controller: 'globalCtrl'
-                }).
-                when('/data/export', {
-                    templateUrl: 'asset/templates/export.html',
-                    controller: 'exportCtrl'
                 }).
                 otherwise({
                     redirectTo: '/deployment'

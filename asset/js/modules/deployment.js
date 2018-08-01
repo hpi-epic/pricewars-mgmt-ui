@@ -14,20 +14,19 @@
             function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, endpoints, $rootScope) {
 
               $scope.consumer                     = {};
-              $scope.consumer.name                = "Consumer der Erste";
-              $scope.consumer.description         = "Cooler Consumer doing Work";
+              $scope.consumer.name                = "";
+              $scope.consumer.description         = "";
 
               $scope.merchant                     = {};
               $scope.merchant.api_endpoint_url    = "";
-              $scope.merchant.merchant_name       = "Merchant der Erste";
-              $scope.merchant.algorithm_name      = "Cooler Merchant doing Work";
+              $scope.merchant.merchant_name       = "";
+              $scope.merchant.algorithm_name      = "";
               $scope.merchant.nextState           = "init";
 
               endpoints.getData().then(function(urls){
                  $scope.consumer.consumer_url   = urls.consumer_url;
                  $scope.marketplace_url         = urls.marketplace_url;
                  $scope.producer_url            = urls.producer_url;
-                 $scope.kafka_proxy             = urls.kafka_proxy;
                  $scope.merchant.marketplace_url= urls.marketplace_url;
               });
 
