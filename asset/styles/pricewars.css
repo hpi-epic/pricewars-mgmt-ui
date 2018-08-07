@@ -64,3 +64,54 @@
 .active > a > .fa.arrow:before {
     content: "\f107"
 }
+
+.panel-body {
+    background: #fff;
+    border: 1px solid #e4e5e7;
+    border-radius: 2px;
+    padding: 20px;
+    position: relative
+}
+
+.hpanel {
+    margin-bottom: 25px
+}
+
+.col-lg-3 {
+    padding-bottom: 10px;
+    padding-top: 10px
+}
+
+.stats-title h4 {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600
+}
+
+.m-t-xl {
+    margin-top: 40px
+}
+
+.font-light {
+    font-weight: 300
+}
+
+.font-normal {
+    font-weight: 400
+}
+
+.font-bold {
+    font-weight: 600
+}
+
+.font-extra-bold {
+    font-weight: 700
+}
+
+.hr-line-dashed {
+    background-color: transparent;
+    border-top: 1px dotted #edf0f5;
+    color: transparent;
+    height: 1px;
+    margin: 20px 0
+}
