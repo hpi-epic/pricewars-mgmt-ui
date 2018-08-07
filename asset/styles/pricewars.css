@@ -1,6 +1,12 @@
-
 #menu {
+    height: 100%;
     width: 180px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: white;
+    overflow-x: hidden;
 }
 
 .logo {
@@ -114,4 +120,15 @@
     color: transparent;
     height: 1px;
     margin: 20px 0
+}
+
+#wrapper {
+    margin: 0 0 0 180px;
+    padding: 0;
+    background: #edf0f5;
+    border-left: 1px solid #e4e5e7;
+    transition: all 0.5s ease 0s;
+    transition-duration: 0.5s;
+    position: relative;
+    min-height: 100%
 }
