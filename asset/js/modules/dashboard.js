@@ -180,7 +180,7 @@
                             return initialized;
                         })) {
                         $("#loadingModal").modal("hide");
-                        $(".dashboard-status-div .panel-body").equalHeights();
+                        $(".dashboard-status-div .panel-body");
                     }
                 }
             }
