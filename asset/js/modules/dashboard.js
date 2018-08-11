@@ -138,34 +138,22 @@
              */
             $scope.merchantStatus = function(merchant){
                 if (merchant["state"] === "running") {
-                    return "hpanel dashboard-status-div hbggreen";
+                    return "hpanel dashboard-status-div status-green";
                 } else if (merchant["state"] === "stopping") {
-                    return "hpanel dashboard-status-div hbgorange";
+                    return "hpanel dashboard-status-div status-orange";
                 } else {
-                    return "hpanel dashboard-status-div hbgred";
+                    return "hpanel dashboard-status-div status-red";
                 }
             };
 
             $scope.consumerStatus = function(consumer){
-                if(consumer["status"] == "running"){
-                    return "hpanel dashboard-status-div hbggreen";
-                } else if (consumer["status"] == "dead") {
-                    return "hpanel dashboard-status-div hbgorange"
+                if(consumer["status"] === "running"){
+                    return "hpanel dashboard-status-div status-green";
+                } else if (consumer["status"] === "dead") {
+                    return "hpanel dashboard-status-div status-orange";
                 } else {
-                    return "hpanel dashboard-status-div hbgred";
+                    return "hpanel dashboard-status-div status-red";
                 }
-            };
-
-            $scope.statusFilter = function(consumers) {
-                var result = {};
-                angular.forEach(consumers, function(consumer, key) {
-                  angular.forEach(consumer, function(value, setting) {
-                    if (key == "status" && value == "running") {
-                        result[key] = consumer;
-                    }
-                  });
-                });
-                return result;
             };
 
             $scope.calculateConsumerTraffic = function(consumer){
@@ -182,16 +170,6 @@
 
             $scope.findConsumerNameById = function(consumer_id) {
                 return $scope.consumers[consumer_id]["consumer_name"];
-            };
-
-            $scope.arraysEqual = function(arr1, arr2) {
-                if (arr1.length !== arr2.length)
-                    return false;
-                for (var i = arr1.length; i--;) {
-                    if (arr1[i] !== arr2[i])
-                        return false;
-                }
-                return true;
             };
 
             function removeLoadingSpinner(graphID) {

@@ -132,3 +132,21 @@
     padding: 25px 40px 40px 40px;
     min-width: 320px
 }
+
+.hpanel.status-green .panel-body {
+    background: #62cb31;
+    color: #fff;
+    border: none
+}
+
+.hpanel.status-orange .panel-body {
+    background: #e67e22;
+    color: #fff;
+    border: none
+}
+
+.hpanel.status-red .panel-body {
+    background: #e74c3c;
+    color: #fff;
+    border: none
+}
