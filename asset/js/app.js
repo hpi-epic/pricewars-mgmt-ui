@@ -1057,3 +1057,8 @@
         return charts;
     }]);
 })();
+
+$(document).ready(function () {
+    // Activate metis sidebar menu
+    $('#side-menu').metisMenu();
+});

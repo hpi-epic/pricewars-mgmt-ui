@@ -1,0 +1,152 @@
+#menu {
+    height: 100%;
+    width: 180px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: white;
+    overflow-x: hidden;
+    border-right: 1px solid #e0e0e0;
+}
+
+.logo {
+    padding: 20px 20px;
+    text-align: center
+}
+
+.stats-label {
+    line-height: 1.2
+}
+
+#side-menu li a {
+    color: #6a6c6f;
+    font-weight: 700;
+    padding: 15px 20px
+}
+
+#side-menu li {
+    border-bottom: 1px solid #e0e0e0
+}
+
+#side-menu li:first-child {
+    border-top: 1px solid #e0e0e0
+}
+
+#side-menu li.active a, #side-menu li:hover a {
+    color: #34495e
+}
+
+#side-menu li .nav-second-level li a {
+    padding: 10px 10px 10px 30px;
+    color: #6a6c6f;
+    text-transform: none;
+    font-weight: 600
+}
+
+#side-menu li .nav-second-level li.active a {
+    color: #34495e
+}
+
+#side-menu.nav > li > a:hover, #side-menu.nav > li > a:focus {
+    background: white;
+}
+
+#side-menu li.active {
+    background: white;
+}
+
+.arrow {
+    float: right
+}
+
+.fa.arrow:before {
+    content: "\f104"
+}
+
+.active > a > .fa.arrow:before {
+    content: "\f107"
+}
+
+.panel-body {
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    padding: 20px;
+    position: relative
+}
+
+.hpanel {
+    margin-bottom: 25px
+}
+
+.col-lg-3 {
+    padding-bottom: 10px;
+    padding-top: 10px
+}
+
+.stats-title h4 {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600
+}
+
+.m-t-xl {
+    margin-top: 40px
+}
+
+.font-light {
+    font-weight: 300
+}
+
+.font-normal {
+    font-weight: 400
+}
+
+.font-bold {
+    font-weight: 600
+}
+
+.font-extra-bold {
+    font-weight: 700
+}
+
+.hr-line-dashed {
+    background-color: transparent;
+    border-top: 1px dotted #e0e0e0;
+    color: transparent;
+    height: 1px;
+    margin: 20px 0
+}
+
+#wrapper {
+    margin: 0 0 0 180px;
+    transition: all 0.5s ease 0s;
+    transition-duration: 0.5s;
+    position: relative;
+    min-height: 100%;
+    overflow-x: hidden;
+}
+
+.content {
+    padding: 25px 40px 40px 40px;
+    min-width: 320px
+}
+
+.hpanel.status-green .panel-body {
+    background: #62cb31;
+    color: #fff;
+    border: none
+}
+
+.hpanel.status-orange .panel-body {
+    background: #e67e22;
+    color: #fff;
+    border: none
+}
+
+.hpanel.status-red .panel-body {
+    background: #e74c3c;
+    color: #fff;
+    border: none
+}
