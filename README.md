@@ -24,9 +24,6 @@ The meta repository containing general information can be found [here](https://g
 * Merchant: [https://github.com/hpi-epic/pricewars-merchant](https://github.com/hpi-epic/pricewars-merchant)
 * Kafka RESTful API: [https://github.com/hpi-epic/pricewars-kafka-rest](https://github.com/hpi-epic/pricewars-kafka-rest)
 
-Please note, that we cannot make the repository for the management UI public (we use a free bootstrap template that we are not allowed to distribute). But you can ask us anytime for access and we will add you to the access list.
-The management UI is not required but eases the first steps on the platform.
-
 ## Requirements
 
 * Python 3
@@ -35,7 +32,7 @@ Install the Python modules with:
 
 `python3 -m pip install -r requirements.txt`
 
-This User Interface is build on the [HOMER template](https://wrapbootstrap.com/theme/homer-responsive-admin-theme-WB055J451) which requires angularJS 1.5.5. For copyright purposes, it is necessary to purchase a separate license when using this dashboard for other reasons or projects.
+The website is build on angularJS 1.5.5.
 
 ## Setup
 
