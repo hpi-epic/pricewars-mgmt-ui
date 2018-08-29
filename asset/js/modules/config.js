@@ -315,7 +315,16 @@
         function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
             $scope.productsInfo = {};
-            $scope.newProductInfo = {'uid': 0, 'product_id': 0, 'name': 'Name', 'quality': 0, 'price': 0};
+            $scope.newProductInfo = {
+                'product_id': 0,
+                'name': 'Product Name',
+                'qualities': [1, 2, 3, 4],
+                'unit_price': 0,
+                'fixed_order_cost': 0,
+                'stock': -1,
+                'time_to_live': -1,
+                'start_of_lifetime': -1
+            };
 
             toastr.options = {
                 'debug': false,
@@ -377,7 +386,7 @@
                     params: {'url': $scope.producer_url + '/products/'},
                     dataType: 'json',
                     method: 'POST',
-                    data: [$scope.newProductInfo],
+                    data: $scope.newProductInfo,
                     headers: {
                         'Content-Type': 'application/json'
                     }
@@ -385,6 +394,8 @@
                     toastr.success('Product was successfully created.');
                     $scope.getProducts();
                     $scope.closeNewProductModal()
+                }).error(function (error) {
+                    toastr.warning(error.message);
                 });
             };
 
