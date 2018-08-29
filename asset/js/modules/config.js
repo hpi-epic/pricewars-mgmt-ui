@@ -314,8 +314,8 @@
     co.controller('producerCtrl', ['$route', '$routeParams', '$location', '$http', '$scope', '$cookieStore', '$window', '$filter', '$rootScope', 'endpoints',
         function ($route, $routeParams, $location, $http, $scope, $cookieStore, $window, $filter, $rootScope, endpoints) {
 
-            $scope.producer = {};
-            $scope.new_product = {'uid': 0, 'product_id': 0, 'name': 'Name', 'quality': 0, 'price': 0};
+            $scope.productsInfo = {};
+            $scope.newProductInfo = {'uid': 0, 'product_id': 0, 'name': 'Name', 'quality': 0, 'price': 0};
 
             toastr.options = {
                 'debug': false,
@@ -326,42 +326,26 @@
                 'timeOut': '2000'
             };
 
-            $scope.getProducts = function () {
+            $scope.getProducts = function() {
                 $http({
                     url: '/request',
                     params: {'url': $scope.producer_url + '/products'}
                 }).then(function (response) {
-                    $scope.producer = response.data;
+                    $scope.productsInfo = response.data;
                 });
             };
 
-            $scope.updateProducts = function () {
+            $scope.updateProduct = function(id) {
                 $http({
                     url: '/request',
-                    params: {'url': $scope.producer_url + '/products/'},
+                    params: {'url': $scope.producer_url + '/products/' + id},
                     dataType: 'json',
                     method: 'PUT',
-                    data: $scope.producer,
+                    data: $filter('filter')($scope.productsInfo, {product_id: id})[0],
                     headers: {
                         'Content-Type': 'application/json'
                     }
-                }).success(function (data) {
-                    toastr.success('Products were successfully updated.');
-                    $scope.getProducts();
-                });
-            };
-
-            $scope.updateProduct = function (product_uid) {
-                $http({
-                    url: '/request',
-                    params: {'url': $scope.producer_url + '/products/' + product_uid},
-                    dataType: 'json',
-                    method: 'PUT',
-                    data: $filter('filter')($scope.producer, {uid: product_uid})[0],
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }).success(function (data) {
+                }).success(function() {
                     toastr.success('Product was successfully updated.');
                     $scope.getProducts();
                 }).error(function (error) {
@@ -369,48 +353,50 @@
                 });
             };
 
-            $scope.deleteProduct = function (uid) {
+            $scope.deleteProduct = function(id) {
                 $http({
                     url: '/request',
-                    params: {'url': $scope.producer_url + '/products/' + uid},
+                    params: {'url': $scope.producer_url + '/products/' + id},
                     dataType: 'json',
                     method: 'DELETE',
                     data: {},
                     headers: {
                         'Content-Type': 'application/json'
                     }
-                }).success(function (data) {
+                }).success(function() {
                     toastr.success('Products was successfully deleted.');
                     $scope.getProducts();
+                }).error(function (error) {
+                    toastr.warning(error.message);
                 });
             };
 
-            $scope.createProduct = function () {
+            $scope.createProduct = function() {
                 $http({
                     url: '/request',
                     params: {'url': $scope.producer_url + '/products/'},
                     dataType: 'json',
                     method: 'POST',
-                    data: [$scope.new_product],
+                    data: [$scope.newProductInfo],
                     headers: {
                         'Content-Type': 'application/json'
                     }
-                }).success(function (data) {
+                }).success(function() {
                     toastr.success('Product was successfully created.');
                     $scope.getProducts();
-                    $('#newProductModal').modal('hide');
+                    $scope.closeNewProductModal()
                 });
             };
 
-            $scope.new = function () {
+            $scope.openNewProductModal = function() {
                 $('#newProductModal').modal('show');
             };
 
-            $scope.close = function () {
+            $scope.closeNewProductModal = function() {
                 $('#newProductModal').modal('hide');
             };
 
-            endpoints.getData().then(function (urls) {
+            endpoints.getData().then(function(urls) {
                 $scope.producer_url = urls.producer_url;
                 $scope.getProducts();
             });
