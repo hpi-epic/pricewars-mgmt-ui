@@ -32,7 +32,8 @@ def bower_files(path):
 
 @app.route('/request', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def forward_request():
-    return requests.request(request.method, request.args['url'], json=request.get_json()).text
+    response = requests.request(request.method, request.args['url'], json=request.get_json())
+    return response.text, response.status_code
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=80)
