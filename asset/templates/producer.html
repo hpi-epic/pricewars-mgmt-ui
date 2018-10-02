@@ -2,7 +2,7 @@
     <div class="hpanel tour-1">
         <div class="panel-body">
             <h2 class="font-light m-b-xs">
-                Producer Config <button type="button" class="btn btn-xs btn-info" ng-click="new()">New</button>
+                Producer Configuration <button type="button" class="btn btn-xs btn-info" ng-click="openNewProductModal()">New Product</button>
             </h2>
 
         </div>
@@ -12,47 +12,58 @@
 <div class="content animate-panel">
 
 <div class="row">
-    <div style="" class="col-lg-2" ng-repeat='product in producer track by $index'>
+    <div style="" class="col-lg-2" ng-repeat='productInfo in productsInfo'>
         <div class="hpanel stats">
             <div class="panel-body h-140">
                 <div class="stats-title pull-left">
-                    <h4>{{product["name"]}}</h4>
+                    <h4>{{productInfo["name"]}}</h4>
                 </div>
                 <div class="m-t-xl">
                     <span class="font-bold no-margins">
-                        UID
+                        ID
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer[$index]["uid"]' type="number" disabled><br>
+                    <input class="form-control" ng-model='productInfo.product_id' disabled><br>
 
                     <span class="font-bold no-margins">
-                        Product ID
+                        Available Qualities
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer[$index]["product_id"]' type="number"><br>
+                    <input class="form-control" ng-model='productInfo.qualities'><br>
 
                     <span class="font-bold no-margins">
-                        Quality
+                        Price per Unit
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer[$index]["quality"]' type="number"><br>
-
-                    <span class="font-bold no-margins">
-                        Price
-                    </span>
-                    <br>
-                    <input class="form-control" ng-model='producer[$index]["price"]' type="number"><br>
+                    <input class="form-control" ng-model='productInfo.unit_price'><br>
 
                     <span class="font-bold no-margins">
                         Fixed Order Cost
                     </span>
                     <br>
-                    <input class="form-control" ng-model='producer[$index]["fixed_order_cost"]' type="number"><br>
+                    <input class="form-control" ng-model='productInfo.fixed_order_cost'><br>
 
+                    <span class="font-bold no-margins">
+                        Stock
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='productInfo.stock'><br>
+
+                    <span class="font-bold no-margins">
+                        Time to Live
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='productInfo.time_to_live'><br>
+
+                    <span class="font-bold no-margins">
+                        Start of Lifetime
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='productInfo.start_of_lifetime'><br>
 
                     <br>
-                    <button type="button" class="btn btn-xs btn-success" ng-click='updateProduct(product["uid"])'>Update</button>
-                    <button type="button" class="btn btn-xs btn-danger" ng-click='deleteProduct(product["uid"])'>Delete</button>
+                    <button type="button" class="btn btn-xs btn-success" ng-click='updateProduct(productInfo.product_id)'>Update</button>
+                    <button type="button" class="btn btn-xs btn-danger" ng-click='deleteProduct(productInfo.product_id)'>Delete</button>
                 </div>
             </div>
         </div>
@@ -72,40 +83,57 @@
             </div>
             <div class="modal-body">
                 <p>
-                  <span class="font-bold no-margins">
-                      Name
-                  </span>
-                  <br>
-                  <input class="form-control" ng-model='new_product.name' type="text"><br>
+                    <span class="font-bold no-margins">
+                        Name
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.name' type="text"><br>
 
-                  <span class="font-bold no-margins">
-                      Product ID
-                  </span>
-                  <br>
-                  <input class="form-control" ng-model='new_product.product_id' type="number"><br>
+                    <span class="font-bold no-margins">
+                        Product ID
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.product_id' type="number"><br>
 
-                  <span class="font-bold no-margins">
-                      Quality
-                  </span>
-                  <br>
-                  <input class="form-control" ng-model='new_product.quality' type="number"><br>
+                    <span class="font-bold no-margins">
+                        Qualities
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.qualities' type="text"><br>
 
-                  <span class="font-bold no-margins">
-                      Price
-                  </span>
-                  <br>
-                  <input class="form-control" ng-model='new_product.price' type="number"><br>
+                    <span class="font-bold no-margins">
+                        Price per Unit
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.unit_price'><br>
 
-                  <span class="font-bold no-margins">
-                      Fixed Order Cost
-                  </span>
-                  <br>
-                  <input class="form-control" ng-model='new_product.fixed_order_cost' type="number"><br>
+                    <span class="font-bold no-margins">
+                        Fixed Order Cost
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.fixed_order_cost'><br>
 
+                    <span class="font-bold no-margins">
+                        Stock
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.stock'><br>
 
-                  <br>
-                  <button type="button" class="btn w-xs btn-success" ng-click='createProduct()'>Create</button>
-                  <button type="button" class="btn w-xs btn-default" ng-click='close()'>Close</button>
+                    <span class="font-bold no-margins">
+                        Time to Live
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.time_to_live'><br>
+
+                    <span class="font-bold no-margins">
+                        Start of Lifetime
+                    </span>
+                    <br>
+                    <input class="form-control" ng-model='newProductInfo.start_of_lifetime'><br>
+
+                    <br>
+                    <button type="button" class="btn w-xs btn-success" ng-click='createProduct()'>Create</button>
+                    <button type="button" class="btn w-xs btn-default" ng-click='closeNewProductModal()'>Close</button>
                 </p>
             </div>
         </div>
