@@ -303,7 +303,8 @@
 
         // Set default colors and exclude red so red is only used manually to mark selling data points
         Highcharts.theme = {
-            colors: ['#F26500', '#7F00B5', '#007843', '#00CF73', '#A30043', '#1B00AB', '#E0DC00', '#C42700']
+            colors: ['#FF0000', '#008000', '#F26500', '#000000', '#C0C0C0', '#808080', '#800000',
+            '#800080', '#FF00FF', '#00FF00', '#808000', '#FFFF00', '#000080', '#0000FF', '#008080', '#00FFFF']
         };
         Highcharts.setOptions(Highcharts.theme);
 
@@ -611,8 +612,9 @@
                 if (stepEnabled) {
                     newLine.color = getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality);
                 } else {
-                    let colorID = chart.series.length % Highcharts.theme.colors.length;
-                    newLine.color = ColorLuminance(Highcharts.theme.colors[colorID], 0.5);
+                    newLine.color = getColorForMerchant(newLine.name);
+                    //let colorID = chart.series.length % Highcharts.theme.colors.length;
+                    //newLine.color = ColorLuminance(Highcharts.theme.colors[colorID], 0.5);
                 }
                 line = chart.addSeries(newLine);
             }
@@ -701,8 +703,23 @@
         }
 
         var merchantColorMapping = {};
+        
+        function getColorForMerchant(merchant_name) {
+            if (!merchantColorMapping[merchant_name] == null) return merchantColorMapping[merchant_name].base_color;
+            merchantColorMapping[merchant_name] = {};
+            if (merchant_name == 'cheapest') {
+                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[0]
+            } else if (merchant_name == 'two_bound') {
+                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[1]
+            } else {
+                let colorID = (Object.keys(merchantColorMapping).length - 1) % Highcharts.theme.colors.length;
+                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[colorID];
+            }
+            return merchantColorMapping[merchant_name].base_color
+        }
 
         function getColorForMerchantAndProduct(merchant_name, product_id, product_quality) {
+                     
             if (merchantColorMapping[merchant_name]) {
                 if (!merchantColorMapping[merchant_name][product_id]) merchantColorMapping[merchant_name][product_id] = {};
 
@@ -711,15 +728,25 @@
                         return merchantColorMapping[merchant_name][product_id][product_quality];
 
                 // merchant and product is there but not the color for this quality
-                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 10);
+                merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
                 return merchantColorMapping[merchant_name][product_id][product_quality];
             } else {
                 // merchant is unknown - get new base color
                 merchantColorMapping[merchant_name] = {};
-                let colorID = (Object.keys(merchantColorMapping).length - 1) % Highcharts.theme.colors.length;
-                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[colorID];
-                merchantColorMapping[merchant_name][product_id] = {};
-                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 10);
+                if (merchant_name == 'cheapest') {
+                    merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[0]
+                    merchantColorMapping[merchant_name][product_id] = {};
+                    merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
+                } else if (merchant_name == 'two_bound') {
+                    merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[1]
+                    merchantColorMapping[merchant_name][product_id] = {};
+                    merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
+                } else {
+                    let colorID = (Object.keys(merchantColorMapping).length - 1) % Highcharts.theme.colors.length;
+                    merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[colorID + 2];
+                    merchantColorMapping[merchant_name][product_id] = {};
+                    merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
+                }
                 return merchantColorMapping[merchant_name][product_id][product_quality];
             }
         }
@@ -859,7 +886,7 @@
                         }
                     },
                     data: [],
-                    color: ColorLuminance(Highcharts.theme.colors[0], 0.5)
+                    color: ColorLuminance(Highcharts.theme.colors[2], 0)
                 });
             }
 
