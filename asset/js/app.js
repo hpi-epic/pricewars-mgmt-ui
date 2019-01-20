@@ -605,9 +605,15 @@
                     // a temporary fix.
                     turboThreshold: 0
                 };
-                newLine.color = merchants.getMerchantColor(lineID).toUpperCase();//getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality);
+
+                newLine.color = merchants.getMerchantColor(lineID).toUpperCase();
 
                 line = chart.addSeries(newLine);
+            }
+
+            var point_x = point.x ? point.x : point[0];
+            if (line.xData.indexOf(point_x) !== -1) {
+                return line
             }
 
             // set color of the point to the line color (has to be set for custom symbols to work)
