@@ -249,6 +249,9 @@
             getMerchantName: function(merchant_id) {
                 return ((merchant_id in merchants) && merchants[merchant_id].merchant_name) ? merchants[merchant_id].merchant_name : merchant_id.substring(0, 8);
             },
+            getMerchantColor: function(merchant_id) {
+                return (merchant_id in merchants) ? merchants[merchant_id].color : '#FFFFFF';
+            },
             isRegisteredMerchant: function(merchant_id) {
                 return (merchant_id in merchants);
             },
@@ -300,13 +303,6 @@
         if (Highcharts.VMLRenderer) {
             Highcharts.VMLRenderer.prototype.symbols.vertical_line = Highcharts.SVGRenderer.prototype.symbols.vertical_line;
         }
-
-        // Set default colors and exclude red so red is only used manually to mark selling data points
-        Highcharts.theme = {
-            colors: ['#FF0000', '#008000', '#F26500', '#000000', '#C0C0C0', '#808080', '#800000',
-            '#800080', '#FF00FF', '#00FF00', '#808000', '#FFFF00', '#000080', '#0000FF', '#008080', '#00FFFF']
-        };
-        Highcharts.setOptions(Highcharts.theme);
 
         Array.prototype.pushIfNotExist = function(element) {
             if (this.indexOf(element) === -1) {
@@ -449,7 +445,8 @@
                         if (dp.value.amount > 0) {
                             productIDs.pushIfNotExist(dp.value.product_id);
 
-                            const lineID = createLineName(dp);
+                            const lineID = dp.value.merchant_id;
+                            const lineName = merchants.getMerchantName(lineID);
                             let point = {
                                 x: new Date(dp.value.timestamp).getTime(),
                                 y: dp.value.price,
@@ -460,7 +457,7 @@
                             };
                             addPricewarsInfoToPoint(point, dp);
 
-                            addPointToLine(chart, point, lineID, lineID, true);
+                            addPointToLine(chart, point, lineID, lineName);
 
                             dontDrawLineIfMerchantNotRegistered(chart, lineID);
                             dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
@@ -473,7 +470,8 @@
                         if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             productIDs.pushIfNotExist(dp.value.product_id);
 
-                            const lineID = createLineName(dp);
+                            const lineID = dp.value.merchant_id;
+                            const lineName = merchants.getMerchantName(lineID);
                             let point;
                             if (dp.value.left_in_stock > 0) {
                                 point = {
@@ -487,7 +485,7 @@
                                 };
                                 addPricewarsInfoToPoint(point, dp);
 
-                                addPointToLine(chart, point, lineID, lineID, true);
+                                addPointToLine(chart, point, lineID, lineName);
 
                                 dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             } else {
@@ -501,7 +499,7 @@
                                     }
                                 };
                                 addPricewarsInfoToPoint(point, dp);
-                                let line = addPointToLine(chart, point, lineID, lineID, true);
+                                let line = addPointToLine(chart, point, lineID, lineName);
 
                                 // add a null-point right after the actual point to make sure it wont be connected to the next point
                                 let nullPoint = {
@@ -509,7 +507,7 @@
                                     y: null
                                 };
                                 // pass the line from before in case the line was created in the call before
-                                addPointToLine(chart, nullPoint, lineID, lineID, true, line);
+                                addPointToLine(chart, nullPoint, lineID, lineName, line);
 
                                 dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             }
@@ -574,7 +572,7 @@
             point.merchant_id = data.value.merchant_id;
         }
 
-        function addPointToLine(chart, point, lineID, lineName, stepEnabled, lineToUse) {
+        function addPointToLine(chart, point, lineID, lineName, lineToUse) {
             let line = lineToUse ? lineToUse : chart.get(lineID);
 
             // create a new series/line if it is not present yet
@@ -583,7 +581,6 @@
                     name: lineName ? lineName : lineID,
                     id: lineID,
                     data: [],
-                    step: stepEnabled ? stepEnabled : true,
                     lineWidth: 2,
                     marker: {
                         enabled: true,
@@ -608,14 +605,8 @@
                     // a temporary fix.
                     turboThreshold: 0
                 };
-                // stepEnabled currently means we are in a price chart
-                if (stepEnabled) {
-                    newLine.color = getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality);
-                } else {
-                    newLine.color = getColorForMerchant(newLine.name);
-                    //let colorID = chart.series.length % Highcharts.theme.colors.length;
-                    //newLine.color = ColorLuminance(Highcharts.theme.colors[colorID], 0.5);
-                }
+                newLine.color = merchants.getMerchantColor(lineID).toUpperCase();//getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality);
+
                 line = chart.addSeries(newLine);
             }
 
@@ -695,79 +686,6 @@
         function isLineFilteredForID(chart, lineID, currentIDFilter) {
             let line = chart.get(lineID);
             return currentIDFilter == filterForAllIDs || line.options.pricewars.product_id == currentIDFilter;
-        }
-
-        function createLineName(data) {
-            return merchants.getMerchantName(data.value.merchant_id);
-            //return merchants.getMerchantName(data.value.merchant_id) + " - PUID: " + data.value.uid;
-        }
-
-        var merchantColorMapping = {};
-        
-        function getColorForMerchant(merchant_name) {
-            if (!merchantColorMapping[merchant_name] == null) return merchantColorMapping[merchant_name].base_color;
-            merchantColorMapping[merchant_name] = {};
-            if (merchant_name == 'cheapest') {
-                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[0]
-            } else if (merchant_name == 'two_bound') {
-                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[1]
-            } else {
-                let colorID = (Object.keys(merchantColorMapping).length - 1) % Highcharts.theme.colors.length;
-                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[colorID];
-            }
-            return merchantColorMapping[merchant_name].base_color
-        }
-
-        function getColorForMerchantAndProduct(merchant_name, product_id, product_quality) {
-                     
-            if (merchantColorMapping[merchant_name]) {
-                if (!merchantColorMapping[merchant_name][product_id]) merchantColorMapping[merchant_name][product_id] = {};
-
-                // color for this product and merchant exists already
-                if (merchantColorMapping[merchant_name][product_id][product_quality])
-                        return merchantColorMapping[merchant_name][product_id][product_quality];
-
-                // merchant and product is there but not the color for this quality
-                merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
-                return merchantColorMapping[merchant_name][product_id][product_quality];
-            } else {
-                // merchant is unknown - get new base color
-                merchantColorMapping[merchant_name] = {};
-                if (merchant_name == 'cheapest') {
-                    merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[0]
-                    merchantColorMapping[merchant_name][product_id] = {};
-                    merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
-                } else if (merchant_name == 'two_bound') {
-                    merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[1]
-                    merchantColorMapping[merchant_name][product_id] = {};
-                    merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
-                } else {
-                    let colorID = (Object.keys(merchantColorMapping).length - 1) % Highcharts.theme.colors.length;
-                    merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[colorID + 2];
-                    merchantColorMapping[merchant_name][product_id] = {};
-                    merchantColorMapping[merchant_name][product_id][product_quality] = merchantColorMapping[merchant_name].base_color;
-                }
-                return merchantColorMapping[merchant_name][product_id][product_quality];
-            }
-        }
-
-        // Changes the given color to have additional lum-luminance (eg 0.2 for 20% lighter)
-        function ColorLuminance(hex, lum) {
-            // validate hex string
-            hex = String(hex).replace(/[^0-9a-f]/gi, '');
-            if (hex.length < 6) {
-                hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-            }
-            lum = lum || 0;
-
-            // convert to decimal and change luminosity
-            var rgb = "#", c, i;
-            for (i = 0; i < 3; i++) {
-                c = parseInt(hex.substr(i*2,2), 16);
-                c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-                rgb += ("00"+c).substr(c.length);
-            }
-            return rgb;
         }
 
         function qualityToString(quality) {
@@ -886,7 +804,7 @@
                         }
                     },
                     data: [],
-                    color: ColorLuminance(Highcharts.theme.colors[2], 0)
+                    color: '#FF7F00'
                 });
             }
 
