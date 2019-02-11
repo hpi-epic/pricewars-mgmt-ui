@@ -339,6 +339,7 @@
                     parseBulkData(data).forEach(function(dp) {
                         let date = new Date(dp.value.timestamp);
                         date.setMilliseconds(0);
+                        date.setSeconds(0);
 
                         const lineID = dp.value.merchant_id;
                         const lineName = merchants.getMerchantName(lineID);
@@ -348,6 +349,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -369,6 +371,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -390,6 +393,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -411,6 +415,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -432,6 +437,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -463,6 +469,7 @@
                             dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                         }
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 },
                 updateGraphWithSalesData: function(chart, data, currentFilterID) {
@@ -513,6 +520,7 @@
                             }
                         }
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 },
                 filterForID: function(chart, productID) {
@@ -520,13 +528,14 @@
                         dontDrawLineIfLineFiltered(chart, serie.options.id, productID);
                     });
 
-                    sortLegend(chart);
+                    // sortLegend(chart);
 
                     // show all data points at first to avoid Highcharts-bug where no datapoints are shown otherwise
                     chart.rangeSelector.clickButton(6, {type: 'all'}, false);
                     chart.rangeSelector.clickButton(2, {count: 1, type: 'minute'}, false);
 
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -543,6 +552,7 @@
                         addPointToLine(chart, point, lineID, lineName);
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -570,6 +580,26 @@
             point.product_desc = productUIDToString(data.value.uid);
             point.merchant_name = merchants.getMerchantName(data.value.merchant_id);
             point.merchant_id = data.value.merchant_id;
+        }
+
+        function sortLegend(chart) {
+            var line;
+
+            var lines = chart.series;
+
+            var lineNames = [];
+
+            for(var i = 0; i < lines.length; i++) {
+                lineNames.push({'name': lines[i].name, 'id': lines[i].options.id});
+            }
+            lineNames.sort(function(first, second) {
+                return ('' + first.name).localeCompare(second.name);
+            });
+            
+            for(var i = 0; i < lineNames.length; i++) {
+                line = chart.get(lineNames[i].id);
+                line.update({legendIndex: i, index: i}, false)
+            }
         }
 
         function addPointToLine(chart, point, lineID, lineName, lineToUse) {
@@ -610,7 +640,7 @@
 
                 line = chart.addSeries(newLine);
             }
-
+            
             var point_x = point.x ? point.x : point[0];
             if (line.xData.indexOf(point_x) !== -1) {
                 return line
@@ -662,33 +692,6 @@
             }
         }
 
-        function sortLegend(chart) {
-            var series = chart.series;
-
-            // sort series (first by merchant name, then by product id, then by product quality
-            series.sort(function(a,b){
-                if (a.options.pricewars.merchant_name == b.options.pricewars.merchant_name) {
-                    if (a.options.pricewars.product_id == b.options.pricewars.product_id) {
-                        return a.options.pricewars.quality > b.options.pricewars.quality ? 1 : a.options.pricewars.quality < b.options.pricewars.quality ? -1 : 0;
-                    }
-                    return a.options.pricewars.product_id > b.options.pricewars.product_id ? 1 : -1;
-                }
-
-                return a.options.pricewars.merchant_name > b.options.pricewars.merchant_name ? 1 : -1;
-            });
-
-            // set index
-            let currentIndex = 0;
-            for (var i = 0; i < series.length; i++) {
-                if (series[i].visible && !series[i].name.startsWith("Navigator")) {
-                    series[i].update({
-                        legendIndex: currentIndex
-                    }, false);
-                    currentIndex++;
-                }
-            }
-        }
-
         function isLineFilteredForID(chart, lineID, currentIDFilter) {
             let line = chart.get(lineID);
             return currentIDFilter == filterForAllIDs || line.options.pricewars.product_id == currentIDFilter;
@@ -737,6 +740,11 @@
             var result = {
                 title: {
                     text: title
+                },
+                plotOptions: {
+                    series: {
+                        step: 'left'
+                    }
                 },
                 xAxis: {
                     type: 'datetime',
@@ -822,6 +830,11 @@
                 title: {
                     text: "Inventory Levels over Time"
                 },
+                plotOptions: {
+                    series: {
+                        step: 'left'
+                    }
+                },
                 xAxis: {
                     type: 'datetime',
                     title: {
@@ -893,7 +906,7 @@
                     title: {
                         text: 'Date'
                     },
-                    showEmpty: false
+                    showEmpty: false,
                 },
                 yAxis: {
                     title: {
@@ -946,7 +959,8 @@
                             color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray',
                             format: '{value:.2f}%'
                         }
-                    }
+                    },
+                    reversedStacks: false
                 },
                 legend: {
                     //reversed: true,
@@ -971,8 +985,12 @@
         function getLineChartXDateYPriceGroupMerchantOptions(title, y_axis_title) {
             return {
                 chart: {
-                    type: 'spline',
                     zoomType: 'x'
+                },
+                plotOptions: {
+                    series: {
+                        step: 'left'
+                    }
                 },
                 title: {
                     text: title
