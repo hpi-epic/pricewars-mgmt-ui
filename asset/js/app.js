@@ -250,7 +250,11 @@
                 return ((merchant_id in merchants) && merchants[merchant_id].merchant_name) ? merchants[merchant_id].merchant_name : merchant_id.substring(0, 8);
             },
             getMerchantColor: function(merchant_id) {
-                return (merchant_id in merchants) ? merchants[merchant_id].color : '#FFFFFF';
+                if (merchant_id in merchants) {
+                    return merchants[merchant_id].color;
+                }
+                console.error("Found an merchant id that is not included in our merchants from the marketplace.");
+                return '#E1E1E1';
             },
             isRegisteredMerchant: function(merchant_id) {
                 return (merchant_id in merchants);
