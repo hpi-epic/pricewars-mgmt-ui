@@ -527,9 +527,6 @@
                     chart.series.forEach(function(serie) {
                         dontDrawLineIfLineFiltered(chart, serie.options.id, productID);
                     });
-
-                    // sortLegend(chart);
-
                     // show all data points at first to avoid Highcharts-bug where no datapoints are shown otherwise
                     chart.rangeSelector.clickButton(6, {type: 'all'}, false);
                     chart.rangeSelector.clickButton(2, {count: 1, type: 'minute'}, false);
@@ -584,9 +581,7 @@
 
         function sortLegend(chart) {
             var line;
-
             var lines = chart.series;
-
             var lineNames = [];
 
             for(var i = 0; i < lines.length; i++) {
@@ -906,7 +901,7 @@
                     title: {
                         text: 'Date'
                     },
-                    showEmpty: false,
+                    showEmpty: false
                 },
                 yAxis: {
                     title: {
