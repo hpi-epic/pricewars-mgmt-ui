@@ -249,6 +249,14 @@
             getMerchantName: function(merchant_id) {
                 return ((merchant_id in merchants) && merchants[merchant_id].merchant_name) ? merchants[merchant_id].merchant_name : merchant_id.substring(0, 8);
             },
+            getMerchantColor: function(merchant_id) {
+                if (merchant_id in merchants) {
+                    return merchants[merchant_id].color;
+                }
+                console.error("Received an merchant id that does not correspond to a known merchant.");
+                // E1E1E1 = light gray
+                return '#E1E1E1';
+            },
             isRegisteredMerchant: function(merchant_id) {
                 return (merchant_id in merchants);
             },
@@ -301,12 +309,6 @@
             Highcharts.VMLRenderer.prototype.symbols.vertical_line = Highcharts.SVGRenderer.prototype.symbols.vertical_line;
         }
 
-        // Set default colors and exclude red so red is only used manually to mark selling data points
-        Highcharts.theme = {
-            colors: ['#F26500', '#7F00B5', '#007843', '#00CF73', '#A30043', '#1B00AB', '#E0DC00', '#C42700']
-        };
-        Highcharts.setOptions(Highcharts.theme);
-
         Array.prototype.pushIfNotExist = function(element) {
             if (this.indexOf(element) === -1) {
                 this.push(element);
@@ -342,6 +344,7 @@
                     parseBulkData(data).forEach(function(dp) {
                         let date = new Date(dp.value.timestamp);
                         date.setMilliseconds(0);
+                        date.setSeconds(0);
 
                         const lineID = dp.value.merchant_id;
                         const lineName = merchants.getMerchantName(lineID);
@@ -351,6 +354,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -372,6 +376,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -393,6 +398,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -414,6 +420,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -435,6 +442,7 @@
 
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -448,7 +456,8 @@
                         if (dp.value.amount > 0) {
                             productIDs.pushIfNotExist(dp.value.product_id);
 
-                            const lineID = createLineName(dp);
+                            const lineID = dp.value.merchant_id;
+                            const lineName = merchants.getMerchantName(lineID);
                             let point = {
                                 x: new Date(dp.value.timestamp).getTime(),
                                 y: dp.value.price,
@@ -459,12 +468,13 @@
                             };
                             addPricewarsInfoToPoint(point, dp);
 
-                            addPointToLine(chart, point, lineID, lineID, true);
+                            addPointToLine(chart, point, lineID, lineName);
 
                             dontDrawLineIfMerchantNotRegistered(chart, lineID);
                             dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                         }
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 },
                 updateGraphWithSalesData: function(chart, data, currentFilterID) {
@@ -472,7 +482,8 @@
                         if (merchants.isRegisteredMerchant(dp.value.merchant_id)) {
                             productIDs.pushIfNotExist(dp.value.product_id);
 
-                            const lineID = createLineName(dp);
+                            const lineID = dp.value.merchant_id;
+                            const lineName = merchants.getMerchantName(lineID);
                             let point;
                             if (dp.value.left_in_stock > 0) {
                                 point = {
@@ -486,7 +497,7 @@
                                 };
                                 addPricewarsInfoToPoint(point, dp);
 
-                                addPointToLine(chart, point, lineID, lineID, true);
+                                addPointToLine(chart, point, lineID, lineName);
 
                                 dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             } else {
@@ -500,7 +511,7 @@
                                     }
                                 };
                                 addPricewarsInfoToPoint(point, dp);
-                                let line = addPointToLine(chart, point, lineID, lineID, true);
+                                let line = addPointToLine(chart, point, lineID, lineName);
 
                                 // add a null-point right after the actual point to make sure it wont be connected to the next point
                                 let nullPoint = {
@@ -508,26 +519,25 @@
                                     y: null
                                 };
                                 // pass the line from before in case the line was created in the call before
-                                addPointToLine(chart, nullPoint, lineID, lineID, true, line);
+                                addPointToLine(chart, nullPoint, lineID, lineName, line);
 
                                 dontDrawLineIfLineFiltered(chart, lineID, currentFilterID);
                             }
                         }
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 },
                 filterForID: function(chart, productID) {
                     chart.series.forEach(function(serie) {
                         dontDrawLineIfLineFiltered(chart, serie.options.id, productID);
                     });
-
-                    sortLegend(chart);
-
                     // show all data points at first to avoid Highcharts-bug where no datapoints are shown otherwise
                     chart.rangeSelector.clickButton(6, {type: 'all'}, false);
                     chart.rangeSelector.clickButton(2, {count: 1, type: 'minute'}, false);
 
                     // redraw once at the end to avoid slow re-drawing at each series-visibility-change
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -544,6 +554,7 @@
                         addPointToLine(chart, point, lineID, lineName);
                         dontDrawLineIfMerchantNotRegistered(chart, lineID);
                     });
+                    sortLegend(chart);
                     chart.redraw();
                 }
             },
@@ -573,7 +584,25 @@
             point.merchant_id = data.value.merchant_id;
         }
 
-        function addPointToLine(chart, point, lineID, lineName, stepEnabled, lineToUse) {
+        function sortLegend(chart) {
+            var line;
+            var lines = chart.series;
+            var lineNames = [];
+
+            for(var i = 0; i < lines.length; i++) {
+                lineNames.push({'name': lines[i].name, 'id': lines[i].options.id});
+            }
+            lineNames.sort(function(first, second) {
+                return ('' + first.name).localeCompare(second.name);
+            });
+            
+            for(var i = 0; i < lineNames.length; i++) {
+                line = chart.get(lineNames[i].id);
+                line.update({legendIndex: i, index: i}, false)
+            }
+        }
+
+        function addPointToLine(chart, point, lineID, lineName, lineToUse) {
             let line = lineToUse ? lineToUse : chart.get(lineID);
 
             // create a new series/line if it is not present yet
@@ -582,7 +611,6 @@
                     name: lineName ? lineName : lineID,
                     id: lineID,
                     data: [],
-                    step: stepEnabled ? stepEnabled : true,
                     lineWidth: 2,
                     marker: {
                         enabled: true,
@@ -607,14 +635,15 @@
                     // a temporary fix.
                     turboThreshold: 0
                 };
-                // stepEnabled currently means we are in a price chart
-                if (stepEnabled) {
-                    newLine.color = getColorForMerchantAndProduct(point.merchant_name, point.product_id, point.quality);
-                } else {
-                    let colorID = chart.series.length % Highcharts.theme.colors.length;
-                    newLine.color = ColorLuminance(Highcharts.theme.colors[colorID], 0.5);
-                }
+
+                newLine.color = merchants.getMerchantColor(lineID).toUpperCase();
+
                 line = chart.addSeries(newLine);
+            }
+            
+            var point_x = point.x ? point.x : point[0];
+            if (line.xData.indexOf(point_x) !== -1) {
+                return line
             }
 
             // set color of the point to the line color (has to be set for custom symbols to work)
@@ -663,84 +692,9 @@
             }
         }
 
-        function sortLegend(chart) {
-            var series = chart.series;
-
-            // sort series (first by merchant name, then by product id, then by product quality
-            series.sort(function(a,b){
-                if (a.options.pricewars.merchant_name == b.options.pricewars.merchant_name) {
-                    if (a.options.pricewars.product_id == b.options.pricewars.product_id) {
-                        return a.options.pricewars.quality > b.options.pricewars.quality ? 1 : a.options.pricewars.quality < b.options.pricewars.quality ? -1 : 0;
-                    }
-                    return a.options.pricewars.product_id > b.options.pricewars.product_id ? 1 : -1;
-                }
-
-                return a.options.pricewars.merchant_name > b.options.pricewars.merchant_name ? 1 : -1;
-            });
-
-            // set index
-            let currentIndex = 0;
-            for (var i = 0; i < series.length; i++) {
-                if (series[i].visible && !series[i].name.startsWith("Navigator")) {
-                    series[i].update({
-                        legendIndex: currentIndex
-                    }, false);
-                    currentIndex++;
-                }
-            }
-        }
-
         function isLineFilteredForID(chart, lineID, currentIDFilter) {
             let line = chart.get(lineID);
             return currentIDFilter == filterForAllIDs || line.options.pricewars.product_id == currentIDFilter;
-        }
-
-        function createLineName(data) {
-            return merchants.getMerchantName(data.value.merchant_id);
-            //return merchants.getMerchantName(data.value.merchant_id) + " - PUID: " + data.value.uid;
-        }
-
-        var merchantColorMapping = {};
-
-        function getColorForMerchantAndProduct(merchant_name, product_id, product_quality) {
-            if (merchantColorMapping[merchant_name]) {
-                if (!merchantColorMapping[merchant_name][product_id]) merchantColorMapping[merchant_name][product_id] = {};
-
-                // color for this product and merchant exists already
-                if (merchantColorMapping[merchant_name][product_id][product_quality])
-                        return merchantColorMapping[merchant_name][product_id][product_quality];
-
-                // merchant and product is there but not the color for this quality
-                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 10);
-                return merchantColorMapping[merchant_name][product_id][product_quality];
-            } else {
-                // merchant is unknown - get new base color
-                merchantColorMapping[merchant_name] = {};
-                let colorID = (Object.keys(merchantColorMapping).length - 1) % Highcharts.theme.colors.length;
-                merchantColorMapping[merchant_name].base_color = Highcharts.theme.colors[colorID];
-                merchantColorMapping[merchant_name][product_id] = {};
-                merchantColorMapping[merchant_name][product_id][product_quality] = ColorLuminance(merchantColorMapping[merchant_name].base_color, product_quality / 10);
-                return merchantColorMapping[merchant_name][product_id][product_quality];
-            }
-        }
-
-        // Changes the given color to have additional lum-luminance (eg 0.2 for 20% lighter)
-        function ColorLuminance(hex, lum) {
-            // validate hex string
-            hex = String(hex).replace(/[^0-9a-f]/gi, '');
-            if (hex.length < 6) {
-                hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
-            }
-            lum = lum || 0;
-
-            // convert to decimal and change luminosity
-            var rgb = "#", c, i;
-            for (i = 0; i < 3; i++) {
-                c = parseInt(hex.substr(i*2,2), 16);
-                c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-                rgb += ("00"+c).substr(c.length);
-            }
-            return rgb;
         }
 
         function qualityToString(quality) {
@@ -786,6 +740,11 @@
             var result = {
                 title: {
                     text: title
+                },
+                plotOptions: {
+                    series: {
+                        step: 'left'
+                    }
                 },
                 xAxis: {
                     type: 'datetime',
@@ -859,7 +818,7 @@
                         }
                     },
                     data: [],
-                    color: ColorLuminance(Highcharts.theme.colors[0], 0.5)
+                    color: '#FF7F00'
                 });
             }
 
@@ -870,6 +829,11 @@
             return {
                 title: {
                     text: "Inventory Levels over Time"
+                },
+                plotOptions: {
+                    series: {
+                        step: 'left'
+                    }
                 },
                 xAxis: {
                     type: 'datetime',
@@ -995,7 +959,8 @@
                             color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray',
                             format: '{value:.2f}%'
                         }
-                    }
+                    },
+                    reversedStacks: false
                 },
                 legend: {
                     //reversed: true,
@@ -1020,8 +985,12 @@
         function getLineChartXDateYPriceGroupMerchantOptions(title, y_axis_title) {
             return {
                 chart: {
-                    type: 'spline',
                     zoomType: 'x'
+                },
+                plotOptions: {
+                    series: {
+                        step: 'left'
+                    }
                 },
                 title: {
                     text: title
