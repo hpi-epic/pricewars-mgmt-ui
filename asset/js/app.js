@@ -253,7 +253,8 @@
                 if (merchant_id in merchants) {
                     return merchants[merchant_id].color;
                 }
-                console.error("Found an merchant id that is not included in our merchants from the marketplace.");
+                console.error("Received an merchant id that does not correspond to a known merchant.");
+                // E1E1E1 = light gray
                 return '#E1E1E1';
             },
             isRegisteredMerchant: function(merchant_id) {
